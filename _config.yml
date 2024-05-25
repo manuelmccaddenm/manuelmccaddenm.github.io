@@ -4,20 +4,20 @@ gems:
   - jekyll-paginate
 
 # Site settings
-title: "Mediator"
+title: "Manuel McCadden"
 description: > # this means to ignore newlines until "email:"
-   A Jekyll theme - Medium inspired
+   Ciencia de Datos y Matemáticas Aplicadas
 
-email: a-mail@mail.mail
+email: manuel.mccaddenm@gmail.mail
 #blog logo
-logo: "/assets/images/df_logo.jpg"
+logo: "/assets/images/foto_redonda.jpg"
 float_logo: true # true, false (default)
 
 # blog cover
 cover: "/assets/images/cA4aKEIPQrerBnp1yGHv_IMG_9534-3-2.jpg"
 
-name: 'Dirk Fabisch'
-author: 'Dirk Fabisch'
+name: 'Manuel McCadden'
+author: 'Manuel McCadden'
 author_image: "/assets/images/author.jpg"
 
 paginate:	5
@@ -34,9 +34,9 @@ twitter_handle: '@dirkfabisch'
 
 # social icons and sharing options
 social:
-  - icon:	twitter
+  - icon:	linkedin
     url:	https://twitter.com/dirkfabisch
-    desc: Follow me on twitter
+    desc: Connect with me on linkedin
     share_url: http://twitter.com/share
     share_title: ?text=
     share_link: "&amp;url="
