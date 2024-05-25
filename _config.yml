@@ -6,9 +6,9 @@ gems:
 # Site settings
 title: "Manuel McCadden"
 description: > # this means to ignore newlines until "email:"
-   Ciencia de Datos y Matemáticas Aplicadas
+   Estudiante de Ciencia de Datos y Matemáticas Aplicadas
 
-email: manuel.mccaddenm@gmail.mail
+email: manuel.mccaddenm@gmail.com
 #blog logo
 logo: "/assets/images/foto_redonda.jpg"
 float_logo: true # true, false (default)
@@ -20,12 +20,12 @@ name: 'Manuel McCadden'
 author: 'Manuel McCadden'
 author_image: "/assets/images/foto_redonda.jpg"
 
-paginate:	5
+paginate:	3
 
-url: "http://myblog.***.***" # the base hostname & protocol for your site
+url: "https://manuelmccaddenm.github.io/" # the base hostname & protocol for your site
 baseurl: ""
 #used to display twitter cards
-twitter_handle: '@dirkfabisch'
+#twitter_handle: '@dirkfabisch'
 
 #fill in disqus shortname to use disqus
 #disqus: disqus-shortname
@@ -35,11 +35,11 @@ twitter_handle: '@dirkfabisch'
 # social icons and sharing options
 social:
   - icon:	linkedin
-    url:	https://twitter.com/dirkfabisch
+    url:	https://www.linkedin.com/in/manuel-mccadden-madrazo-404899238/
     desc: Connect with me on linkedin
-    share_url: http://twitter.com/share
-    share_title: ?text=
-    share_link: "&amp;url="
+    #share_url: http://twitter.com/share
+    #share_title: ?text=
+    #share_link: "&amp;url="
 
 #  - icon:	facebook
 #    url:	https://facebook.com/???
@@ -49,11 +49,11 @@ social:
 #    share_link: "&amp;u="
 
   - icon:	github
-    url:	https://github.com/dirkfabisch
+    url:	https://github.com/manuelmccadden
     desc:	Fork me on github
-    share_url:
-    share_title:
-    share_link:
+    #share_url:
+    #share_title:
+    #share_link:
 
 #  - icon:	google-plus
 #    url:	https://google.com/???
