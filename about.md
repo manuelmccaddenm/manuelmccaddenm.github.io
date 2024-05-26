@@ -6,7 +6,7 @@ permalink: /about/
 
 Soy Manuel McCadden, nací en la Ciudad de México y tengo 20 años. Soy un estudiante de Ciencia de Datos y Matemáticas Aplicadas en el ITAM. Me interesan mucho las matemáticas, la estadística, la economía, la biología y la intersección de todas. 
 
-### Educación
+## Educación
 
 * Preparatoria
 Estudié en el Colegio Alemán Alexander von Humboldt, plantel La Herradura (2019-2022). Ahí, cursé dos preparatorias sumiltáneamente, la BAU (Bachillerato Alemán UNAM) y la DIA (Deutsche International Abitur).
@@ -14,7 +14,7 @@ Estudié en el Colegio Alemán Alexander von Humboldt, plantel La Herradura (201
 * Universidad
 Actualmente estoy estudiando las licenciaturas en Ciencia de Datos y en Matemáticas Aplicadas en el ITAM (2022- ). Estoy cursando el cuarto semestre y planeo graduarme en mayo de 2027.
 
-### Actividades extracurriculares
+## Actividades extracurriculares
 
 ##### Comités:
 * Líder del Comité de Graduación (2022): organizamos una rifa, diversas ventas y eventos para recaudar dinero. Nos reunimos con proveedores y la empresa matatena para llevar a cabo el evento con éxito.
@@ -29,13 +29,13 @@ Actualmente estoy estudiando las licenciaturas en Ciencia de Datos y en Matemát
 * Trabajé durante 6 meses como ayudante en el CIAJ (Centro de Innovación para el Acceso a la Justicia), que se concentra en la intersección entre teconología y derecho. (2023-)
 
 
-### Reconocimientos Académicos
+## Reconocimientos Académicos
 
 * Reconocimiento a los Mejores Promedios ITAM (2023)
 * DMV- Abiturpreis Mathemathik. Premio otorgado por la Deutschen Mathematik-Vereinigung (Asociación de matemáticos alemanes)
 * Promedio actual en el ITAM: 9.85
 
-### Habilidades blandas
+## Habilidades blandas
 
 * Pensamiento crítico
 * Análisis
@@ -44,7 +44,7 @@ Actualmente estoy estudiando las licenciaturas en Ciencia de Datos y en Matemát
 * Comunicación
 * Creatividad
 
-### Herramientas técnicas
+## Herramientas técnicas
 
 * Paquetería de Office
 * LaTeX
@@ -53,8 +53,12 @@ Actualmente estoy estudiando las licenciaturas en Ciencia de Datos y en Matemát
 * R
 * Docker
 * Git
+* Github Actions
 * Polars
 * Pandas
+* Geopandas
 * SQL
 * MongoDB
 * Neo4j
+* Pyspark
+* LanceDB
