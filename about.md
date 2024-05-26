@@ -37,7 +37,6 @@ Actualmente estoy estudiando las licenciaturas en Ciencia de Datos y en Matemát
 * Reconocimiento a los Mejores Promedios ITAM (2023)
 * DMV- Abiturpreis Mathemathik. Premio otorgado por la Deutschen Mathematik-Vereinigung (Asociación de matemáticos alemanes)
 * Promedio actual en el ITAM: 9.85
-
 ## Habilidades blandas
 
 * Pensamiento crítico
@@ -46,7 +45,6 @@ Actualmente estoy estudiando las licenciaturas en Ciencia de Datos y en Matemát
 * Trabajo en equipo
 * Comunicación
 * Creatividad
-
 ## Herramientas técnicas
 
 * Paquetería de Office
