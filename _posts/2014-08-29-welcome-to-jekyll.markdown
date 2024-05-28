@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Shapefile maniuplation with Geopandas"
+title:  "Shapefile manipulation with Geopandas"
 date:   2024-05-28 13:13:28 
 categories: education data-analysis
 tags: featured
@@ -85,11 +85,7 @@ Si sólo te interesa visualizar el contenido geográfico de un shapefile, sin ma
 
 # INEGI Shapefiles
 
-Usaremos información del INEGI como ejemplo de qué tip
-
-![Página INEGI](fotoINEGI.png)
-
-En este link: https://www.inegi.org.mx/app/descarga/ se puede acceder a la información que se puede observar arriba.
+Usaremos información del INEGI como ejemplo. En este link: https://www.inegi.org.mx/app/descarga/ se puede acceder a la información que provee el INEGI.
 
 Utilizaremos datos de los siguientes shapefiles:
 * Servicios educativos noviembre 2023
@@ -117,10 +113,8 @@ import matplotlib.patches as mpatches
 ## Geopandas
 
 Manipular un Shapefile con Python generalmente se realiza utilizando bibliotecas especializadas como Geopandas y Fiona. Estas bibliotecas proporcionan herramientas poderosas para cargar, manipular y analizar datos geoespaciales almacenados en Shapefiles y otros formatos compatibles.
-
+l
 Los dataframes de Geopandas son muy similares a los de pandas, sólo que incluyen una columna que especifica el tipo de geometría con coordenadas.
-
-![Dataframe de Geopandas](GeopandasDF.png)
 
 Aquí se puede consultar la documentación de Geopandas: https://geopandas.org/en/stable/index.html
 
@@ -133,9 +127,6 @@ Vamos a cargar primero la base de datos de Servicios educativos 2023
 escuelas = gpd.read_file('Escuelas/conjunto_de_datos/denue_inegi_61_.shp')
 escuelas.head(5)
 ```
-
-
-
 
 <div>
 <style scoped>
@@ -374,8 +365,6 @@ Cargamos ahora los datos de los estados:
 estados = gpd.read_file('Estados')
 estados.tail(5)
 ```
-
-
 
 
 <div>
