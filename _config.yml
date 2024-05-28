@@ -20,7 +20,7 @@ name: 'Manuel McCadden'
 author: 'Manuel McCadden'
 author_image: "/assets/images/foto_redonda.jpg"
 
-paginate:	3
+paginate:	2
 
 url: "https://manuelmccaddenm.github.io/" # the base hostname & protocol for your site
 baseurl: ""
