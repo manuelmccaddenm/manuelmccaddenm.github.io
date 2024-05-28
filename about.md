@@ -4,7 +4,7 @@ title: Sobre mí
 permalink: /about/
 ---
 
-Soy Manuel McCadden, nací en la Ciudad de México y tengo 20 años. Soy un estudiante de Ciencia de Datos y Matemáticas Aplicadas en el ITAM. Me interesan mucho las matemáticas, la estadística, la economía, la biología, la filosofía y muchas otras áreas de estudio. Me interesan particularmente las intersecciones entre ellas. Quiero llevar a cabo proyectos interdisciplinarios, tanto de investigación como de impacto social.
+Soy Manuel McCadden, nací en la Ciudad de México y tengo 20 años. Soy    estudiante de Ciencia de Datos y Matemáticas Aplicadas en el ITAM. Me interesan mucho las matemáticas, la estadística, la economía, la biología, la filosofía y muchas otras áreas de estudio. Me interesan particularmente las intersecciones entre ellas. Quiero llevar a cabo proyectos interdisciplinarios, tanto de investigación como de impacto social.
 
 ## Educación
 
