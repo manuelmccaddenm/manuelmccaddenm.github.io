@@ -109,8 +109,15 @@ PROJECTS.forEach(p => {
 
   const halo = document.createElementNS(svgNS, "circle");
   halo.setAttribute("class", "halo"); halo.setAttribute("r", "20");
-  const core = document.createElementNS(svgNS, "circle");
-  core.setAttribute("class", "core"); core.setAttribute("r", "7");
+  let core;
+  if (p.kind === "experience") {
+    const r = p.hub ? 9 : 7;
+    core = document.createElementNS(svgNS, "polygon");
+    core.setAttribute("points", `0,${-r} ${r},0 0,${r} ${-r},0`);
+  } else {
+    core = document.createElementNS(svgNS, "circle"); core.setAttribute("r", "7");
+  }
+  core.setAttribute("class", "core");
   const lbl = document.createElementNS(svgNS, "text");
   lbl.setAttribute("class", "lbl"); lbl.setAttribute("y", "24");
   lbl.textContent = p.label;
