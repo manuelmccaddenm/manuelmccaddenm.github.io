@@ -52,6 +52,23 @@
   g.dot:focus-visible .core{stroke:#fff; stroke-width:2}
   g.dot.active .glow{fill:var(--c,var(--accent)); opacity:.2}
   .glow{fill:transparent}
+  g.dot .ring{fill:none; stroke:var(--c,var(--dot)); stroke-width:1.2; opacity:.55}
+  g.dot.dim{opacity:.16}
+  .legend button{
+    background:none; border:1px solid transparent; border-radius:999px; padding:3px 10px; cursor:pointer;
+    color:var(--muted); font:inherit; display:inline-flex; align-items:center; gap:8px;
+  }
+  .legend button:hover{color:var(--ink)}
+  .legend button.on{border-color:var(--hair); color:var(--ink)}
+  .legend .sep{width:1px; height:14px; background:var(--hair); align-self:center}
+  #panel .note{margin-top:18px; padding-top:14px; border-top:1px solid var(--hair); color:var(--muted); font-size:13px}
+  #panel .rel{margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+  #panel .rel span{color:var(--faint); font-size:11px; letter-spacing:.18em; text-transform:uppercase; margin-right:4px}
+  #panel .rel button{
+    background:none; border:1px solid var(--hair); border-radius:999px; padding:5px 12px; cursor:pointer;
+    color:var(--sec); font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  #panel .rel button:hover{border-color:var(--accent); color:var(--ink)}
 
   /* detail panel */
   #backdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:40}
@@ -101,13 +118,17 @@
 
 <header class="page">
   <h1>embeddings</h1>
-  <p>each dot is a project. positions are a 2D projection (multidimensional scaling) of how
-     similar the projects are in method and subject, nudged only so the labels don't collide.
-     colors mark the home discipline; distance is what matters. click a dot to read the idea.</p>
+  <p>a map of what i've done. dots are projects you can open; diamonds are experience, roles and
+     the work i did there, with nothing to open because the code isn't mine to show. positions are a
+     2D projection (multidimensional scaling) of how similar the pieces are in method and subject,
+     nudged only so the labels don't collide. colors mark the home discipline; distance is what matters.</p>
 </header>
 
-<div class="legend mono" aria-hidden="true">
-  <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#ded9cf"/></svg> project</span>
+<div class="legend mono" id="legend">
+  <button class="on" data-show="all"><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#ded9cf"/></svg> all</button>
+  <button data-show="project"><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#ded9cf"/></svg> projects</button>
+  <button data-show="experience"><svg width="14" height="14"><polygon points="7,1 13,7 7,13 1,7" fill="#ded9cf"/></svg> experience</button>
+  <span class="sep"></span>
   <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="none" stroke="#ded9cf" stroke-width="2" stroke-dasharray="3 2.5"/></svg> in progress</span>
   <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="none" stroke="#ded9cf" stroke-width="2"/></svg> writing</span>
 </div>
@@ -171,16 +192,44 @@ PROJECTS.forEach(p => {
   glow.setAttribute("class", "glow"); glow.setAttribute("r", "15");
   const halo = document.createElementNS(svgNS, "circle");
   halo.setAttribute("class", "halo"); halo.setAttribute("r", "20");
-  const core = document.createElementNS(svgNS, "circle");
-  core.setAttribute("class", "core"); core.setAttribute("r", "7");
+  let core;
+  if (p.kind === "experience") {
+    // diamond; hubs are larger and ringed
+    const r = p.hub ? 9 : 7;
+    core = document.createElementNS(svgNS, "polygon");
+    core.setAttribute("points", `0,${-r} ${r},0 0,${r} ${-r},0`);
+  } else {
+    core = document.createElementNS(svgNS, "circle");
+    core.setAttribute("r", "7");
+  }
+  core.setAttribute("class", "core");
   const lbl = document.createElementNS(svgNS, "text");
-  lbl.setAttribute("class", "lbl"); lbl.setAttribute("y", "24");
+  lbl.setAttribute("class", "lbl"); lbl.setAttribute("y", p.hub ? "27" : "24");
   lbl.textContent = p.label;
 
-  g.append(glow, halo, core, lbl);
+  g.append(glow, halo, core);
+  if (p.hub) {
+    const ring = document.createElementNS(svgNS, "circle");
+    ring.setAttribute("class", "ring"); ring.setAttribute("r", "14");
+    g.appendChild(ring);
+  }
+  g.appendChild(lbl);
   g.addEventListener("click", () => openPanel(p.id));
   g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPanel(p.id); } });
   dotsG.appendChild(g);
+});
+
+// legend filter: all / projects / experience (dims the rest)
+const legend = document.getElementById("legend");
+legend.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  legend.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  const show = b.dataset.show;
+  document.querySelectorAll("g.dot").forEach(g => {
+    const k = byId[g.dataset.id].kind;
+    const isExp = k === "experience";
+    g.classList.toggle("dim", show !== "all" && (show === "experience" ? !isExp : isExp));
+  });
 });
 
 // index list, grouped by cluster
@@ -218,12 +267,30 @@ let openId = null;
 function openPanel(id) {
   const p = byId[id]; if (!p) return;
   openId = id;
-  els.kicker.textContent = CLUSTERS[p.cluster].name + (p.kind === "wip" ? " · in progress" : p.kind === "writing" ? " · writing" : "");
+  const kindTag = p.kind === "wip" ? " · in progress" : p.kind === "writing" ? " · writing" : p.kind === "experience" ? " · experience" : "";
+  els.kicker.textContent = CLUSTERS[p.cluster].name + kindTag + (p.org && !p.hub ? " · " + p.org : "");
   els.kicker.style.color = CLUSTERS[p.cluster].color;
   els.title.textContent = p.title;
   els.meta.textContent = p.meta;
   els.body.innerHTML = "";
   p.body.forEach(t => { const el = document.createElement("p"); el.textContent = t; els.body.appendChild(el); });
+  // hub <-> workstream cross-links
+  const rel = p.hub ? PROJECTS.filter(q => q.part_of === p.id) : (p.part_of ? [byId[p.part_of]] : []);
+  if (rel.length) {
+    const wrap = document.createElement("div"); wrap.className = "rel";
+    const lab = document.createElement("span"); lab.textContent = p.hub ? "the work" : "part of";
+    wrap.appendChild(lab);
+    rel.forEach(q => {
+      const b = document.createElement("button"); b.textContent = q.label;
+      b.addEventListener("click", () => openPanel(q.id));
+      wrap.appendChild(b);
+    });
+    els.body.appendChild(wrap);
+  }
+  if (p.note) {
+    const n = document.createElement("p"); n.className = "note"; n.textContent = p.note;
+    els.body.appendChild(n);
+  }
   els.links.innerHTML = "";
   (p.links || []).forEach(l => {
     const a = document.createElement("a");

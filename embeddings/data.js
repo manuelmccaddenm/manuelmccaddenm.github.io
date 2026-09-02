@@ -1,6 +1,11 @@
-// Shared by / (landing) and /embeddings/ (map).
+// Shared by / (landing), /embeddings/ (map) and /explore/ (street view).
 // Coordinates are a 2D multidimensional-scaling projection of hand-tagged
 // project similarity (method + subject), relaxed only so labels don't collide.
+//
+// kind: "project" | "wip" | "writing" | "experience"
+//   experience entries describe a role and what was done there, not an artifact;
+//   `hub:true` marks the employer entry, `org` + `part_of` tie the workstreams to it.
+// note: why there is nothing to open (IP, confidentiality, private team repo).
 
 window.CLUSTERS = {
   energy:  {name:"energy",           color:"#c98500"},
@@ -11,47 +16,65 @@ window.CLUSTERS = {
   product: {name:"products",         color:"#9085e9"},
 };
 
+const BATU_NOTE = "No code here: it is Batu's IP and I no longer work there. Everything above is described from memory, at a high level.";
+const MANTIS_NOTE = "Confidential: Mantis is a live startup, so this stays at the level of the ideas.";
+
 window.PROJECTS = [
   // ---- energy ----
   {
-    id:"cfe-bills", label:"cfe bill engine", cluster:"energy", kind:"project", x:874, y:303,
+    id:"batu", label:"batu energy", cluster:"energy", kind:"experience", hub:true, org:"Batu Energy", x:830, y:365,
+    title:"Batu Energy",
+    meta:"data science intern 2024 – 2025 · junior data scientist 2025 – 2026",
+    body:[
+      "Batu Energy is an energy-management platform for solar providers and multi-site enterprises in Mexico. I joined as a data science intern in June 2024 and left as a junior data scientist in 2026, by which point I was the top contributor to the codebase: around 630 commits across the public API, the CFE bill and tariff domain, the platform's backend routes and the data pipelines underneath, serving 50-plus clients and more than 8,000 sites.",
+      "The four dots around this one are the work itself: the bill engine, the building monitors, the solar pipelines and the inverter anomaly detector. Along the way I also set up the engineering team's agentic tooling (MCP servers, skills, CI workflows) so a small team could ship with persistent context."
+    ],
+    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
+    note:BATU_NOTE
+  },
+  {
+    id:"cfe-bills", label:"cfe bill engine", cluster:"energy", kind:"experience", org:"Batu Energy", part_of:"batu", x:874, y:303,
     title:"Turning CFE bills into a data domain",
     meta:"Batu Energy · 2024 – 2026 · core contributor",
     body:[
       "At Batu Energy, an energy-management platform for solar providers and multi-site enterprises in Mexico, I was a core contributor to the backend. My home turf was the domain that turns CFE electricity bills into structured data: automated collection, parsing the bills' many formats and concepts into normalized line items, and the tariff model that makes them comparable across contracts and pricing schemes.",
       "On top of that domain I helped build the platform's public API, with idempotent job submission, typed contracts and metered access, so the same bill data the platform runs on could also be sold as a product."
     ],
-    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}]
+    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
+    note:BATU_NOTE
   },
   {
-    id:"building-monitors", label:"building monitors", cluster:"energy", kind:"project", x:887, y:439,
+    id:"building-monitors", label:"building monitors", cluster:"energy", kind:"experience", org:"Batu Energy", part_of:"batu", x:887, y:439,
     title:"Monitoring buildings with linear models",
     meta:"Batu Energy · 2024 – 2026",
     body:[
       "Before a building can be flagged as consuming abnormally, you need a defensible definition of normal. I built linear and regularized regression models (ridge, lasso) of buildings' energy consumption for monitoring and demand forecasting: weather APIs joined with processed CFE billing data give each building an expected load as a function of conditions, and deviations from that baseline become alerts.",
       "I kept the models simple on purpose. An alert should be something you can argue with, and residual structure, heteroscedasticity and seasonality are easier to reason about in a linear model than in a black box."
     ],
-    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}]
+    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
+    note:BATU_NOTE
   },
   {
-    id:"solar-pipelines", label:"solar pipelines", cluster:"energy", kind:"project", x:765, y:314,
+    id:"solar-pipelines", label:"solar pipelines", cluster:"energy", kind:"experience", org:"Batu Energy", part_of:"batu", x:765, y:314,
     title:"Data pipelines for solar fleets",
     meta:"Batu Energy · 2024 – 2026",
     body:[
       "The earlier generation of my work at Batu was serverless data engineering on AWS: ingestion pipelines pulling telemetry from inverter and meter platforms, services fetching design and production data from solar-engineering tools, and APIs exposing consumption histories, tariff rates and wholesale nodal prices, all deployed as infrastructure-as-code.",
       "Step-function orchestration, queues and daily failure digests: the unglamorous plumbing that keeps an energy platform truthful across more than 8,000 sites."
     ],
-    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}]
+    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
+    note:BATU_NOTE
   },
   {
-    id:"inverter-anomalies", label:"inverter anomalies", cluster:"energy", kind:"project", x:615, y:411,
+    id:"inverter-anomalies", label:"inverter anomalies", cluster:"energy", kind:"experience", org:"Batu Energy", part_of:"batu", x:615, y:411,
     title:"Catching failing inverters in their telemetry",
     meta:"Batu Energy · 2025 – 2026",
     body:[
       "Solar inverters produce dense time series, and most of what looks like an anomaly is weather. I designed a hybrid detector for inverter telemetry: a classical ARIMA component explains the predictable, seasonal part of the signal and an LSTM models what is left, so an alert fires on residual structure rather than on a cloudy afternoon.",
       "The real work was less the architecture than the evaluation: defining what counts as an anomaly for the operations team, choosing the precision-recall tradeoff for a system where every alert costs a technician's time, and designing the pipeline that scores new data as it arrives."
     ],
-    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}]
+    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
+    note:BATU_NOTE
   },
   {
     id:"critical-hours", label:"critical hours", cluster:"energy", kind:"project", x:775, y:398,
@@ -214,13 +237,25 @@ window.PROJECTS = [
   },
   // ---- products ----
   {
-    id:"retail", label:"retail · wip", cluster:"product", kind:"wip", x:803, y:201,
+    id:"mantis", label:"mantis", cluster:"product", kind:"experience", hub:true, org:"Mantis", x:880, y:150,
+    title:"Mantis",
+    meta:"2025 – present · data science, data engineering, product · with Prof. Manolis Kellis (MIT)",
+    body:[
+      "Mantis is an early-stage startup where I do whatever a small team needs on a given week: data science, data engineering, product. The idea is to give an organization a working model of its own world, its entities, relationships and events, expressed as embeddings and learned representations rather than hand-written rules, so that the machine-learning models behind its decisions share one representation instead of being rebuilt problem by problem, and so the same machinery can move between industries.",
+      "We are starting with retail, where the first product is in progress (the dot next to this one), and exploring the same ideas in other industries. We work with Prof. Manolis Kellis at MIT."
+    ],
+    links:[],
+    note:MANTIS_NOTE
+  },
+  {
+    id:"retail", label:"retail · wip", cluster:"product", kind:"wip", org:"Mantis", part_of:"mantis", x:803, y:201,
     title:"Retail intelligence (work in progress)",
     meta:"2026 · stealth",
     body:[
       "I'm building the data side of a retail expansion-intelligence product: pipelines that collect, clean and match messy multi-source retail data into versioned, governed data products (raw, processed and golden tiers with explicit promotion rules, registries and manifest-pinned releases), analytical models on top, and a web runtime that consumes each release through typed, validated contracts. More when it ships."
     ],
-    links:[]
+    links:[],
+    note:"Confidential and in progress: Mantis IP, described at the level of the machinery only."
   },
   {
     id:"glass", label:"glass", cluster:"product", kind:"project", x:709, y:130,
@@ -230,7 +265,8 @@ window.PROJECTS = [
       "Glass is a personal-finance app a few friends and I are building around a simple ethos: your financial data belongs to you. The app unifies your bank accounts into one view, surfaces the small recurring leaks (the gastos hormiga) and makes splitting expenses with friends a first-class, social feature.",
       "The technically distinctive choice is where aggregation happens: on your own device, with credentials that never leave it. Openness about your own money without handing it to yet another intermediary. I work on the backend."
     ],
-    links:[]
+    links:[],
+    note:"The code lives in a teammate's private repo for now."
   },
   {
     id:"cdmx-budget", label:"cdmx budget", cluster:"product", kind:"project", x:689, y:608,
