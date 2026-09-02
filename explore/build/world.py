@@ -487,8 +487,7 @@ def lot(stop_id, depth, width, setback=7.0, along=7.0):
     pp = perp(d)
     cx = p[0] + d[0] * along + pp[0] * s * (setback + depth / 2)
     cy = p[1] + d[1] * along + pp[1] * s * (setback + depth / 2)
-    ground = mat_plain("ground", (0.022, 0.022, 0.02, 1), rough=0.95)
-    box(f"lot_{stop_id}", (width + 2, depth + 2, 0.12), (cx, cy, 0.06), yaw_of(d), ground)
+    box(f"lot_{stop_id}", (width + 2, depth + 2, 0.12), (cx, cy, 0.06), yaw_of(d), M()["asphalt"])
     facing = (-pp[0] * s, -pp[1] * s)
     for a in (-width / 2 - 0.5, width / 2 + 0.5):
         base = (cx + d[0] * a + facing[0] * (depth / 2 + 0.5), cy + d[1] * a + facing[1] * (depth / 2 + 0.5))
