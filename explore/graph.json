@@ -6,6 +6,7 @@
   "h": 360.0
  },
  "stops": [
+  "batu",
   "cfe-bills",
   "building-monitors",
   "solar-pipelines",
@@ -25,6 +26,7 @@
   "lp-solver",
   "btc-streaming",
   "parallel-dbscan",
+  "mantis",
   "retail",
   "glass",
   "cdmx-budget",
@@ -32,19 +34,19 @@
  ],
  "edges": [
   [
-   "cfe-bills",
+   "batu",
+   "cfe-bills"
+  ],
+  [
+   "batu",
    "building-monitors"
   ],
   [
-   "cfe-bills",
+   "batu",
    "solar-pipelines"
   ],
   [
-   "building-monitors",
-   "critical-hours"
-  ],
-  [
-   "solar-pipelines",
+   "batu",
    "critical-hours"
   ],
   [
@@ -144,48 +146,51 @@
    "glass"
   ],
   [
+   "mantis",
+   "retail"
+  ],
+  [
    "retail",
    "glass"
   ]
  ],
  "roads": [
   {
-   "from": "cfe-bills",
-   "to": "building-monitors",
-   "length": 68.3,
+   "from": "batu",
+   "to": "cfe-bills",
+   "length": 38.0,
    "nodes": [
-    "cfe-bills",
-    "cfe-bills--building-monitors-1",
+    "batu",
+    "batu--cfe-bills-1",
+    "cfe-bills"
+   ]
+  },
+  {
+   "from": "batu",
+   "to": "building-monitors",
+   "length": 46.7,
+   "nodes": [
+    "batu",
+    "batu--building-monitors-1",
     "building-monitors"
    ]
   },
   {
-   "from": "cfe-bills",
+   "from": "batu",
    "to": "solar-pipelines",
-   "length": 54.8,
+   "length": 41.3,
    "nodes": [
-    "cfe-bills",
-    "cfe-bills--solar-pipelines-1",
+    "batu",
+    "batu--solar-pipelines-1",
     "solar-pipelines"
    ]
   },
   {
-   "from": "building-monitors",
+   "from": "batu",
    "to": "critical-hours",
-   "length": 59.6,
+   "length": 32.1,
    "nodes": [
-    "building-monitors",
-    "building-monitors--critical-hours-1",
-    "critical-hours"
-   ]
-  },
-  {
-   "from": "solar-pipelines",
-   "to": "critical-hours",
-   "length": 42.3,
-   "nodes": [
-    "solar-pipelines",
-    "solar-pipelines--critical-hours-1",
+    "batu",
     "critical-hours"
    ]
   },
@@ -440,6 +445,16 @@
    ]
   },
   {
+   "from": "mantis",
+   "to": "retail",
+   "length": 46.2,
+   "nodes": [
+    "mantis",
+    "mantis--retail-1",
+    "retail"
+   ]
+  },
+  {
    "from": "retail",
    "to": "glass",
    "length": 58.9,
@@ -452,18 +467,34 @@
  ],
  "nodes": [
   {
+   "id": "batu",
+   "type": "monument",
+   "project": "batu",
+   "label": "batu energy",
+   "title": "Batu Energy",
+   "cluster": "energy",
+   "kind": "experience",
+   "x": 415.0,
+   "y": 177.5,
+   "neighbors": [
+    "batu--cfe-bills-1",
+    "batu--building-monitors-1",
+    "batu--solar-pipelines-1",
+    "critical-hours"
+   ]
+  },
+  {
    "id": "cfe-bills",
    "type": "monument",
    "project": "cfe-bills",
    "label": "cfe bill engine",
    "title": "Turning CFE bills into a data domain",
    "cluster": "energy",
-   "kind": "project",
+   "kind": "experience",
    "x": 437.0,
    "y": 208.5,
    "neighbors": [
-    "cfe-bills--building-monitors-1",
-    "cfe-bills--solar-pipelines-1"
+    "batu--cfe-bills-1"
    ]
   },
   {
@@ -473,12 +504,11 @@
    "label": "building monitors",
    "title": "Monitoring buildings with linear models",
    "cluster": "energy",
-   "kind": "project",
+   "kind": "experience",
    "x": 443.5,
    "y": 140.5,
    "neighbors": [
-    "cfe-bills--building-monitors-1",
-    "building-monitors--critical-hours-1"
+    "batu--building-monitors-1"
    ]
   },
   {
@@ -488,12 +518,11 @@
    "label": "solar pipelines",
    "title": "Data pipelines for solar fleets",
    "cluster": "energy",
-   "kind": "project",
+   "kind": "experience",
    "x": 382.5,
    "y": 203.0,
    "neighbors": [
-    "cfe-bills--solar-pipelines-1",
-    "solar-pipelines--critical-hours-1",
+    "batu--solar-pipelines-1",
     "solar-pipelines--btc-streaming-1",
     "solar-pipelines--retail-1"
    ]
@@ -505,7 +534,7 @@
    "label": "inverter anomalies",
    "title": "Catching failing inverters in their telemetry",
    "cluster": "energy",
-   "kind": "project",
+   "kind": "experience",
    "x": 307.5,
    "y": 154.5,
    "neighbors": [
@@ -525,8 +554,7 @@
    "x": 387.5,
    "y": 161.0,
    "neighbors": [
-    "building-monitors--critical-hours-1",
-    "solar-pipelines--critical-hours-1",
+    "batu",
     "inverter-anomalies--critical-hours-2",
     "critical-hours--model-picker-1"
    ]
@@ -748,6 +776,20 @@
    ]
   },
   {
+   "id": "mantis",
+   "type": "monument",
+   "project": "mantis",
+   "label": "mantis",
+   "title": "Mantis",
+   "cluster": "product",
+   "kind": "experience",
+   "x": 440.0,
+   "y": 285.0,
+   "neighbors": [
+    "mantis--retail-1"
+   ]
+  },
+  {
    "id": "retail",
    "type": "monument",
    "project": "retail",
@@ -759,6 +801,7 @@
    "y": 259.5,
    "neighbors": [
     "solar-pipelines--retail-1",
+    "mantis--retail-1",
     "retail--glass-1"
    ]
   },
@@ -809,63 +852,48 @@
    ]
   },
   {
-   "id": "cfe-bills--building-monitors-1",
+   "id": "batu--cfe-bills-1",
    "type": "road",
    "project": null,
    "label": null,
    "title": null,
    "cluster": null,
    "kind": "road",
-   "x": 440.25,
-   "y": 174.5,
+   "x": 426.0,
+   "y": 193.0,
    "neighbors": [
-    "cfe-bills",
+    "batu",
+    "cfe-bills"
+   ]
+  },
+  {
+   "id": "batu--building-monitors-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 429.25,
+   "y": 159.0,
+   "neighbors": [
+    "batu",
     "building-monitors"
    ]
   },
   {
-   "id": "cfe-bills--solar-pipelines-1",
+   "id": "batu--solar-pipelines-1",
    "type": "road",
    "project": null,
    "label": null,
    "title": null,
    "cluster": null,
    "kind": "road",
-   "x": 409.75,
-   "y": 205.75,
+   "x": 398.75,
+   "y": 190.25,
    "neighbors": [
-    "cfe-bills",
+    "batu",
     "solar-pipelines"
-   ]
-  },
-  {
-   "id": "building-monitors--critical-hours-1",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 415.5,
-   "y": 150.75,
-   "neighbors": [
-    "building-monitors",
-    "critical-hours"
-   ]
-  },
-  {
-   "id": "solar-pipelines--critical-hours-1",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 385.0,
-   "y": 182.0,
-   "neighbors": [
-    "solar-pipelines",
-    "critical-hours"
    ]
   },
   {
@@ -1376,6 +1404,21 @@
    "neighbors": [
     "btc-streaming",
     "glass"
+   ]
+  },
+  {
+   "id": "mantis--retail-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 420.75,
+   "y": 272.25,
+   "neighbors": [
+    "mantis",
+    "retail"
    ]
   },
   {

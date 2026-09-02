@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>explore · Manuel McCadden</title>
+<meta name="description" content="Walk the embedding: Manuel McCadden's projects as a night district, one monument per project, roads laid out by similarity.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+  :root{--bg:#050505; --panel:#121212; --ink:#f2f0ea; --sec:#b0aea5; --muted:#85837b; --faint:#6a6862; --hair:rgba(255,255,255,.1); --accent:#5598e7; --accent-soft:#86b6ef}
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0; height:100%; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; overflow:hidden}
+  a{color:var(--accent-soft); text-decoration:none}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  #view{position:fixed; inset:0; cursor:grab}
+  #view.dragging{cursor:grabbing}
+
+  .hud{position:fixed; z-index:5; pointer-events:none}
+  .hud > *{pointer-events:auto}
+  #top{top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-start; padding:18px 22px; font-size:12.5px}
+  #top a{color:var(--sec); letter-spacing:.06em}
+  #top a:hover{color:var(--ink)}
+  #top .links{display:flex; gap:18px}
+  #where{position:fixed; top:56px; left:22px; z-index:5; pointer-events:none}
+  #where .k{font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--faint); margin:0}
+  #where .t{font-size:16px; color:var(--ink); margin:2px 0 0; text-shadow:0 0 10px #000}
+
+  #minimap{position:fixed; left:18px; bottom:18px; z-index:5; background:rgba(8,8,8,.72); border:1px solid var(--hair); border-radius:10px; padding:8px; backdrop-filter:blur(6px)}
+  #minimap canvas{display:block; cursor:crosshair}
+  #minimap .cap{font-size:10px; color:var(--faint); letter-spacing:.18em; text-transform:uppercase; margin:6px 0 0 2px}
+
+  #actions{position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:5; display:flex; gap:10px; align-items:center}
+  #actions button, #actions a{
+    background:rgba(10,10,10,.75); border:1px solid var(--hair); border-radius:999px; padding:9px 16px; color:var(--ink);
+    font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer; backdrop-filter:blur(6px);
+  }
+  #actions button:hover{border-color:var(--accent)}
+  #hint{position:fixed; right:22px; bottom:22px; z-index:5; color:var(--faint); font-size:11.5px; text-align:right; line-height:1.7}
+
+  #backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:40}
+  #panel{position:fixed; top:0; right:0; bottom:0; width:min(430px,100vw); background:var(--panel); border-left:1px solid var(--hair); z-index:50; padding:30px 30px 40px; overflow-y:auto}
+  #panel .close{position:absolute; top:16px; right:16px; background:none; border:1px solid var(--hair); color:var(--sec); border-radius:999px; width:34px; height:34px; cursor:pointer; font-size:14px}
+  #panel .kicker{font-size:11px; letter-spacing:.22em; text-transform:uppercase; margin:6px 0 10px}
+  #panel h2{margin:0 0 6px; font-size:22px; line-height:1.25; font-weight:650}
+  #panel .meta{color:var(--muted); font-size:13px; margin:0 0 18px}
+  #panel .body p{color:var(--sec); font-size:14.5px; margin:0 0 14px}
+  #panel .note{margin-top:18px; padding-top:14px; border-top:1px solid var(--hair); color:var(--muted); font-size:13px}
+  #panel .links{margin-top:22px; display:flex; flex-wrap:wrap; gap:10px}
+  #panel .links a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; border:1px solid var(--hair); border-radius:999px; padding:7px 15px; color:var(--ink)}
+  #panel .links a:hover{border-color:var(--accent)}
+
+  #intro{position:fixed; inset:0; z-index:60; background:rgba(5,5,5,.86); display:flex; align-items:center; justify-content:center; padding:24px}
+  #intro .card{max-width:460px}
+  #intro h1{font-size:26px; margin:0 0 10px; font-weight:650}
+  #intro p{color:var(--sec); margin:0 0 14px}
+  #intro .keys{color:var(--muted); font-size:12.5px; line-height:1.9}
+  #intro .keys b{color:var(--ink); font-weight:500; display:inline-block; min-width:110px}
+  #intro button{margin-top:18px; background:var(--ink); color:#000; border:none; border-radius:999px; padding:11px 22px; font:13px ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer}
+  #intro .alt{margin-top:14px; font-size:12.5px}
+  #loading{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:30; color:var(--faint); font-size:12px; letter-spacing:.2em; text-transform:uppercase; pointer-events:none}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="view"></div>
+
+<div class="hud" id="top">
+  <a class="mono" href="/">← manuel mccadden</a>
+  <span class="links mono">
+    <a href="/embeddings/">2d map</a>
+    <a href="https://github.com/manuelmccaddenm">github</a>
+  </span>
+</div>
+<div id="where" class="mono"><p class="k" id="where-k">road</p><p class="t" id="where-t"></p></div>
+
+<div id="minimap"><canvas id="mm" width="250" height="180"></canvas><p class="cap mono">the district · click to jump</p></div>
+<div id="actions"><button id="read" hidden>read this one</button></div>
+<div id="hint" class="mono">drag to look · click an arrow or W to walk<br>scroll to zoom · R to read · M for the map</div>
+<p id="loading" class="mono" hidden>loading</p>
+
+<div id="backdrop" hidden></div>
+<aside id="panel" hidden role="dialog" aria-modal="true">
+  <button class="close" aria-label="close">✕</button>
+  <p class="kicker mono" id="p-kicker"></p>
+  <h2 id="p-title"></h2>
+  <p class="meta" id="p-meta"></p>
+  <div class="body" id="p-body"></div>
+  <div class="links" id="p-links"></div>
+</aside>
+
+<div id="intro">
+  <div class="card">
+    <h1>the district</h1>
+    <p>The embedding as a place. Every project is a monument, and the roads between them follow
+       similarity, so a fork in the road is a fork in meaning. Rendered at night, in the void.</p>
+    <p class="keys mono">
+      <b>drag</b> look around<br>
+      <b>arrow / W</b> walk to the next node<br>
+      <b>R</b> read the plaque at a monument<br>
+      <b>M</b> show or hide the map<br>
+      <b>scroll</b> zoom
+    </p>
+    <button id="start" class="mono">walk in</button>
+    <p class="alt mono" id="mobile-note" hidden>this works best on a desktop; the <a href="/embeddings/">2d map</a> is the same content.</p>
+  </div>
+</div>
+
+<script src="/embeddings/data.js"></script>
+<script type="module">
+import * as THREE from "three";
+
+const GRAPH = await (await fetch("/explore/graph.json")).json();
+const NODES = Object.fromEntries(GRAPH.nodes.map(n => [n.id, n]));
+const PROJ = Object.fromEntries(window.PROJECTS.map(p => [p.id, p]));
+const CLUSTERS = window.CLUSTERS;
+const PANO = id => `/explore/panos/${id}.jpg`;
+
+// ---------------------------------------------------------------- three scene
+const view = document.getElementById("view");
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 200);
+
+// two spheres for crossfading; the camera faces north (-x) when yaw = 0
+const sphereGeo = new THREE.SphereGeometry(60, 64, 40);
+sphereGeo.scale(-1, 1, 1);
+function makeSphere() {
+  const m = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 1, depthWrite: false });
+  const mesh = new THREE.Mesh(sphereGeo, m);
+  scene.add(mesh);
+  return mesh;
+}
+const sphereA = makeSphere(), sphereB = makeSphere();
+sphereB.material.opacity = 0; sphereB.renderOrder = 1;
+
+// bearing (radians, clockwise from north) -> three direction. Image centre = north = -x, east = -z.
+const dirOf = b => new THREE.Vector3(-Math.cos(b), 0, -Math.sin(b));
+const bearingTo = (from, to) => Math.atan2(to.x - from.x, to.y - from.y);
+
+// arrows on the ground toward each neighbour
+const arrowGroup = new THREE.Group(); scene.add(arrowGroup);
+window.__explore = { scene, camera, arrowGroup, THREE };
+const arrowShape = new THREE.Shape();
+arrowShape.moveTo(0, 0.55); arrowShape.lineTo(0.5, -0.35); arrowShape.lineTo(0, -0.1); arrowShape.lineTo(-0.5, -0.35); arrowShape.closePath();
+const arrowGeo = new THREE.ShapeGeometry(arrowShape);
+arrowGeo.rotateX(-Math.PI / 2);   // lay flat: shape +y -> -z (forward)
+const ringGeo = new THREE.RingGeometry(0.62, 0.72, 40); ringGeo.rotateX(-Math.PI / 2);
+
+const texLoader = new THREE.TextureLoader();
+const texCache = new Map();
+const missing = new Set();
+function loadTex(id) {
+  if (texCache.has(id)) return texCache.get(id);
+  const p = new Promise((res, rej) => texLoader.load(PANO(id), t => { t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; res(t); }, undefined, () => { missing.add(id); rej(id); }));
+  texCache.set(id, p);
+  return p;
+}
+
+// ---------------------------------------------------------------- state
+let cur = null;          // current node id
+let yaw = 0, pitch = 0;  // radians; yaw = bearing the camera faces
+let fov = 75;
+let busy = false;
+const els = id => document.getElementById(id);
+
+function setCamera() {
+  const d = dirOf(yaw);
+  const target = new THREE.Vector3(d.x * Math.cos(pitch), Math.sin(pitch), d.z * Math.cos(pitch));
+  camera.lookAt(target);
+  camera.fov = fov; camera.updateProjectionMatrix();
+}
+
+function buildArrows(id) {
+  arrowGroup.clear();
+  const n = NODES[id];
+  n.neighbors.forEach(nb => {
+    const b = bearingTo(n, NODES[nb]);
+    const d = dirOf(b);
+    const g = new THREE.Group();
+    g.position.copy(d.clone().multiplyScalar(4.2)); g.position.y = -1.45;
+    g.rotation.y = Math.PI / 2 - b;
+    const dead = missing.has(nb);
+    const mat = new THREE.MeshBasicMaterial({ color: dead ? 0x555555 : 0xffffff, transparent: true, opacity: dead ? 0.35 : 0.85, side: THREE.DoubleSide, depthTest: false });
+    const arrow = new THREE.Mesh(arrowGeo, mat);
+    const ring = new THREE.Mesh(ringGeo, mat);
+    arrow.renderOrder = ring.renderOrder = 5;   // after both panorama spheres (they sort at depth 0)
+    g.add(arrow, ring);
+    g.userData = { to: nb, mat, dead };
+    arrowGroup.add(g);
+  });
+}
+
+async function goTo(id, opts = {}) {
+  if (busy) return;
+  const n = NODES[id]; if (!n) return;
+  busy = true; els("loading").hidden = false;
+  let tex;
+  try { tex = await loadTex(id); }
+  catch { busy = false; els("loading").hidden = true; toast(`${id} isn't rendered yet`); if (cur) buildArrows(cur); return; }
+  els("loading").hidden = true;
+  if (cur) {
+    // face the direction of travel unless told otherwise
+    if (opts.faceFrom) yaw = bearingTo(NODES[opts.faceFrom], n);
+    sphereB.material.map = tex; sphereB.material.color.set(0xffffff); sphereB.material.needsUpdate = true;
+    await crossfade();
+    sphereA.material.map = tex; sphereA.material.color.set(0xffffff); sphereA.material.needsUpdate = true;
+    sphereB.material.opacity = 0;
+  } else {
+    sphereA.material.map = tex; sphereA.material.color.set(0xffffff); sphereA.material.needsUpdate = true;
+  }
+  cur = id;
+  history.replaceState(null, "", "#" + id);
+  buildArrows(id);
+  updateWhere();
+  n.neighbors.forEach(nb => loadTex(nb).catch(() => {}));  // prefetch
+  drawMinimap();
+  busy = false;
+}
+
+function crossfade() {
+  return new Promise(res => {
+    const t0 = performance.now(), dur = 420, f0 = fov;
+    (function step(t) {
+      const k = Math.min(1, (t - t0) / dur);
+      const e = k < .5 ? 2 * k * k : -1 + (4 - 2 * k) * k;
+      sphereB.material.opacity = e;
+      fov = f0 - 9 * Math.sin(Math.PI * k);   // push in, then settle
+      if (k < 1) requestAnimationFrame(step); else { fov = f0; res(); }
+    })(t0);
+  });
+}
+
+function updateWhere() {
+  const n = NODES[cur];
+  const p = n.project ? PROJ[n.project] : null;
+  const k = els("where-k"), t = els("where-t");
+  if (n.type === "road") {
+    const r = GRAPH.roads.find(r => r.nodes.includes(cur));
+    k.textContent = "road"; k.style.color = "";
+    t.textContent = r ? `${(NODES[r.from].label || r.from)} → ${(NODES[r.to].label || r.to)}` : "";
+    els("read").hidden = true;
+  } else {
+    const cl = n.cluster ? CLUSTERS[n.cluster] : null;
+    k.textContent = cl ? cl.name + (p && p.kind === "experience" ? " · experience" : "") : "campus";
+    k.style.color = cl ? cl.color : "";
+    t.textContent = n.title || n.label;
+    els("read").hidden = !p;
+  }
+}
+
+let toastTimer;
+const hintHTML = els("hint").innerHTML;
+function toast(msg) {
+  const h = els("hint");
+  h.textContent = msg; clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { h.innerHTML = hintHTML; }, 1800);
+}
+
+// ---------------------------------------------------------------- input
+let dragging = false, lx = 0, ly = 0, moved = 0;
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+view.addEventListener("pointerdown", e => { dragging = true; moved = 0; lx = e.clientX; ly = e.clientY; view.classList.add("dragging"); });
+view.addEventListener("pointermove", e => {
+  if (dragging) {
+    const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY; moved += Math.abs(dx) + Math.abs(dy);
+    yaw += dx * 0.0032 * (fov / 75);            // drag right -> look right (bearing grows)
+    pitch = Math.max(-1.2, Math.min(1.2, pitch + dy * 0.0032 * (fov / 75)));
+  }
+  mouse.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(mouse, camera);
+  let hit = null;
+  arrowGroup.children.forEach(g => {
+    const h = ray.intersectObjects(g.children, false).length > 0;
+    g.userData.mat.opacity = g.userData.dead ? 0.35 : (h ? 1 : 0.85);
+    g.scale.setScalar(h ? 1.15 : 1);
+    if (h) hit = g;
+  });
+  view.style.cursor = hit ? "pointer" : (dragging ? "grabbing" : "grab");
+});
+window.addEventListener("pointerup", e => {
+  if (!dragging) return;
+  dragging = false; view.classList.remove("dragging");
+  if (moved < 6) {
+    mouse.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+    ray.setFromCamera(mouse, camera);
+    for (const g of arrowGroup.children) {
+      if (ray.intersectObjects(g.children, false).length) { walk(g.userData.to); break; }
+    }
+  }
+});
+view.addEventListener("wheel", e => { fov = Math.max(30, Math.min(100, fov + e.deltaY * 0.05)); }, { passive: true });
+
+function walk(to) { const from = cur; goTo(to, { faceFrom: from }); }
+function walkToward(reverse) {
+  const n = NODES[cur];
+  let best = null, bestD = Infinity;
+  n.neighbors.forEach(nb => {
+    const raw = bearingTo(n, NODES[nb]) - yaw + (reverse ? Math.PI : 0);
+    const d = Math.abs(((raw % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI) - Math.PI);
+    if (d < bestD) { bestD = d; best = nb; }
+  });
+  if (best && bestD < Math.PI / 2.2) walk(best); else toast("no road that way");
+}
+document.addEventListener("keydown", e => {
+  if (!els("intro").hidden) { if (e.key === "Enter") start(); return; }
+  if (!els("panel").hidden) { if (e.key === "Escape") closePanel(); return; }
+  switch (e.key) {
+    case "ArrowUp": case "w": case "W": walkToward(false); break;
+    case "ArrowDown": case "s": case "S": walkToward(true); break;
+    case "ArrowLeft": case "a": case "A": yaw -= 0.35; break;
+    case "ArrowRight": case "d": case "D": yaw += 0.35; break;
+    case "r": case "R": openPanel(); break;
+    case "m": case "M": els("minimap").hidden = !els("minimap").hidden; break;
+  }
+});
+window.addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; renderer.setSize(innerWidth, innerHeight); });
+
+// ---------------------------------------------------------------- panel
+function openPanel() {
+  const n = NODES[cur]; const p = n.project ? PROJ[n.project] : null;
+  if (!p) { toast("nothing to read here"); return; }
+  const cl = CLUSTERS[p.cluster];
+  const kindTag = p.kind === "wip" ? " · in progress" : p.kind === "writing" ? " · writing" : p.kind === "experience" ? " · experience" : "";
+  els("p-kicker").textContent = cl.name + kindTag + (p.org && !p.hub ? " · " + p.org : "");
+  els("p-kicker").style.color = cl.color;
+  els("p-title").textContent = p.title; els("p-meta").textContent = p.meta;
+  const body = els("p-body"); body.innerHTML = "";
+  p.body.forEach(t => { const q = document.createElement("p"); q.textContent = t; body.appendChild(q); });
+  if (p.note) { const q = document.createElement("p"); q.className = "note"; q.textContent = p.note; body.appendChild(q); }
+  const links = els("p-links"); links.innerHTML = "";
+  (p.links || []).forEach(l => { const a = document.createElement("a"); a.href = l.href; a.textContent = l.label + " ↗"; if (/^https?:/.test(l.href)) { a.target = "_blank"; a.rel = "noopener"; } links.appendChild(a); });
+  els("panel").hidden = false; els("backdrop").hidden = false;
+}
+function closePanel() { els("panel").hidden = true; els("backdrop").hidden = true; }
+els("panel").querySelector(".close").addEventListener("click", closePanel);
+els("backdrop").addEventListener("click", closePanel);
+els("read").addEventListener("click", openPanel);
+
+// ---------------------------------------------------------------- minimap
+const mm = els("mm"), ctx = mm.getContext("2d");
+const W = GRAPH.bounds.w, H = GRAPH.bounds.h;
+const sx = x => 8 + (x / W) * (mm.width - 16), sy = y => mm.height - 8 - (y / H) * (mm.height - 16);
+function drawMinimap() {
+  ctx.clearRect(0, 0, mm.width, mm.height);
+  ctx.lineWidth = 1; ctx.strokeStyle = "rgba(255,255,255,.18)";
+  GRAPH.edges.forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(sx(NODES[a].x), sy(NODES[a].y)); ctx.lineTo(sx(NODES[b].x), sy(NODES[b].y)); ctx.stroke(); });
+  GRAPH.stops.forEach(id => {
+    const n = NODES[id]; const c = n.cluster ? CLUSTERS[n.cluster].color : "#ded9cf";
+    ctx.fillStyle = missing.has(id) ? "rgba(255,255,255,.25)" : c;
+    ctx.beginPath(); ctx.arc(sx(n.x), sy(n.y), n.type === "landmark" ? 3.5 : 2.6, 0, 2 * Math.PI); ctx.fill();
+  });
+  if (cur) {
+    const n = NODES[cur]; const x = sx(n.x), y = sy(n.y);
+    ctx.fillStyle = "rgba(255,255,255,.25)";
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.arc(x, y, 16, -Math.PI / 2 + yaw - 0.45, -Math.PI / 2 + yaw + 0.45); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x, y, 3.2, 0, 2 * Math.PI); ctx.fill();
+  }
+}
+mm.addEventListener("click", e => {
+  const r = mm.getBoundingClientRect();
+  const px = (e.clientX - r.left) * (mm.width / r.width), py = (e.clientY - r.top) * (mm.height / r.height);
+  let best = null, bd = 1e9;
+  GRAPH.stops.forEach(id => { const n = NODES[id]; const d = Math.hypot(sx(n.x) - px, sy(n.y) - py); if (d < bd) { bd = d; best = id; } });
+  if (best && bd < 14) goTo(best);
+});
+
+// ---------------------------------------------------------------- start
+function start() {
+  els("intro").hidden = true;
+  const first = location.hash.slice(1);
+  goTo(NODES[first] ? first : "itam");
+}
+els("start").addEventListener("click", start);
+if (matchMedia("(pointer:coarse)").matches && innerWidth < 900) els("mobile-note").hidden = false;
+
+(function loop() {
+  requestAnimationFrame(loop);
+  setCamera();
+  if (cur) drawMinimap();
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>

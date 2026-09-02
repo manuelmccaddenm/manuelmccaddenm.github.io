@@ -279,13 +279,13 @@ def mat_gold():
     m, nt, bsdf = _new_mat("gold")
     bsdf.inputs["Base Color"].default_value = (1.0, 0.71, 0.29, 1)
     bsdf.inputs["Metallic"].default_value = 1.0
-    noise = nt.nodes.new("ShaderNodeTexNoise"); noise.inputs["Scale"].default_value = 60
+    noise = nt.nodes.new("ShaderNodeTexNoise"); noise.inputs["Scale"].default_value = 420; noise.inputs["Detail"].default_value = 6
     ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.elements[0].position = 0.35; ramp.color_ramp.elements[0].color = (0.18, 0.18, 0.18, 1)
-    ramp.color_ramp.elements[1].position = 0.7; ramp.color_ramp.elements[1].color = (0.42, 0.42, 0.42, 1)
+    ramp.color_ramp.elements[0].position = 0.4; ramp.color_ramp.elements[0].color = (0.22, 0.22, 0.22, 1)
+    ramp.color_ramp.elements[1].position = 0.6; ramp.color_ramp.elements[1].color = (0.34, 0.34, 0.34, 1)
     nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
     nt.links.new(ramp.outputs["Color"], bsdf.inputs["Roughness"])
-    bump = nt.nodes.new("ShaderNodeBump"); bump.inputs["Strength"].default_value = 0.05
+    bump = nt.nodes.new("ShaderNodeBump"); bump.inputs["Strength"].default_value = 0.02
     nt.links.new(noise.outputs["Fac"], bump.inputs["Height"])
     nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
     MATS["gold"] = m
@@ -535,10 +535,10 @@ def signpost(stop):
     m = M()
     sid = stop["id"]
     p = pos(sid)
-    d, s = free_side(sid, along=5.0, out=5.0)
+    d, s = free_side(sid, along=3.6, out=4.7)
     pp = perp(d)
-    base = (p[0] + d[0] * 5.0 + pp[0] * 5.0 * s, p[1] + d[1] * 5.0 + pp[1] * 5.0 * s)
-    h = 4.2
+    base = (p[0] + d[0] * 3.6 + pp[0] * 4.7 * s, p[1] + d[1] * 3.6 + pp[1] * 4.7 * s)
+    h = 4.4
     cylinder(f"sign_{sid}_pole", 0.055, h, (base[0], base[1], h / 2 + WALK_H), m["pole"], segments=16)
     dests = []
     for nb in NODES[sid]["neighbors"]:
@@ -548,31 +548,31 @@ def signpost(stop):
         if target is None:
             continue
         dests.append((dd, NODES[target]["label"] or target, length))
-    z = 2.3 + WALK_H
+    z = 2.5 + WALK_H
     for k, (dd, label, length) in enumerate(dests):
         yaw = yaw_of(dd)
-        bl = 1.25
+        bl = 1.9
         cx, cy = base[0] + dd[0] * (bl / 2 + 0.06), base[1] + dd[1] * (bl / 2 + 0.06)
-        box(f"sign_{sid}_blade{k}", (bl, 0.035, 0.24), (cx, cy, z), yaw, m["sign_green"])
-        box(f"sign_{sid}_tip{k}", (0.24, 0.035, 0.24), (base[0] + dd[0] * (bl + 0.12), base[1] + dd[1] * (bl + 0.12), z), yaw + math.pi / 4, m["sign_green"])
+        box(f"sign_{sid}_blade{k}", (bl, 0.035, 0.36), (cx, cy, z), yaw, m["sign_green"])
+        box(f"sign_{sid}_tip{k}", (0.36, 0.035, 0.36), (base[0] + dd[0] * (bl + 0.12), base[1] + dd[1] * (bl + 0.12), z), yaw + math.pi / 4, m["sign_green"])
         body = f"{label}  {length:.0f} m"
         pq = perp(dd)
         for face in (1, -1):
-            tx, ty = cx + pq[0] * 0.025 * face, cy + pq[1] * 0.025 * face
+            tx, ty = cx - pq[0] * 0.025 * face, cy - pq[1] * 0.025 * face
             rot_z = yaw + (math.pi if face == -1 else 0)
-            text(f"sign_{sid}_txt{k}_{face}", body, 0.105, (tx, ty, z), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.004)
-        z += 0.34
+            text(f"sign_{sid}_txt{k}_{face}", body, 0.17, (tx, ty, z), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.004)
+        z += 0.46
     # street-name plate on top: the stop's own name in its colour, district below; plate faces the road
     name = (stop["label"] or sid).upper()
     cl = stop["cluster"]
-    plate_w = max(1.3, 0.16 * len(name) + 0.4)
+    plate_w = max(1.6, 0.21 * len(name) + 0.5)
     pz = h + WALK_H - 0.05
-    box(f"sign_{sid}_plate", (plate_w, 0.04, 0.42), (base[0], base[1], pz), yaw_of(d), m["sign_green"])
+    box(f"sign_{sid}_plate", (plate_w, 0.04, 0.56), (base[0], base[1], pz), yaw_of(d), m["sign_green"])
     for face in (1, -1):
-        tx, ty = base[0] + pp[0] * 0.03 * face, base[1] + pp[1] * 0.03 * face
+        tx, ty = base[0] - pp[0] * 0.03 * face, base[1] - pp[1] * 0.03 * face
         rot_z = yaw_of(d) + (math.pi if face == -1 else 0)
-        text(f"sign_{sid}_name_{face}", name, 0.2, (tx, ty, pz + 0.07), (math.pi / 2, 0, rot_z), mat_cluster(cl, 3.0) if cl else m["sign_white"], extrude=0.004)
-        text(f"sign_{sid}_sub_{face}", CLUSTER_NAME.get(cl, "campus"), 0.085, (tx, ty, pz - 0.12), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.003)
+        text(f"sign_{sid}_name_{face}", name, 0.27, (tx, ty, pz + 0.09), (math.pi / 2, 0, rot_z), mat_cluster(cl, 3.0) if cl else m["sign_white"], extrude=0.004)
+        text(f"sign_{sid}_sub_{face}", CLUSTER_NAME.get(cl, "campus"), 0.11, (tx, ty, pz - 0.17), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.003)
     point(f"sign_{sid}_light", (base[0] - pp[0] * s * 0.7, base[1] - pp[1] * s * 0.7, h + WALK_H + 0.5), 60, color=(1, 0.9, 0.8), radius=0.05)
 
 def plaque(stop, at, facing):
@@ -597,10 +597,10 @@ def placeholder(stop):
     """The map's dot, made physical: a plinth with a glowing orb (ring for writing, dashed ring for wip)."""
     m = M()
     sid = stop["id"]
-    (cx, cy), facing, d, s = lot(sid, depth=8, width=8)
+    (cx, cy), facing, d, s = lot(sid, depth=6, width=8, along=5.0)
     box(f"plinth_{sid}", (3.2, 3.2, 1.2), (cx, cy, 0.6 + WALK_H), yaw_of(d), m["concrete"])
     cl = stop["cluster"]
-    em = mat_cluster(cl, 8.0)
+    em = mat_cluster(cl, 3.0)
     z = 1.2 + WALK_H + 1.0
     ring_rot = (math.pi / 2, 0, yaw_of(facing))
     if stop["kind"] == "writing":
@@ -614,7 +614,7 @@ def placeholder(stop):
     else:
         sphere(f"orb_{sid}", 0.62, (cx, cy, z), em)
     point(f"orb_{sid}_light", (cx, cy, z), 120, color=hex_rgb(CLUSTER_COLOR[cl])[:3], radius=0.6)
-    text(f"orb_{sid}_label", stop["label"] or sid, 0.42, (cx, cy, z + 1.35), (math.pi / 2, 0, yaw_of(facing) + math.pi / 2), mat_cluster(cl, 4.0), extrude=0.02)
+    text(f"orb_{sid}_label", stop["label"] or sid, 0.62, (cx, cy, z + 1.5), (math.pi / 2, 0, yaw_of(facing) + math.pi / 2), mat_cluster(cl, 2.5), extrude=0.02)
     plaque(stop, (cx + facing[0] * 4.6, cy + facing[1] * 4.6), facing)
 
 def autoencoder_arch(stop):
@@ -652,33 +652,35 @@ def coin_under_blanket(stop):
     """A giant coin on a plinth, half hidden by a blanket (cloth-simulated, then frozen)."""
     m = M()
     sid = stop["id"]
-    (cx, cy), facing, d, s = lot(sid, depth=12, width=12)
+    (cx, cy), facing, d, s = lot(sid, depth=13, width=13, along=5.0)
     yaw = yaw_of(d)
-    plinth = box(f"coin_plinth_{sid}", (7.5, 7.5, 0.7), (cx, cy, 0.35 + WALK_H), yaw, m["concrete"])
+    plinth = box(f"coin_plinth_{sid}", (10.0, 10.0, 0.7), (cx, cy, 0.35 + WALK_H), yaw, m["concrete"])
     top = 0.7 + WALK_H
-    coin = cylinder(f"coin_{sid}", 2.3, 0.28, (cx, cy, top + 0.14), m["gold"], segments=96)
+    coin = cylinder(f"coin_{sid}", 3.4, 0.36, (cx, cy, top + 0.18), m["gold"], segments=128)
     bev = coin.modifiers.new("bevel", "BEVEL"); bev.width = 0.05; bev.segments = 4
-    torus(f"coin_rim_{sid}", 2.12, 0.035, (cx, cy, top + 0.28), m["gold"], nu=96)
-    text(f"coin_q_{sid}", "?", 2.2, (cx, cy, top + 0.28), (0, 0, yaw_of(facing) + math.pi / 2), m["gold"], extrude=0.03)
+    torus(f"coin_rim_{sid}", 3.15, 0.045, (cx, cy, top + 0.36), m["gold"], nu=128)
+    text(f"coin_q_{sid}", "?", 3.2, (cx, cy, top + 0.36), (0, 0, yaw_of(facing) + math.pi / 2), m["gold"], extrude=0.03)
     # blanket: simulate a plane falling over the coin, then freeze it
     sc = bpy.context.scene
-    sc.frame_start, sc.frame_end = 1, 48
+    sc.frame_start, sc.frame_end = 1, 80
     pf = perp(facing)
     off = (-facing[0] * 1.35 + pf[0] * 0.5, -facing[1] * 1.35 + pf[1] * 0.5)
-    cloth = grid(f"blanket_sim_{sid}", 5.8, 64, (cx + off[0], cy + off[1], top + 1.7), None)
+    cloth = grid(f"blanket_sim_{sid}", 7.2, 80, (cx + off[0] * 1.55, cy + off[1] * 1.55, top + 0.75), None)
     cloth.rotation_euler = (0, 0, yaw + 0.35)
     for ob in (coin, plinth):
         ob.modifiers.new("collision", "COLLISION")
         ob.collision.thickness_outer = 0.02
+        ob.collision.cloth_friction = 60
     cmod = cloth.modifiers.new("cloth", "CLOTH")
     st = cmod.settings
-    st.quality = 7; st.mass = 0.35
-    st.tension_stiffness = 12; st.compression_stiffness = 12; st.shear_stiffness = 8; st.bending_stiffness = 0.6
-    st.air_damping = 1.2
+    st.quality = 8; st.mass = 0.3
+    st.tension_stiffness = 5; st.compression_stiffness = 5; st.shear_stiffness = 3; st.bending_stiffness = 0.05
+    st.air_damping = 1.0
     cmod.collision_settings.distance_min = 0.012
+    cmod.collision_settings.friction = 40
     cmod.collision_settings.use_self_collision = True
-    cmod.point_cache.frame_start, cmod.point_cache.frame_end = 1, 48
-    for f in range(1, 49):
+    cmod.point_cache.frame_start, cmod.point_cache.frame_end = 1, 80
+    for f in range(1, 81):
         sc.frame_set(f)
     dg = bpy.context.evaluated_depsgraph_get()
     me = bpy.data.meshes.new_from_object(cloth.evaluated_get(dg))
@@ -692,10 +694,10 @@ def coin_under_blanket(stop):
     me.polygons.foreach_set("use_smooth", [True] * len(me.polygons))
     sub = frozen.modifiers.new("subsurf", "SUBSURF"); sub.levels = 1; sub.render_levels = 2
     sol = frozen.modifiers.new("solidify", "SOLIDIFY"); sol.thickness = 0.012
-    me.materials.append(mat_pbr("fabric", "fabric", tile=1.1, base=(0.10, 0.14, 0.30, 1), sheen=0.6, normal_strength=0.8))
-    spot(f"coin_key_{sid}", (cx + facing[0] * 5 + pf[0] * 3, cy + facing[1] * 5 + pf[1] * 3, 6.5), (cx, cy, top + 0.3), 1400, size_deg=55, blend=0.5, radius=0.4)
-    spot(f"coin_fill_{sid}", (cx - facing[0] * 4 - pf[0] * 4, cy - facing[1] * 4 - pf[1] * 4, 4.5), (cx, cy, top + 0.3), 300, color=(0.6, 0.72, 1.0), size_deg=70, blend=0.7, radius=0.6)
-    plaque(stop, (cx + facing[0] * 6.4, cy + facing[1] * 6.4), facing)
+    me.materials.append(mat_pbr("fabric", "fabric", tile=0.9, base=(0.03, 0.05, 0.14, 1), sheen=0.45, normal_strength=1.0))
+    spot(f"coin_key_{sid}", (cx + facing[0] * 5 + pf[0] * 3, cy + facing[1] * 5 + pf[1] * 3, 6.5), (cx, cy, top + 0.3), 750, size_deg=60, blend=0.5, radius=0.4)
+    spot(f"coin_fill_{sid}", (cx - facing[0] * 4 - pf[0] * 4, cy - facing[1] * 4 - pf[1] * 4, 4.5), (cx, cy, top + 0.3), 180, color=(0.6, 0.72, 1.0), size_deg=70, blend=0.7, radius=0.6)
+    plaque(stop, (cx + facing[0] * 7.6, cy + facing[1] * 7.6), facing)
 
 def itam(stop):
     """ITAM as a landmark: brick block, lit window grid, glazed entrance, letters on the parapet."""

@@ -21,7 +21,8 @@ LANDMARKS = [        # extra stops that are not projects
 src = (ROOT / "embeddings" / "data.js").read_text()
 pat = re.compile(
     r'id:"(?P<id>[^"]+)",\s*label:"(?P<label>[^"]+)",\s*cluster:"(?P<cluster>[^"]+)",'
-    r'\s*kind:"(?P<kind>[^"]+)",\s*x:(?P<x>\d+),\s*y:(?P<y>\d+),\s*title:"(?P<title>[^"]+)"'
+    r'\s*kind:"(?P<kind>[^"]+)",(?P<extra>(?:\s*\w+:(?:true|false|"[^"]*"),)*)'
+    r'\s*x:(?P<x>\d+),\s*y:(?P<y>\d+),\s*title:"(?P<title>[^"]+)"'
 )
 projects = [m.groupdict() for m in pat.finditer(src)]
 assert len(projects) >= 20, f"parsed only {len(projects)} projects"
