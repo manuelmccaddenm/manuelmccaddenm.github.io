@@ -202,14 +202,16 @@ async function goTo(id, opts = {}) {
   catch { busy = false; els("loading").hidden = true; toast(`${id} isn't rendered yet`); if (cur) buildArrows(cur); return; }
   els("loading").hidden = true;
   if (cur) {
-    // face the direction of travel unless told otherwise
+    // face the direction of travel, but at a monument turn toward it
     if (opts.faceFrom) yaw = bearingTo(NODES[opts.faceFrom], n);
+    if (HOTS[id] && n.type !== "road") yaw = bearingTo(n, HOTS[id]);
     sphereB.material.map = tex; sphereB.material.color.set(0xffffff); sphereB.material.needsUpdate = true;
     await crossfade();
     sphereA.material.map = tex; sphereA.material.color.set(0xffffff); sphereA.material.needsUpdate = true;
     sphereB.material.opacity = 0;
   } else {
     sphereA.material.map = tex; sphereA.material.color.set(0xffffff); sphereA.material.needsUpdate = true;
+    if (HOTS[id] && n.type !== "road") yaw = bearingTo(n, HOTS[id]);
   }
   cur = id;
   history.replaceState(null, "", "#" + id);
