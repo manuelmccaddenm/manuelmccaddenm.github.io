@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>embeddings · Manuel McCadden</title>
+<meta name="description" content="A hand-placed projection of Manuel McCadden's projects — each dot is a project; distance is semantic similarity.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+  :root{
+    --bg:#0a0a0a; --panel:#121212; --ink:#f2f0ea; --sec:#b0aea5; --muted:#85837b;
+    --faint:#6a6862; --hair:rgba(255,255,255,.08); --accent:#5598e7; --accent-soft:#86b6ef;
+    --dot:#ded9cf;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+  a{color:var(--accent-soft); text-decoration:none}
+  a:hover{text-decoration:underline; text-underline-offset:3px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  nav{display:flex; justify-content:space-between; align-items:center; padding:22px 28px; border-bottom:1px solid var(--hair)}
+  nav a.home{color:var(--sec); font-size:13px; letter-spacing:.08em}
+  nav .links{display:flex; gap:22px; font-size:13px}
+  header.page{padding:40px 28px 6px; max-width:1060px; margin:0 auto}
+  header.page h1{margin:0 0 8px; font-size:26px; font-weight:650; letter-spacing:-.01em}
+  header.page p{margin:0; color:var(--sec); font-size:14.5px; max-width:64ch}
+  .legend{display:flex; gap:26px; flex-wrap:wrap; padding:14px 28px 0; max-width:1060px; margin:0 auto; color:var(--muted); font-size:12px}
+  .legend span{display:inline-flex; align-items:center; gap:8px}
+  .legend svg{flex:none}
+
+  .map-outer{max-width:1060px; margin:0 auto; padding:8px 12px 12px}
+  .map-scroll{overflow-x:auto}
+  .map-wrap{position:relative; min-width:760px}
+  svg.map{display:block; width:100%; height:auto}
+
+  .region{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px; letter-spacing:.28em; fill:var(--faint); opacity:.75;
+  }
+  g.dot{cursor:pointer}
+  g.dot .halo{fill:transparent}
+  g.dot .core{fill:var(--c,var(--dot)); transition:filter .15s}
+  g.dot.wip .core{fill:none; stroke:var(--c,var(--dot)); stroke-width:2; stroke-dasharray:4 3}
+  g.dot.writing .core{fill:none; stroke:var(--c,var(--dot)); stroke-width:2}
+  g.dot .lbl{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:10.5px; fill:var(--muted); text-anchor:middle; transition:fill .15s;
+  }
+  g.dot:hover .core, g.dot.active .core{filter:brightness(1.3)}
+  g.dot:hover .lbl, g.dot.active .lbl{fill:var(--ink)}
+  g.dot:focus{outline:none}
+  g.dot:focus-visible .core{stroke:#fff; stroke-width:2}
+  g.dot.active .glow{fill:var(--c,var(--accent)); opacity:.2}
+  .glow{fill:transparent}
+
+  /* detail panel */
+  #backdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:40}
+  #panel{
+    position:fixed; top:0; right:0; bottom:0; width:min(430px,100vw);
+    background:var(--panel); border-left:1px solid var(--hair); z-index:50;
+    padding:30px 30px 40px; overflow-y:auto;
+  }
+  #panel .close{
+    position:absolute; top:16px; right:16px; background:none; border:1px solid var(--hair);
+    color:var(--sec); border-radius:999px; width:34px; height:34px; cursor:pointer; font-size:14px;
+  }
+  #panel .close:hover{border-color:var(--accent); color:var(--ink)}
+  #panel .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; letter-spacing:.22em; color:var(--accent-soft); text-transform:uppercase; margin:6px 0 10px}
+  #panel h2{margin:0 0 6px; font-size:22px; line-height:1.25; font-weight:650}
+  #panel .meta{color:var(--muted); font-size:13px; margin:0 0 18px}
+  #panel .body p{color:var(--sec); font-size:14.5px; margin:0 0 14px}
+  #panel .links{margin-top:22px; display:flex; flex-wrap:wrap; gap:10px}
+  #panel .links a{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
+    border:1px solid var(--hair); border-radius:999px; padding:7px 15px; color:var(--ink);
+  }
+  #panel .links a:hover{border-color:var(--accent); text-decoration:none; background:rgba(85,152,231,.08)}
+
+  /* index list */
+  section.index{max-width:1060px; margin:26px auto 0; padding:26px 28px 10px; border-top:1px solid var(--hair)}
+  section.index h2{font-size:13px; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); font-weight:500; margin:0 0 18px}
+  .idx-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:6px 34px}
+  .idx-group h3{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; letter-spacing:.2em; color:var(--muted); font-weight:500; margin:16px 0 8px; text-transform:uppercase}
+  .idx-group button{
+    display:block; background:none; border:none; padding:3px 0; cursor:pointer; text-align:left;
+    color:var(--sec); font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  .idx-group button:hover{color:var(--accent-soft)}
+  footer{margin-top:40px; padding:20px 28px; border-top:1px solid var(--hair); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; color:var(--muted); font-size:12.5px}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<nav class="mono">
+  <a class="home" href="/">← manuel mccadden</a>
+  <span class="links">
+    <a href="https://github.com/manuelmccaddenm">github</a>
+    <a href="https://www.linkedin.com/in/manuel-mccadden-madrazo-404899238/">linkedin</a>
+  </span>
+</nav>
+
+<header class="page">
+  <h1>embeddings</h1>
+  <p>a hand-placed projection of the things i've built. each dot is a project;
+     distance ≈ semantic similarity. click a dot to read the idea.</p>
+</header>
+
+<div class="legend mono" aria-hidden="true">
+  <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="#ded9cf"/></svg> project</span>
+  <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="none" stroke="#ded9cf" stroke-width="2" stroke-dasharray="3 2.5"/></svg> in progress</span>
+  <span><svg width="14" height="14"><circle cx="7" cy="7" r="5" fill="none" stroke="#ded9cf" stroke-width="2"/></svg> writing</span>
+</div>
+
+<div class="map-outer">
+  <div class="map-scroll">
+    <div class="map-wrap">
+      <svg class="map" viewBox="0 0 1000 720" role="group" aria-label="Project map: dots positioned by semantic similarity">
+        <text class="region" x="455" y="62" text-anchor="middle" style="fill:#3987e5">statistics</text>
+        <text class="region" x="800" y="54" text-anchor="middle" style="fill:#c98500">energy</text>
+        <text class="region" x="205" y="548" text-anchor="middle" style="fill:#199e70">mathematics</text>
+        <text class="region" x="415" y="512" text-anchor="middle" style="fill:#d55181">machine learning</text>
+        <text class="region" x="705" y="692" text-anchor="middle" style="fill:#d95926">data engineering</text>
+        <text class="region" x="855" y="272" text-anchor="middle" style="fill:#9085e9">products</text>
+        <g id="dots"></g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<section class="index">
+  <h2>index</h2>
+  <div class="idx-grid" id="idx"></div>
+</section>
+
+<div id="backdrop" hidden></div>
+<aside id="panel" hidden aria-modal="true" role="dialog" aria-labelledby="p-title">
+  <button class="close" aria-label="close">✕</button>
+  <p class="kicker mono" id="p-kicker"></p>
+  <h2 id="p-title"></h2>
+  <p class="meta" id="p-meta"></p>
+  <div class="body" id="p-body"></div>
+  <div class="links" id="p-links"></div>
+</aside>
+
+<footer class="mono">
+  <span>© 2026 Manuel McCadden</span>
+  <span><a href="mailto:manuel.mccaddenm@gmail.com">manuel.mccaddenm@gmail.com</a></span>
+</footer>
+
+<script>
+const CLUSTERS = {
+  energy:  {name:"energy",           color:"#c98500"},
+  stats:   {name:"statistics",       color:"#3987e5"},
+  ml:      {name:"machine learning", color:"#d55181"},
+  math:    {name:"mathematics",      color:"#199e70"},
+  dataeng: {name:"data engineering", color:"#d95926"},
+  product: {name:"products",         color:"#9085e9"},
+};
+
+const PROJECTS = [
+  // ---- energy ----
+  {
+    id:"batu", label:"batu energy", cluster:"energy", kind:"project", x:830, y:118,
+    title:"Batu Energy — backend engineering",
+    meta:"2025 – present · core contributor",
+    body:[
+      "I work on the backend of Batu Energy, an energy-management platform for solar providers and multi-site enterprises in Mexico. I've been a core contributor to its public API, to the domain that ingests, parses and models CFE electricity bills and tariffs, and to the event-driven architecture that keeps those domains consistent — along with earlier serverless services for consumption data and wholesale price zones.",
+      "I also built linear models of buildings' energy consumption for monitoring: connecting weather APIs with processed CFE billing data to establish each building's expected load and flag deviations from it."
+    ],
+    links:[{label:"batuenergy.com", href:"https://batuenergy.com"}]
+  },
+  {
+    id:"critical-hours", label:"critical hours", cluster:"energy", kind:"project", x:708, y:192,
+    title:"Predicting the critical hours of Mexico's power market",
+    meta:"Tópicos de Políticas Públicas II · ITAM · 2026",
+    body:[
+      "Mexico's balancing-capacity market settles on the 100 most demanding hours of the year — so knowing them in advance is worth money. I assembled an hourly 2019–2025 panel (~150M rows) of nodal prices, reservoir levels for nine hydro dams, weather reanalysis and natural-gas flows, using a purpose-built data agent to fetch and harmonize the sources.",
+      "Chained year-on-year gradient-boosted classifiers, cascaded hourly × daily, recover 64 of 2024's 100 true critical hours. A nowcast built only from day-old features generalizes better than same-day data, because \"days since the last critical hour\" carries most of the signal. The honest caveat: a relative target — the 100 lowest-reserve hours — moves across regime shifts, and generalization to 2025 drops accordingly."
+    ],
+    links:[]
+  },
+  // ---- statistics ----
+  {
+    id:"spacetime-bayes", label:"space–time bayes", cluster:"stats", kind:"project", x:445, y:205,
+    title:"Bayesian space–time disease mapping",
+    meta:"Regresión Avanzada · ITAM · 2026",
+    body:[
+      "A reproduction of Knorr-Held's classic space–time disease-mapping framework, applied to breast-cancer incidence across Mexico's 32 states, 2003–2024. Eight hierarchical Poisson models fit by MCMC — spatial convolution (BYM), random-walk time effects, and the four space–time interaction types built as Kronecker products of spatial and temporal structure.",
+      "Separability is decisively rejected: space and time interact. But unlike the original Ohio study, the unstructured interaction wins by WAIC — registered incidence quadrupled over the period, and the residual variation reads as registry and screening maturation (with a visible 2020 under-diagnosis dip) rather than smoothly diffusing risk."
+    ],
+    links:[{label:"read the report (pdf)", href:"/files/bayesian-spacetime-report.pdf"}]
+  },
+  {
+    id:"markov-chains", label:"markov chains", cluster:"stats", kind:"project", x:505, y:282,
+    title:"Continuous-time Markov chains, at two scales",
+    meta:"Procesos Estocásticos · ITAM · 2026 · with C. Reyes & D. García-Gayou",
+    body:[
+      "An expository project on continuous-time Markov chains built around two models at opposite ends of tractability. First, a four-state delivery-truck reliability model where the generator matrix is explicit: the stationary distribution becomes fleet economics — what fraction of hours are productive, and whether reacting faster to warning lights pays for itself.",
+      "Then a stochastic SEIR epidemic, where the state space is too large to write down and only local rates exist. Simulation shows fluctuations decaying like 1/√N, outbreaks going extinct even when R₀ > 1, and the joint distribution of epidemic-peak height and timing — the part a deterministic ODE's single trajectory quietly hides."
+    ],
+    links:[{label:"notebook", href:"/files/ctmc-notebook.html"}]
+  },
+  {
+    id:"negreira", label:"negreira", cluster:"stats", kind:"project", x:575, y:168,
+    title:"A causal design for the Negreira case",
+    meta:"Inferencia Causal · ITAM · 2025",
+    body:[
+      "Did FC Barcelona's decades of payments to the referee committee's vice-president distort match outcomes? A triple difference-in-differences: La Liga as the treated competition and the Champions League as a within-team placebo, so the era's talent cancels out instead of confounding.",
+      "Refereeing decisions are made comparable through an xG-weighted goal-equivalent index, and betting-market residuals serve as a second outcome that prices talent exogenously. Fixed-effects estimation over ~15,000 matches — with a deliberate reinterpretation of SUTVA, so the estimand is the league's total distortion: Barcelona's gain plus its rivals' loss."
+    ],
+    links:[]
+  },
+  {
+    id:"probability", label:"probability essay", cluster:"stats", kind:"writing", x:330, y:120,
+    title:"¿Qué es la probabilidad?",
+    meta:"essay · Comunicación Escrita para Matemáticas · ITAM · 2025",
+    body:[
+      "A short popular-science essay arguing that the frequentist definition of probability — a limiting relative frequency over infinite repetitions — cannot express most of the probability statements people actually make. A flipped coin hidden under a blanket is already heads or tails, yet \"50%\" remains the only sane answer; elections and tariff decisions have no reference class at all. Via Laplace's demon, the essay lands on personal, Bayesian probability as the general notion — coherent degrees of belief, updated by evidence — with frequency as its special case."
+    ],
+    links:[]
+  },
+  // ---- machine learning ----
+  {
+    id:"thesis", label:"thesis · wip", cluster:"ml", kind:"wip", x:472, y:388,
+    title:"Thesis (work in progress)",
+    meta:"ITAM · in progress",
+    body:[
+      "My undergraduate thesis lives in the intersection of Bayesian statistics and deep learning: what priors mean in heavily overparameterized models, what a posterior over weights knows about a network's internal representations that a point estimate doesn't, and when uncertainty can be trusted to guide decisions about model structure. Still taking shape — conclusions to follow."
+    ],
+    links:[]
+  },
+  {
+    id:"nutrition", label:"nutrition5k", cluster:"ml", kind:"project", x:556, y:458,
+    title:"Reading nutrition from food photos",
+    meta:"Minería y Análisis de Datos · ITAM · 2025 · team of 4",
+    body:[
+      "For someone with type-1 diabetes, every meal is a carb-counting exercise. We trained a multimodal model to estimate nutritional content from a single photo, on Google's Nutrition5k dataset — 3,262 dishes, 199 possible ingredients, masses log-transformed to keep tiny quantities from vanishing.",
+      "The architecture fuses a pretrained image encoder with learned ingredient embeddings through guided attention, regressing per-ingredient masses: a mean error of 7.6 g on carbohydrates, and a deliberately recall-heavy ingredient detector — for dosing insulin, missing an ingredient is worse than hallucinating one."
+    ],
+    links:[]
+  },
+  {
+    id:"model-picker", label:"model picker", cluster:"ml", kind:"project", x:648, y:512,
+    title:"Self-improving model selection",
+    meta:"Kavak × OpenAI hackathon · 2025 · built in 13 hours",
+    body:[
+      "A hackathon build: three agents that own the ML lifecycle from raw CSV to recommended model. A data agent interrogates you until the business problem is pinned down; a model agent translates it into a custom loss weighting performance, interpretability and compute; an eval agent runs an evaluate-mutate loop against that loss on a fixed budget.",
+      "The part I still think about is the slow loop: after each project the eval agent re-reads its own run history, extracts generalizable lessons and writes them to persistent memory — so model selection improves across projects, not within one. Thirteen hours of code that could use a rewrite, but the idea holds up."
+    ],
+    links:[{label:"repo", href:"https://github.com/manuelmccaddenm/model-picker-system"}]
+  },
+  // ---- mathematics ----
+  {
+    id:"predator-prey", label:"predator–prey", cluster:"math", kind:"project", x:135, y:335,
+    title:"A predator–prey system and its Hopf bifurcation",
+    meta:"Sistemas Dinámicos II · ITAM · 2025",
+    body:[
+      "A numerical study of a modified Leslie–Gower predator–prey system with a Holling type-II response: prey grow logistically but predation saturates, and predators are limited by the predator-to-prey ratio rather than by absolute abundance. A reparametrization gives the interior equilibrium in closed form.",
+      "Sweeping the predator growth rate traces a Hopf bifurcation: stable coexistence loses stability and a limit cycle is born — populations that oscillate forever, not because of seasonality but because the interaction itself demands it. Phase portraits and bifurcation diagrams map exactly where."
+    ],
+    links:[{label:"notebook", href:"/files/predator-prey-notebook.html"}]
+  },
+  {
+    id:"autoencoder", label:"autoencoder", cluster:"math", kind:"project", x:255, y:362,
+    title:"Training an autoencoder without autodiff",
+    meta:"Análisis Aplicado · ITAM · 2026",
+    body:[
+      "A linear autoencoder trained with no automatic differentiation anywhere: matrix gradients derived by hand, optimized by a trust-region method with a Dogleg subproblem. Two twists — the quasi-Newton update maintains the inverse Hessian approximation directly, so nothing is ever inverted, and the Cauchy point comes from a one-dimensional quadratic interpolation instead of the usual curvature term.",
+      "Because the problem is linear, Eckart–Young gives the exact global optimum to test against: full-matrix iBFGS and limited-memory L-BFGS both land within 0.2% of it, and the real story becomes the trade — twenty times less memory for L-BFGS at d = 100, quantified across a 5,000-configuration stress test."
+    ],
+    links:[]
+  },
+  {
+    id:"fantasy-draft", label:"fantasy draft", cluster:"math", kind:"project", x:325, y:290,
+    title:"Drafting a fantasy team as portfolio optimization",
+    meta:"Optimización Numérica · ITAM · 2026",
+    body:[
+      "A snake-format NFL fantasy draft recast as a sequence of constrained Markowitz problems, one per pick: expected points as returns, and a weekly covariance matrix — estimated over four seasons with missed games scored as zero, so injury risk lives inside the variance — as risk.",
+      "The \"floor\" strategy is convex and solved exactly with an interior-point method (Newton steps, log barrier, backtracking). The \"ceiling\" strategy maximizes a convex function instead — NP-hard, optimum at a vertex — and is attacked by projected gradient ascent whose projection step is itself a QP. Monte Carlo over a 12-team league shows each strategy dominating exactly the metric it optimizes: what optimization buys is your position on the risk–return plane."
+    ],
+    links:[{label:"repo", href:"https://github.com/manuelmccaddenm/optimization-fantasy-football-draft"}]
+  },
+  {
+    id:"lp-solver", label:"lp solver", cluster:"math", kind:"project", x:195, y:458,
+    title:"An interior-point LP solver from first principles",
+    meta:"Programación Lineal · ITAM · 2025",
+    body:[
+      "A primal Newton interior-point solver for linear programs written from scratch: log-barrier central path, a general transformation from arbitrary bounds to standard form, and recovery of the original solution — benchmarked against SciPy's solver across the NETLIB problem suite.",
+      "As a companion, a Bennett–Mangasarian-style LP classifier separates the Wisconsin breast-cancer dataset, with the primal derived by hand — the same machinery, pointed at learning."
+    ],
+    links:[]
+  },
+  // ---- data engineering ----
+  {
+    id:"btc-streaming", label:"btc streaming", cluster:"dataeng", kind:"project", x:718, y:588,
+    title:"Does a prediction market lead Bitcoin?",
+    meta:"Arquitectura para Grandes Volúmenes de Datos · ITAM · 2026 · team",
+    body:[
+      "An end-to-end streaming pipeline asking whether Polymarket's \"BTC up-or-down\" five-minute market carries information about Bitcoin's next move: async WebSocket producers for Binance and the Polymarket order book feed Kafka; Spark Structured Streaming aggregates windowed features into partitioned Parquet; forecasts flow back out to live Grafana dashboards. One overnight run ingested 21 million events, peaking above 5,200 messages per second.",
+      "A SARIMAX model with the market-implied probability as an exogenous regressor reaches 85% directional accuracy on five-minute returns, halving the error of the market baseline. The architectural lesson cut deeper: for tiny per-call inference a GPU is the wrong tool — launch and transfer overhead dominate — while bulk training gains 12×. What decides is amortized compute per call, not \"streaming vs batch\"."
+    ],
+    links:[{label:"repo (team)", href:"https://github.com/Andresaf03/streaming_polymarket"}]
+  },
+  {
+    id:"parallel-dbscan", label:"parallel dbscan", cluster:"dataeng", kind:"project", x:592, y:634,
+    title:"Parallel DBSCAN and the boundary problem",
+    meta:"Cómputo Paralelo · ITAM · 2025 · with A. Yunes",
+    body:[
+      "Three C++ implementations of DBSCAN for outlier detection: a serial baseline, a naive OpenMP parallel-for, and a spatial decomposition that bins points into a grid and hands regions to threads. The interesting problem is the boundary — a point near a dividing line has neighbors in someone else's region.",
+      "Our answer triples every dividing line into read-shared buffer strips, so no ε-neighborhood is ever truncated, with points assigned to bins by binary search. At 16 threads the decomposition reaches ~9.8× speedup against ~6.3× for the naive version: locality, not just parallelism, is what scales."
+    ],
+    links:[]
+  },
+  // ---- products ----
+  {
+    id:"retail", label:"retail · wip", cluster:"product", kind:"wip", x:778, y:458,
+    title:"Retail intelligence (work in progress)",
+    meta:"2026 · stealth",
+    body:[
+      "I'm building the data side of a retail expansion-intelligence product: pipelines that collect, clean and match messy multi-source retail data into versioned, governed data products — raw, processed and golden tiers with explicit promotion rules, registries and manifest-pinned releases — analytical models on top, and a web runtime that consumes each release through typed, validated contracts. More when it ships."
+    ],
+    links:[]
+  },
+  {
+    id:"glass", label:"glass", cluster:"product", kind:"project", x:872, y:528,
+    title:"Glass — open finance, built with friends",
+    meta:"2026 · team",
+    body:[
+      "Glass is a personal-finance app a few friends and I are building around a simple ethos: your financial data belongs to you. The app unifies your bank accounts into one view, surfaces the small recurring leaks — the \"gastos hormiga\" — and makes splitting expenses with friends a first-class, social feature.",
+      "The technically distinctive choice is where aggregation happens: on your own device, with credentials that never leave it — openness about your own money without handing it to yet another intermediary. I work on the backend."
+    ],
+    links:[]
+  },
+  {
+    id:"cdmx-budget", label:"cdmx budget", cluster:"product", kind:"project", x:838, y:342,
+    title:"Where does a CDMX peso go?",
+    meta:"Claude Mexico City Lab · 2026 · 4-hour hackathon",
+    body:[
+      "A four-hour hackathon sprint over Mexico City's open budget data: dashboards tracing where public money actually goes — \"la ruta de tu peso\" — plus a map of thousands of georeferenced public works. I built the conversational layer (an agent that answers budget questions through custom tools over the cleaned datasets) and the category crosswalk that makes official line items legible to citizens. Four hours of polish it did not receive; the data plumbing was real."
+    ],
+    links:[]
+  },
+];
+
+const svgNS = "http://www.w3.org/2000/svg";
+const dotsG = document.getElementById("dots");
+const byId = {};
+
+PROJECTS.forEach(p => {
+  byId[p.id] = p;
+  const g = document.createElementNS(svgNS, "g");
+  g.setAttribute("class", "dot " + p.kind);
+  g.style.setProperty("--c", CLUSTERS[p.cluster].color);
+  g.setAttribute("transform", `translate(${p.x},${p.y})`);
+  g.setAttribute("tabindex", "0");
+  g.setAttribute("role", "button");
+  g.setAttribute("aria-label", p.title);
+  g.dataset.id = p.id;
+
+  const glow = document.createElementNS(svgNS, "circle");
+  glow.setAttribute("class", "glow"); glow.setAttribute("r", "15");
+  const halo = document.createElementNS(svgNS, "circle");
+  halo.setAttribute("class", "halo"); halo.setAttribute("r", "20");
+  const core = document.createElementNS(svgNS, "circle");
+  core.setAttribute("class", "core"); core.setAttribute("r", "7");
+  const lbl = document.createElementNS(svgNS, "text");
+  lbl.setAttribute("class", "lbl"); lbl.setAttribute("y", "24");
+  lbl.textContent = p.label;
+
+  g.append(glow, halo, core, lbl);
+  g.addEventListener("click", () => openPanel(p.id));
+  g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPanel(p.id); } });
+  dotsG.appendChild(g);
+});
+
+// index list, grouped by cluster
+const idx = document.getElementById("idx");
+Object.entries(CLUSTERS).forEach(([key, c]) => {
+  const items = PROJECTS.filter(p => p.cluster === key);
+  if (!items.length) return;
+  const div = document.createElement("div");
+  div.className = "idx-group";
+  const h = document.createElement("h3");
+  h.innerHTML = `<svg width="10" height="10" style="margin-right:8px;vertical-align:-1px"><circle cx="5" cy="5" r="4" fill="${c.color}"/></svg>`;
+  h.append(c.name);
+  div.appendChild(h);
+  items.forEach(p => {
+    const b = document.createElement("button");
+    b.textContent = p.title;
+    b.addEventListener("click", () => openPanel(p.id));
+    div.appendChild(b);
+  });
+  idx.appendChild(div);
+});
+
+// panel
+const panel = document.getElementById("panel");
+const backdrop = document.getElementById("backdrop");
+const els = {
+  kicker: document.getElementById("p-kicker"),
+  title: document.getElementById("p-title"),
+  meta: document.getElementById("p-meta"),
+  body: document.getElementById("p-body"),
+  links: document.getElementById("p-links"),
+};
+let openId = null;
+
+function openPanel(id) {
+  const p = byId[id]; if (!p) return;
+  openId = id;
+  els.kicker.textContent = CLUSTERS[p.cluster].name + (p.kind === "wip" ? " · in progress" : p.kind === "writing" ? " · writing" : "");
+  els.kicker.style.color = CLUSTERS[p.cluster].color;
+  els.title.textContent = p.title;
+  els.meta.textContent = p.meta;
+  els.body.innerHTML = "";
+  p.body.forEach(t => { const el = document.createElement("p"); el.textContent = t; els.body.appendChild(el); });
+  els.links.innerHTML = "";
+  (p.links || []).forEach(l => {
+    const a = document.createElement("a");
+    a.href = l.href; a.textContent = l.label + " ↗";
+    if (/^https?:/.test(l.href)) { a.target = "_blank"; a.rel = "noopener"; }
+    els.links.appendChild(a);
+  });
+  panel.hidden = false; backdrop.hidden = false;
+  document.querySelectorAll("g.dot.active").forEach(d => d.classList.remove("active"));
+  const g = document.querySelector(`g.dot[data-id="${id}"]`);
+  if (g) g.classList.add("active");
+  if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+  panel.querySelector(".close").focus({ preventScroll: true });
+}
+
+function closePanel() {
+  openId = null;
+  panel.hidden = true; backdrop.hidden = true;
+  document.querySelectorAll("g.dot.active").forEach(d => d.classList.remove("active"));
+  history.replaceState(null, "", location.pathname);
+}
+
+panel.querySelector(".close").addEventListener("click", closePanel);
+backdrop.addEventListener("click", closePanel);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && openId) closePanel(); });
+
+// deep link
+if (location.hash && byId[location.hash.slice(1)]) openPanel(location.hash.slice(1));
+</script>
+</body>
+</html>
