@@ -1,0 +1,1397 @@
+{
+ "scale": 0.5,
+ "hop": 38.0,
+ "bounds": {
+  "w": 500.0,
+  "h": 360.0
+ },
+ "stops": [
+  "cfe-bills",
+  "building-monitors",
+  "solar-pipelines",
+  "inverter-anomalies",
+  "critical-hours",
+  "air-quality",
+  "spacetime-bayes",
+  "markov-chains",
+  "negreira",
+  "probability",
+  "thesis",
+  "nutrition",
+  "model-picker",
+  "predator-prey",
+  "autoencoder",
+  "fantasy-draft",
+  "lp-solver",
+  "btc-streaming",
+  "parallel-dbscan",
+  "retail",
+  "glass",
+  "cdmx-budget",
+  "itam"
+ ],
+ "edges": [
+  [
+   "cfe-bills",
+   "building-monitors"
+  ],
+  [
+   "cfe-bills",
+   "solar-pipelines"
+  ],
+  [
+   "building-monitors",
+   "critical-hours"
+  ],
+  [
+   "solar-pipelines",
+   "critical-hours"
+  ],
+  [
+   "solar-pipelines",
+   "btc-streaming"
+  ],
+  [
+   "solar-pipelines",
+   "retail"
+  ],
+  [
+   "inverter-anomalies",
+   "critical-hours"
+  ],
+  [
+   "inverter-anomalies",
+   "cdmx-budget"
+  ],
+  [
+   "inverter-anomalies",
+   "itam"
+  ],
+  [
+   "critical-hours",
+   "model-picker"
+  ],
+  [
+   "air-quality",
+   "probability"
+  ],
+  [
+   "air-quality",
+   "cdmx-budget"
+  ],
+  [
+   "spacetime-bayes",
+   "negreira"
+  ],
+  [
+   "spacetime-bayes",
+   "thesis"
+  ],
+  [
+   "spacetime-bayes",
+   "itam"
+  ],
+  [
+   "markov-chains",
+   "negreira"
+  ],
+  [
+   "markov-chains",
+   "nutrition"
+  ],
+  [
+   "markov-chains",
+   "predator-prey"
+  ],
+  [
+   "negreira",
+   "autoencoder"
+  ],
+  [
+   "probability",
+   "thesis"
+  ],
+  [
+   "thesis",
+   "nutrition"
+  ],
+  [
+   "model-picker",
+   "cdmx-budget"
+  ],
+  [
+   "predator-prey",
+   "fantasy-draft"
+  ],
+  [
+   "autoencoder",
+   "lp-solver"
+  ],
+  [
+   "autoencoder",
+   "parallel-dbscan"
+  ],
+  [
+   "fantasy-draft",
+   "lp-solver"
+  ],
+  [
+   "btc-streaming",
+   "parallel-dbscan"
+  ],
+  [
+   "btc-streaming",
+   "glass"
+  ],
+  [
+   "retail",
+   "glass"
+  ]
+ ],
+ "roads": [
+  {
+   "from": "cfe-bills",
+   "to": "building-monitors",
+   "length": 68.3,
+   "nodes": [
+    "cfe-bills",
+    "cfe-bills--building-monitors-1",
+    "building-monitors"
+   ]
+  },
+  {
+   "from": "cfe-bills",
+   "to": "solar-pipelines",
+   "length": 54.8,
+   "nodes": [
+    "cfe-bills",
+    "cfe-bills--solar-pipelines-1",
+    "solar-pipelines"
+   ]
+  },
+  {
+   "from": "building-monitors",
+   "to": "critical-hours",
+   "length": 59.6,
+   "nodes": [
+    "building-monitors",
+    "building-monitors--critical-hours-1",
+    "critical-hours"
+   ]
+  },
+  {
+   "from": "solar-pipelines",
+   "to": "critical-hours",
+   "length": 42.3,
+   "nodes": [
+    "solar-pipelines",
+    "solar-pipelines--critical-hours-1",
+    "critical-hours"
+   ]
+  },
+  {
+   "from": "solar-pipelines",
+   "to": "btc-streaming",
+   "length": 92.8,
+   "nodes": [
+    "solar-pipelines",
+    "solar-pipelines--btc-streaming-1",
+    "solar-pipelines--btc-streaming-2",
+    "btc-streaming"
+   ]
+  },
+  {
+   "from": "solar-pipelines",
+   "to": "retail",
+   "length": 59.6,
+   "nodes": [
+    "solar-pipelines",
+    "solar-pipelines--retail-1",
+    "retail"
+   ]
+  },
+  {
+   "from": "inverter-anomalies",
+   "to": "critical-hours",
+   "length": 80.3,
+   "nodes": [
+    "inverter-anomalies",
+    "inverter-anomalies--critical-hours-1",
+    "inverter-anomalies--critical-hours-2",
+    "critical-hours"
+   ]
+  },
+  {
+   "from": "inverter-anomalies",
+   "to": "cdmx-budget",
+   "length": 105.2,
+   "nodes": [
+    "inverter-anomalies",
+    "inverter-anomalies--cdmx-budget-1",
+    "inverter-anomalies--cdmx-budget-2",
+    "cdmx-budget"
+   ]
+  },
+  {
+   "from": "inverter-anomalies",
+   "to": "itam",
+   "length": 57.8,
+   "nodes": [
+    "inverter-anomalies",
+    "inverter-anomalies--itam-1",
+    "itam"
+   ]
+  },
+  {
+   "from": "critical-hours",
+   "to": "model-picker",
+   "length": 88.0,
+   "nodes": [
+    "critical-hours",
+    "critical-hours--model-picker-1",
+    "critical-hours--model-picker-2",
+    "model-picker"
+   ]
+  },
+  {
+   "from": "air-quality",
+   "to": "probability",
+   "length": 89.2,
+   "nodes": [
+    "air-quality",
+    "air-quality--probability-1",
+    "air-quality--probability-2",
+    "probability"
+   ]
+  },
+  {
+   "from": "air-quality",
+   "to": "cdmx-budget",
+   "length": 62.6,
+   "nodes": [
+    "air-quality",
+    "air-quality--cdmx-budget-1",
+    "cdmx-budget"
+   ]
+  },
+  {
+   "from": "spacetime-bayes",
+   "to": "negreira",
+   "length": 75.3,
+   "nodes": [
+    "spacetime-bayes",
+    "spacetime-bayes--negreira-1",
+    "negreira"
+   ]
+  },
+  {
+   "from": "spacetime-bayes",
+   "to": "thesis",
+   "length": 49.1,
+   "nodes": [
+    "spacetime-bayes",
+    "spacetime-bayes--thesis-1",
+    "thesis"
+   ]
+  },
+  {
+   "from": "spacetime-bayes",
+   "to": "itam",
+   "length": 91.7,
+   "nodes": [
+    "spacetime-bayes",
+    "spacetime-bayes--itam-1",
+    "spacetime-bayes--itam-2",
+    "itam"
+   ]
+  },
+  {
+   "from": "markov-chains",
+   "to": "negreira",
+   "length": 98.0,
+   "nodes": [
+    "markov-chains",
+    "markov-chains--negreira-1",
+    "markov-chains--negreira-2",
+    "negreira"
+   ]
+  },
+  {
+   "from": "markov-chains",
+   "to": "nutrition",
+   "length": 63.6,
+   "nodes": [
+    "markov-chains",
+    "markov-chains--nutrition-1",
+    "nutrition"
+   ]
+  },
+  {
+   "from": "markov-chains",
+   "to": "predator-prey",
+   "length": 51.6,
+   "nodes": [
+    "markov-chains",
+    "markov-chains--predator-prey-1",
+    "predator-prey"
+   ]
+  },
+  {
+   "from": "negreira",
+   "to": "autoencoder",
+   "length": 80.8,
+   "nodes": [
+    "negreira",
+    "negreira--autoencoder-1",
+    "negreira--autoencoder-2",
+    "autoencoder"
+   ]
+  },
+  {
+   "from": "probability",
+   "to": "thesis",
+   "length": 56.6,
+   "nodes": [
+    "probability",
+    "probability--thesis-1",
+    "thesis"
+   ]
+  },
+  {
+   "from": "thesis",
+   "to": "nutrition",
+   "length": 62.1,
+   "nodes": [
+    "thesis",
+    "thesis--nutrition-1",
+    "nutrition"
+   ]
+  },
+  {
+   "from": "model-picker",
+   "to": "cdmx-budget",
+   "length": 45.8,
+   "nodes": [
+    "model-picker",
+    "model-picker--cdmx-budget-1",
+    "cdmx-budget"
+   ]
+  },
+  {
+   "from": "predator-prey",
+   "to": "fantasy-draft",
+   "length": 84.9,
+   "nodes": [
+    "predator-prey",
+    "predator-prey--fantasy-draft-1",
+    "predator-prey--fantasy-draft-2",
+    "fantasy-draft"
+   ]
+  },
+  {
+   "from": "autoencoder",
+   "to": "lp-solver",
+   "length": 25.8,
+   "nodes": [
+    "autoencoder",
+    "lp-solver"
+   ]
+  },
+  {
+   "from": "autoencoder",
+   "to": "parallel-dbscan",
+   "length": 100.4,
+   "nodes": [
+    "autoencoder",
+    "autoencoder--parallel-dbscan-1",
+    "autoencoder--parallel-dbscan-2",
+    "parallel-dbscan"
+   ]
+  },
+  {
+   "from": "fantasy-draft",
+   "to": "lp-solver",
+   "length": 47.0,
+   "nodes": [
+    "fantasy-draft",
+    "fantasy-draft--lp-solver-1",
+    "lp-solver"
+   ]
+  },
+  {
+   "from": "btc-streaming",
+   "to": "parallel-dbscan",
+   "length": 98.7,
+   "nodes": [
+    "btc-streaming",
+    "btc-streaming--parallel-dbscan-1",
+    "btc-streaming--parallel-dbscan-2",
+    "parallel-dbscan"
+   ]
+  },
+  {
+   "from": "btc-streaming",
+   "to": "glass",
+   "length": 60.8,
+   "nodes": [
+    "btc-streaming",
+    "btc-streaming--glass-1",
+    "glass"
+   ]
+  },
+  {
+   "from": "retail",
+   "to": "glass",
+   "length": 58.9,
+   "nodes": [
+    "retail",
+    "retail--glass-1",
+    "glass"
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "id": "cfe-bills",
+   "type": "monument",
+   "project": "cfe-bills",
+   "label": "cfe bill engine",
+   "title": "Turning CFE bills into a data domain",
+   "cluster": "energy",
+   "kind": "project",
+   "x": 437.0,
+   "y": 208.5,
+   "neighbors": [
+    "cfe-bills--building-monitors-1",
+    "cfe-bills--solar-pipelines-1"
+   ]
+  },
+  {
+   "id": "building-monitors",
+   "type": "monument",
+   "project": "building-monitors",
+   "label": "building monitors",
+   "title": "Monitoring buildings with linear models",
+   "cluster": "energy",
+   "kind": "project",
+   "x": 443.5,
+   "y": 140.5,
+   "neighbors": [
+    "cfe-bills--building-monitors-1",
+    "building-monitors--critical-hours-1"
+   ]
+  },
+  {
+   "id": "solar-pipelines",
+   "type": "monument",
+   "project": "solar-pipelines",
+   "label": "solar pipelines",
+   "title": "Data pipelines for solar fleets",
+   "cluster": "energy",
+   "kind": "project",
+   "x": 382.5,
+   "y": 203.0,
+   "neighbors": [
+    "cfe-bills--solar-pipelines-1",
+    "solar-pipelines--critical-hours-1",
+    "solar-pipelines--btc-streaming-1",
+    "solar-pipelines--retail-1"
+   ]
+  },
+  {
+   "id": "inverter-anomalies",
+   "type": "monument",
+   "project": "inverter-anomalies",
+   "label": "inverter anomalies",
+   "title": "Catching failing inverters in their telemetry",
+   "cluster": "energy",
+   "kind": "project",
+   "x": 307.5,
+   "y": 154.5,
+   "neighbors": [
+    "inverter-anomalies--critical-hours-1",
+    "inverter-anomalies--cdmx-budget-1",
+    "inverter-anomalies--itam-1"
+   ]
+  },
+  {
+   "id": "critical-hours",
+   "type": "monument",
+   "project": "critical-hours",
+   "label": "critical hours",
+   "title": "Predicting the critical hours of Mexico's power market",
+   "cluster": "energy",
+   "kind": "project",
+   "x": 387.5,
+   "y": 161.0,
+   "neighbors": [
+    "building-monitors--critical-hours-1",
+    "solar-pipelines--critical-hours-1",
+    "inverter-anomalies--critical-hours-2",
+    "critical-hours--model-picker-1"
+   ]
+  },
+  {
+   "id": "air-quality",
+   "type": "monument",
+   "project": "air-quality",
+   "label": "air quality",
+   "title": "Why CDMX can't breathe",
+   "cluster": "energy",
+   "kind": "writing",
+   "x": 285.5,
+   "y": 35.0,
+   "neighbors": [
+    "air-quality--probability-1",
+    "air-quality--cdmx-budget-1"
+   ]
+  },
+  {
+   "id": "spacetime-bayes",
+   "type": "monument",
+   "project": "spacetime-bayes",
+   "label": "space–time bayes",
+   "title": "Bayesian space–time disease mapping",
+   "cluster": "stats",
+   "kind": "project",
+   "x": 172.5,
+   "y": 111.0,
+   "neighbors": [
+    "spacetime-bayes--negreira-1",
+    "spacetime-bayes--thesis-1",
+    "spacetime-bayes--itam-1"
+   ]
+  },
+  {
+   "id": "markov-chains",
+   "type": "monument",
+   "project": "markov-chains",
+   "label": "markov chains",
+   "title": "Continuous-time Markov chains, at two scales",
+   "cluster": "stats",
+   "kind": "project",
+   "x": 67.0,
+   "y": 150.0,
+   "neighbors": [
+    "markov-chains--negreira-1",
+    "markov-chains--nutrition-1",
+    "markov-chains--predator-prey-1"
+   ]
+  },
+  {
+   "id": "negreira",
+   "type": "monument",
+   "project": "negreira",
+   "label": "negreira",
+   "title": "A causal design for the Negreira case",
+   "cluster": "stats",
+   "kind": "project",
+   "x": 158.5,
+   "y": 185.0,
+   "neighbors": [
+    "spacetime-bayes--negreira-1",
+    "markov-chains--negreira-2",
+    "negreira--autoencoder-1"
+   ]
+  },
+  {
+   "id": "probability",
+   "type": "monument",
+   "project": "probability",
+   "label": "probability essay",
+   "title": "¿Qué es la probabilidad?",
+   "cluster": "stats",
+   "kind": "writing",
+   "x": 197.0,
+   "y": 46.5,
+   "neighbors": [
+    "air-quality--probability-2",
+    "probability--thesis-1"
+   ]
+  },
+  {
+   "id": "thesis",
+   "type": "monument",
+   "project": "thesis",
+   "label": "thesis · wip",
+   "title": "Thesis (work in progress)",
+   "cluster": "ml",
+   "kind": "wip",
+   "x": 145.5,
+   "y": 70.0,
+   "neighbors": [
+    "spacetime-bayes--thesis-1",
+    "probability--thesis-1",
+    "thesis--nutrition-1"
+   ]
+  },
+  {
+   "id": "nutrition",
+   "type": "monument",
+   "project": "nutrition",
+   "label": "nutrition5k",
+   "title": "Reading nutrition from food photos",
+   "cluster": "ml",
+   "kind": "project",
+   "x": 86.5,
+   "y": 89.5,
+   "neighbors": [
+    "markov-chains--nutrition-1",
+    "thesis--nutrition-1"
+   ]
+  },
+  {
+   "id": "model-picker",
+   "type": "monument",
+   "project": "model-picker",
+   "label": "model picker",
+   "title": "Self-improving model selection",
+   "cluster": "ml",
+   "kind": "project",
+   "x": 387.0,
+   "y": 73.0,
+   "neighbors": [
+    "critical-hours--model-picker-2",
+    "model-picker--cdmx-budget-1"
+   ]
+  },
+  {
+   "id": "predator-prey",
+   "type": "monument",
+   "project": "predator-prey",
+   "label": "predator–prey",
+   "title": "A predator–prey system and its Hopf bifurcation",
+   "cluster": "math",
+   "kind": "project",
+   "x": 40.0,
+   "y": 194.0,
+   "neighbors": [
+    "markov-chains--predator-prey-1",
+    "predator-prey--fantasy-draft-1"
+   ]
+  },
+  {
+   "id": "autoencoder",
+   "type": "monument",
+   "project": "autoencoder",
+   "label": "autoencoder",
+   "title": "Training an autoencoder without autodiff",
+   "cluster": "math",
+   "kind": "project",
+   "x": 147.0,
+   "y": 265.0,
+   "neighbors": [
+    "negreira--autoencoder-2",
+    "lp-solver",
+    "autoencoder--parallel-dbscan-1"
+   ]
+  },
+  {
+   "id": "fantasy-draft",
+   "type": "monument",
+   "project": "fantasy-draft",
+   "label": "fantasy draft",
+   "title": "Drafting a fantasy team as portfolio optimization",
+   "cluster": "math",
+   "kind": "project",
+   "x": 100.5,
+   "y": 253.5,
+   "neighbors": [
+    "predator-prey--fantasy-draft-2",
+    "fantasy-draft--lp-solver-1"
+   ]
+  },
+  {
+   "id": "lp-solver",
+   "type": "monument",
+   "project": "lp-solver",
+   "label": "lp solver",
+   "title": "An interior-point LP solver from first principles",
+   "cluster": "math",
+   "kind": "project",
+   "x": 133.5,
+   "y": 287.0,
+   "neighbors": [
+    "autoencoder",
+    "fantasy-draft--lp-solver-1"
+   ]
+  },
+  {
+   "id": "btc-streaming",
+   "type": "monument",
+   "project": "btc-streaming",
+   "label": "btc streaming",
+   "title": "Does a prediction market lead Bitcoin?",
+   "cluster": "dataeng",
+   "kind": "project",
+   "x": 307.0,
+   "y": 257.0,
+   "neighbors": [
+    "solar-pipelines--btc-streaming-2",
+    "btc-streaming--parallel-dbscan-1",
+    "btc-streaming--glass-1"
+   ]
+  },
+  {
+   "id": "parallel-dbscan",
+   "type": "monument",
+   "project": "parallel-dbscan",
+   "label": "parallel dbscan",
+   "title": "Parallel DBSCAN and the boundary problem",
+   "cluster": "dataeng",
+   "kind": "project",
+   "x": 231.0,
+   "y": 320.0,
+   "neighbors": [
+    "autoencoder--parallel-dbscan-2",
+    "btc-streaming--parallel-dbscan-2"
+   ]
+  },
+  {
+   "id": "retail",
+   "type": "monument",
+   "project": "retail",
+   "label": "retail · wip",
+   "title": "Retail intelligence (work in progress)",
+   "cluster": "product",
+   "kind": "wip",
+   "x": 401.5,
+   "y": 259.5,
+   "neighbors": [
+    "solar-pipelines--retail-1",
+    "retail--glass-1"
+   ]
+  },
+  {
+   "id": "glass",
+   "type": "monument",
+   "project": "glass",
+   "label": "glass",
+   "title": "Glass: open finance, built with friends",
+   "cluster": "product",
+   "kind": "project",
+   "x": 354.5,
+   "y": 295.0,
+   "neighbors": [
+    "btc-streaming--glass-1",
+    "retail--glass-1"
+   ]
+  },
+  {
+   "id": "cdmx-budget",
+   "type": "monument",
+   "project": "cdmx-budget",
+   "label": "cdmx budget",
+   "title": "Where does a CDMX peso go?",
+   "cluster": "product",
+   "kind": "project",
+   "x": 344.5,
+   "y": 56.0,
+   "neighbors": [
+    "inverter-anomalies--cdmx-budget-2",
+    "air-quality--cdmx-budget-1",
+    "model-picker--cdmx-budget-1"
+   ]
+  },
+  {
+   "id": "itam",
+   "type": "landmark",
+   "project": null,
+   "label": "ITAM",
+   "title": "ITAM, Río Hondo",
+   "cluster": null,
+   "kind": "landmark",
+   "x": 250.0,
+   "y": 160.0,
+   "neighbors": [
+    "inverter-anomalies--itam-1",
+    "spacetime-bayes--itam-2"
+   ]
+  },
+  {
+   "id": "cfe-bills--building-monitors-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 440.25,
+   "y": 174.5,
+   "neighbors": [
+    "cfe-bills",
+    "building-monitors"
+   ]
+  },
+  {
+   "id": "cfe-bills--solar-pipelines-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 409.75,
+   "y": 205.75,
+   "neighbors": [
+    "cfe-bills",
+    "solar-pipelines"
+   ]
+  },
+  {
+   "id": "building-monitors--critical-hours-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 415.5,
+   "y": 150.75,
+   "neighbors": [
+    "building-monitors",
+    "critical-hours"
+   ]
+  },
+  {
+   "id": "solar-pipelines--critical-hours-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 385.0,
+   "y": 182.0,
+   "neighbors": [
+    "solar-pipelines",
+    "critical-hours"
+   ]
+  },
+  {
+   "id": "solar-pipelines--btc-streaming-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 357.33,
+   "y": 221.0,
+   "neighbors": [
+    "solar-pipelines",
+    "solar-pipelines--btc-streaming-2"
+   ]
+  },
+  {
+   "id": "solar-pipelines--btc-streaming-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 332.17,
+   "y": 239.0,
+   "neighbors": [
+    "solar-pipelines--btc-streaming-1",
+    "btc-streaming"
+   ]
+  },
+  {
+   "id": "solar-pipelines--retail-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 392.0,
+   "y": 231.25,
+   "neighbors": [
+    "solar-pipelines",
+    "retail"
+   ]
+  },
+  {
+   "id": "inverter-anomalies--critical-hours-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 334.17,
+   "y": 156.67,
+   "neighbors": [
+    "inverter-anomalies",
+    "inverter-anomalies--critical-hours-2"
+   ]
+  },
+  {
+   "id": "inverter-anomalies--critical-hours-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 360.83,
+   "y": 158.83,
+   "neighbors": [
+    "inverter-anomalies--critical-hours-1",
+    "critical-hours"
+   ]
+  },
+  {
+   "id": "inverter-anomalies--cdmx-budget-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 319.83,
+   "y": 121.67,
+   "neighbors": [
+    "inverter-anomalies",
+    "inverter-anomalies--cdmx-budget-2"
+   ]
+  },
+  {
+   "id": "inverter-anomalies--cdmx-budget-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 332.17,
+   "y": 88.83,
+   "neighbors": [
+    "inverter-anomalies--cdmx-budget-1",
+    "cdmx-budget"
+   ]
+  },
+  {
+   "id": "inverter-anomalies--itam-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 278.75,
+   "y": 157.25,
+   "neighbors": [
+    "inverter-anomalies",
+    "itam"
+   ]
+  },
+  {
+   "id": "critical-hours--model-picker-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 387.33,
+   "y": 131.67,
+   "neighbors": [
+    "critical-hours",
+    "critical-hours--model-picker-2"
+   ]
+  },
+  {
+   "id": "critical-hours--model-picker-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 387.17,
+   "y": 102.33,
+   "neighbors": [
+    "critical-hours--model-picker-1",
+    "model-picker"
+   ]
+  },
+  {
+   "id": "air-quality--probability-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 256.0,
+   "y": 38.83,
+   "neighbors": [
+    "air-quality",
+    "air-quality--probability-2"
+   ]
+  },
+  {
+   "id": "air-quality--probability-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 226.5,
+   "y": 42.67,
+   "neighbors": [
+    "air-quality--probability-1",
+    "probability"
+   ]
+  },
+  {
+   "id": "air-quality--cdmx-budget-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 315.0,
+   "y": 45.5,
+   "neighbors": [
+    "air-quality",
+    "cdmx-budget"
+   ]
+  },
+  {
+   "id": "spacetime-bayes--negreira-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 165.5,
+   "y": 148.0,
+   "neighbors": [
+    "spacetime-bayes",
+    "negreira"
+   ]
+  },
+  {
+   "id": "spacetime-bayes--thesis-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 159.0,
+   "y": 90.5,
+   "neighbors": [
+    "spacetime-bayes",
+    "thesis"
+   ]
+  },
+  {
+   "id": "spacetime-bayes--itam-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 198.33,
+   "y": 127.33,
+   "neighbors": [
+    "spacetime-bayes",
+    "spacetime-bayes--itam-2"
+   ]
+  },
+  {
+   "id": "spacetime-bayes--itam-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 224.17,
+   "y": 143.67,
+   "neighbors": [
+    "spacetime-bayes--itam-1",
+    "itam"
+   ]
+  },
+  {
+   "id": "markov-chains--negreira-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 97.5,
+   "y": 161.67,
+   "neighbors": [
+    "markov-chains",
+    "markov-chains--negreira-2"
+   ]
+  },
+  {
+   "id": "markov-chains--negreira-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 128.0,
+   "y": 173.33,
+   "neighbors": [
+    "markov-chains--negreira-1",
+    "negreira"
+   ]
+  },
+  {
+   "id": "markov-chains--nutrition-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 76.75,
+   "y": 119.75,
+   "neighbors": [
+    "markov-chains",
+    "nutrition"
+   ]
+  },
+  {
+   "id": "markov-chains--predator-prey-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 53.5,
+   "y": 172.0,
+   "neighbors": [
+    "markov-chains",
+    "predator-prey"
+   ]
+  },
+  {
+   "id": "negreira--autoencoder-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 154.67,
+   "y": 211.67,
+   "neighbors": [
+    "negreira",
+    "negreira--autoencoder-2"
+   ]
+  },
+  {
+   "id": "negreira--autoencoder-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 150.83,
+   "y": 238.33,
+   "neighbors": [
+    "negreira--autoencoder-1",
+    "autoencoder"
+   ]
+  },
+  {
+   "id": "probability--thesis-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 171.25,
+   "y": 58.25,
+   "neighbors": [
+    "probability",
+    "thesis"
+   ]
+  },
+  {
+   "id": "thesis--nutrition-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 116.0,
+   "y": 79.75,
+   "neighbors": [
+    "thesis",
+    "nutrition"
+   ]
+  },
+  {
+   "id": "model-picker--cdmx-budget-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 365.75,
+   "y": 64.5,
+   "neighbors": [
+    "model-picker",
+    "cdmx-budget"
+   ]
+  },
+  {
+   "id": "predator-prey--fantasy-draft-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 60.17,
+   "y": 213.83,
+   "neighbors": [
+    "predator-prey",
+    "predator-prey--fantasy-draft-2"
+   ]
+  },
+  {
+   "id": "predator-prey--fantasy-draft-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 80.33,
+   "y": 233.67,
+   "neighbors": [
+    "predator-prey--fantasy-draft-1",
+    "fantasy-draft"
+   ]
+  },
+  {
+   "id": "autoencoder--parallel-dbscan-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 175.0,
+   "y": 283.33,
+   "neighbors": [
+    "autoencoder",
+    "autoencoder--parallel-dbscan-2"
+   ]
+  },
+  {
+   "id": "autoencoder--parallel-dbscan-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 203.0,
+   "y": 301.67,
+   "neighbors": [
+    "autoencoder--parallel-dbscan-1",
+    "parallel-dbscan"
+   ]
+  },
+  {
+   "id": "fantasy-draft--lp-solver-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 117.0,
+   "y": 270.25,
+   "neighbors": [
+    "fantasy-draft",
+    "lp-solver"
+   ]
+  },
+  {
+   "id": "btc-streaming--parallel-dbscan-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 281.67,
+   "y": 278.0,
+   "neighbors": [
+    "btc-streaming",
+    "btc-streaming--parallel-dbscan-2"
+   ]
+  },
+  {
+   "id": "btc-streaming--parallel-dbscan-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 256.33,
+   "y": 299.0,
+   "neighbors": [
+    "btc-streaming--parallel-dbscan-1",
+    "parallel-dbscan"
+   ]
+  },
+  {
+   "id": "btc-streaming--glass-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 330.75,
+   "y": 276.0,
+   "neighbors": [
+    "btc-streaming",
+    "glass"
+   ]
+  },
+  {
+   "id": "retail--glass-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 378.0,
+   "y": 277.25,
+   "neighbors": [
+    "retail",
+    "glass"
+   ]
+  }
+ ]
+}
