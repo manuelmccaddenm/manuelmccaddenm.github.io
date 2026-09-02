@@ -61,37 +61,7 @@
   .legend button:hover{color:var(--ink)}
   .legend button.on{border-color:var(--hair); color:var(--ink)}
   .legend .sep{width:1px; height:14px; background:var(--hair); align-self:center}
-  #panel .note{margin-top:18px; padding-top:14px; border-top:1px solid var(--hair); color:var(--muted); font-size:13px}
-  #panel .rel{margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-  #panel .rel span{color:var(--faint); font-size:11px; letter-spacing:.18em; text-transform:uppercase; margin-right:4px}
-  #panel .rel button{
-    background:none; border:1px solid var(--hair); border-radius:999px; padding:5px 12px; cursor:pointer;
-    color:var(--sec); font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace;
-  }
-  #panel .rel button:hover{border-color:var(--accent); color:var(--ink)}
 
-  /* detail panel */
-  #backdrop{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:40}
-  #panel{
-    position:fixed; top:0; right:0; bottom:0; width:min(430px,100vw);
-    background:var(--panel); border-left:1px solid var(--hair); z-index:50;
-    padding:30px 30px 40px; overflow-y:auto;
-  }
-  #panel .close{
-    position:absolute; top:16px; right:16px; background:none; border:1px solid var(--hair);
-    color:var(--sec); border-radius:999px; width:34px; height:34px; cursor:pointer; font-size:14px;
-  }
-  #panel .close:hover{border-color:var(--accent); color:var(--ink)}
-  #panel .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; letter-spacing:.22em; color:var(--accent-soft); text-transform:uppercase; margin:6px 0 10px}
-  #panel h2{margin:0 0 6px; font-size:22px; line-height:1.25; font-weight:650}
-  #panel .meta{color:var(--muted); font-size:13px; margin:0 0 18px}
-  #panel .body p{color:var(--sec); font-size:14.5px; margin:0 0 14px}
-  #panel .links{margin-top:22px; display:flex; flex-wrap:wrap; gap:10px}
-  #panel .links a{
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;
-    border:1px solid var(--hair); border-radius:999px; padding:7px 15px; color:var(--ink);
-  }
-  #panel .links a:hover{border-color:var(--accent); text-decoration:none; background:rgba(85,152,231,.08)}
 
   /* index list */
   section.index{max-width:1060px; margin:26px auto 0; padding:26px 28px 10px; border-top:1px solid var(--hair)}
@@ -105,6 +75,24 @@
   .idx-group button:hover{color:var(--accent-soft)}
   footer{margin-top:40px; padding:20px 28px; border-top:1px solid var(--hair); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; color:var(--muted); font-size:12.5px}
   footer a{color:var(--muted)}
+
+  /* reading: inline under the map, plain page content */
+  #backdrop{display:none}
+  #panel{max-width:1060px; margin:8px auto 0; padding:34px 28px 10px; border-top:1px solid var(--hair)}
+  #panel .close{float:right; background:none; border:none; color:var(--muted); cursor:pointer; font:13px ui-monospace,SFMono-Regular,Menlo,monospace; padding:4px 0}
+  #panel .close:hover{color:var(--ink)}
+  #panel .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; letter-spacing:.24em; text-transform:uppercase; margin:0 0 12px}
+  #panel h2{margin:0 0 8px; font-size:clamp(26px,3vw,34px); line-height:1.15; font-weight:650; letter-spacing:-.015em; max-width:26ch}
+  #panel .meta{color:var(--muted); font-size:13.5px; margin:0 0 22px}
+  #panel .body{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:0 40px}
+  #panel .body p{color:#d8d5cc; font-size:16.5px; line-height:1.7; margin:0 0 16px}
+  #panel .body .note, #panel .body .rel{grid-column:1 / -1}
+  #panel .note{margin-top:6px; color:var(--muted); font-size:14px}
+  #panel .rel{margin:6px 0 10px; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
+  #panel .rel span{color:var(--faint); font-size:11px; letter-spacing:.18em; text-transform:uppercase; margin-right:4px}
+  #panel .rel button{background:none; border:none; padding:0; cursor:pointer; color:var(--accent-soft); font:14px system-ui,-apple-system,"Segoe UI",sans-serif; text-decoration:underline; text-underline-offset:3px}
+  #panel .links{margin-top:6px; display:flex; flex-wrap:wrap; gap:8px 22px}
+  #panel .links a{font-size:14.5px; color:var(--accent-soft); text-decoration:underline; text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -150,20 +138,22 @@
   </div>
 </div>
 
-<section class="index">
-  <h2>index</h2>
-  <div class="idx-grid" id="idx"></div>
-</section>
-
-<div id="backdrop" hidden></div>
-<aside id="panel" hidden aria-modal="true" role="dialog" aria-labelledby="p-title">
-  <button class="close" aria-label="close">✕</button>
+<section id="panel" hidden aria-labelledby="p-title">
+  <button class="close mono" aria-label="close">close ×</button>
   <p class="kicker mono" id="p-kicker"></p>
   <h2 id="p-title"></h2>
   <p class="meta" id="p-meta"></p>
   <div class="body" id="p-body"></div>
   <div class="links" id="p-links"></div>
-</aside>
+</section>
+<div id="backdrop" hidden></div>
+
+<section class="index">
+  <h2>index</h2>
+  <div class="idx-grid" id="idx"></div>
+</section>
+
+
 
 <footer class="mono">
   <span>© 2026 Manuel McCadden</span>
@@ -271,6 +261,7 @@ function openPanel(id) {
   const kindTag = p.kind === "wip" ? " · in progress" : p.kind === "writing" ? " · writing" : p.kind === "experience" ? " · experience" : "";
   els.kicker.textContent = CLUSTERS[p.cluster].name + kindTag + (p.org && !p.hub ? " · " + p.org : "");
   els.kicker.style.color = CLUSTERS[p.cluster].color;
+  panel.style.setProperty("--c", CLUSTERS[p.cluster].color);
   els.title.textContent = p.title;
   els.meta.textContent = p.meta;
   els.body.innerHTML = "";
@@ -299,12 +290,12 @@ function openPanel(id) {
     if (/^https?:/.test(l.href)) { a.target = "_blank"; a.rel = "noopener"; }
     els.links.appendChild(a);
   });
-  panel.hidden = false; backdrop.hidden = false;
+  panel.hidden = false;
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
   document.querySelectorAll("g.dot.active").forEach(d => d.classList.remove("active"));
   const g = document.querySelector(`g.dot[data-id="${id}"]`);
   if (g) g.classList.add("active");
   if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
-  panel.querySelector(".close").focus({ preventScroll: true });
 }
 
 function closePanel() {

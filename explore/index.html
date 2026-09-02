@@ -7,34 +7,6 @@
 <meta name="description" content="Walk the embedding: Manuel McCadden's projects as a night district, one monument per project, roads laid out by similarity.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
-  :root{--bg:#050505; --panel:#121212; --ink:#f2f0ea; --sec:#b0aea5; --muted:#85837b; --faint:#6a6862; --hair:rgba(255,255,255,.1); --accent:#5598e7; --accent-soft:#86b6ef}
-  *{box-sizing:border-box}
-  [hidden]{display:none !important}
-  html,body{margin:0; height:100%; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; overflow:hidden}
-  a{color:var(--accent-soft); text-decoration:none}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-  #view{position:fixed; inset:0; cursor:grab}
-  #view.dragging{cursor:grabbing}
-
-  .hud{position:fixed; z-index:5; pointer-events:none}
-  .hud > *{pointer-events:auto}
-  #top{top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:flex-start; padding:18px 22px; font-size:12.5px}
-  #top a{color:var(--sec); letter-spacing:.06em}
-  #top a:hover{color:var(--ink)}
-  #top .links{display:flex; gap:18px}
-  #where{position:fixed; top:56px; left:22px; z-index:5; pointer-events:none}
-  #where .k{font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--faint); margin:0}
-  #where .t{font-size:16px; color:var(--ink); margin:2px 0 0; text-shadow:0 0 10px #000}
-
-  #minimap{position:fixed; left:18px; bottom:18px; z-index:5; background:rgba(8,8,8,.72); border:1px solid var(--hair); border-radius:10px; padding:8px; backdrop-filter:blur(6px)}
-  #minimap canvas{display:block; cursor:crosshair}
-  #minimap .cap{font-size:10px; color:var(--faint); letter-spacing:.18em; text-transform:uppercase; margin:6px 0 0 2px}
-
-  #actions{position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:5; display:flex; gap:10px; align-items:center}
-  #actions button, #actions a{
-    background:rgba(10,10,10,.75); border:1px solid var(--hair); border-radius:999px; padding:9px 16px; color:var(--ink);
-    font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer; backdrop-filter:blur(6px);
-  }
   #actions button:hover{border-color:var(--accent)}
   #hint{position:fixed; right:22px; bottom:22px; z-index:5; color:var(--faint); font-size:11.5px; text-align:right; line-height:1.7}
   #tip{position:fixed; z-index:6; pointer-events:none; transform:translate(-50%,-130%); background:rgba(10,10,10,.82); border:1px solid var(--hair);
@@ -44,17 +16,6 @@
   #tip .t{font-size:13.5px; color:var(--ink); margin:0; line-height:1.3}
   #tip .c{font-size:10.5px; color:var(--faint); margin:4px 0 0}
 
-  #backdrop{position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:40}
-  #panel{position:fixed; top:0; right:0; bottom:0; width:min(430px,100vw); background:var(--panel); border-left:1px solid var(--hair); z-index:50; padding:30px 30px 40px; overflow-y:auto}
-  #panel .close{position:absolute; top:16px; right:16px; background:none; border:1px solid var(--hair); color:var(--sec); border-radius:999px; width:34px; height:34px; cursor:pointer; font-size:14px}
-  #panel .kicker{font-size:11px; letter-spacing:.22em; text-transform:uppercase; margin:6px 0 10px}
-  #panel h2{margin:0 0 6px; font-size:22px; line-height:1.25; font-weight:650}
-  #panel .meta{color:var(--muted); font-size:13px; margin:0 0 18px}
-  #panel .body p{color:var(--sec); font-size:14.5px; margin:0 0 14px}
-  #panel .note{margin-top:18px; padding-top:14px; border-top:1px solid var(--hair); color:var(--muted); font-size:13px}
-  #panel .links{margin-top:22px; display:flex; flex-wrap:wrap; gap:10px}
-  #panel .links a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; border:1px solid var(--hair); border-radius:999px; padding:7px 15px; color:var(--ink)}
-  #panel .links a:hover{border-color:var(--accent)}
 
   #intro{position:fixed; inset:0; z-index:60; background:rgba(5,5,5,.86); display:flex; align-items:center; justify-content:center; padding:24px}
   #intro .card{max-width:460px}
@@ -65,6 +26,20 @@
   #intro button{margin-top:18px; background:var(--ink); color:#000; border:none; border-radius:999px; padding:11px 22px; font:13px ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer}
   #intro .alt{margin-top:14px; font-size:12.5px}
   #loading{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); z-index:30; color:var(--faint); font-size:12px; letter-spacing:.2em; text-transform:uppercase; pointer-events:none}
+
+  /* reading: typeset over the darkened scene, no box */
+  #backdrop{position:fixed; inset:0; z-index:40; background:linear-gradient(90deg, rgba(4,4,4,.92) 0%, rgba(4,4,4,.86) 42%, rgba(4,4,4,.35) 70%, rgba(4,4,4,.1) 100%)}
+  #panel{position:fixed; left:0; top:0; bottom:0; width:min(640px, 100vw); z-index:50; padding:64px 56px 48px 44px; overflow-y:auto}
+  #panel .close{position:fixed; top:20px; left:44px; background:none; border:none; color:var(--muted); cursor:pointer; font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace; padding:0; letter-spacing:.06em}
+  #panel .close:hover{color:var(--ink)}
+  #panel .kicker{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; letter-spacing:.24em; text-transform:uppercase; margin:18px 0 14px}
+  #panel h2{margin:0 0 10px; font-size:clamp(28px,3.4vw,38px); line-height:1.12; font-weight:650; letter-spacing:-.015em}
+  #panel .meta{color:var(--muted); font-size:13.5px; margin:0 0 28px}
+  #panel .body p{color:#e2dfd6; font-size:17px; line-height:1.7; margin:0 0 18px; text-shadow:0 1px 8px rgba(0,0,0,.8)}
+  #panel .note{margin-top:22px; color:var(--muted); font-size:14px}
+  #panel .links{margin-top:26px; display:flex; flex-wrap:wrap; gap:8px 22px}
+  #panel .links a{font-size:14.5px; color:var(--accent-soft); text-decoration:underline; text-underline-offset:3px}
+  @media (max-width:600px){ #panel{padding:60px 22px 30px} #panel .close{left:22px} }
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
 </head>
@@ -87,7 +62,7 @@
 
 <div id="backdrop" hidden></div>
 <aside id="panel" hidden role="dialog" aria-modal="true">
-  <button class="close" aria-label="close">✕</button>
+  <button class="close" aria-label="close">← back to the street</button>
   <p class="kicker mono" id="p-kicker"></p>
   <h2 id="p-title"></h2>
   <p class="meta" id="p-meta"></p>
@@ -368,6 +343,7 @@ function openPanel(pid) {
   const kindTag = p.kind === "wip" ? " · in progress" : p.kind === "writing" ? " · writing" : p.kind === "experience" ? " · experience" : "";
   els("p-kicker").textContent = cl.name + kindTag + (p.org && !p.hub ? " · " + p.org : "");
   els("p-kicker").style.color = cl.color;
+  els("panel").style.setProperty("--c", cl.color);
   els("p-title").textContent = p.title; els("p-meta").textContent = p.meta;
   const body = els("p-body"); body.innerHTML = "";
   p.body.forEach(t => { const q = document.createElement("p"); q.textContent = t; body.appendChild(q); });

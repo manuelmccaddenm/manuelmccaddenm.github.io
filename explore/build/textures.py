@@ -166,3 +166,63 @@ for k, lab in enumerate(labels):
 ax.set_xlim(-0.05, 1.05); ax.set_ylim(-0.05, 1.05)
 save(f, "ontology.png")
 print("done")
+
+# 12. the year as a wall: 365 x 24 hours of reserve margin, the 100 lowest in red (positions saved for the 3D rods)
+import json as _json
+f, ax = fig(12, 3.2)
+days = np.arange(365); hours = np.arange(24)
+season = 1 - 0.55 * np.exp(-((days - 200) / 55) ** 2)           # summer squeeze
+daily = 1 - 0.6 * np.exp(-((hours - 19) / 2.2) ** 2)             # evening peak
+reserve = season[None, :] * daily[:, None] + 0.08 * rng.standard_normal((24, 365))
+flat = np.argsort(reserve, axis=None)[:100]
+crit = [(int(i % 365), int(i // 365)) for i in flat]
+img = np.clip(reserve, 0.05, 1.3) / 1.3
+ax.imshow(img, aspect="auto", cmap=matplotlib.colors.LinearSegmentedColormap.from_list("r", [BG, "#3a2a10", C["energy"], "#ffe6b0"]), interpolation="nearest", origin="lower")
+for dd, hh in crit:
+    ax.add_patch(plt.Rectangle((dd - 0.5, hh - 0.5), 1, 1, color="#ff2a1a"))
+ax.set_xlim(-0.5, 364.5); ax.set_ylim(-0.5, 23.5)
+save(f, "hours_wall.png")
+_json.dump(crit, open(OUT / "critical_hours.json", "w"))
+
+# 13. glass: a phone UI
+f, ax = fig(3, 6)
+ax.add_patch(plt.Rectangle((0, 0), 1, 1, color="#0b0a12"))
+ax.text(0.08, 0.93, "glass", color=C["product"], fontsize=26, family="monospace", weight="bold")
+ax.text(0.08, 0.885, "tus cuentas · un solo lugar", color="#b0aea5", fontsize=10, family="monospace")
+for i, (name, v) in enumerate((("BBVA", 0.78), ("Nu", 0.42), ("Banorte", 0.25))):
+    y = 0.78 - i * 0.11
+    ax.text(0.08, y + 0.02, name, color="#f2f0ea", fontsize=12, family="monospace")
+    ax.add_patch(plt.Rectangle((0.08, y - 0.02), 0.84, 0.03, color="#1c1a2a"))
+    ax.add_patch(plt.Rectangle((0.08, y - 0.02), 0.84 * v, 0.03, color=C["product"]))
+ax.text(0.08, 0.42, "gastos hormiga", color="#f2f0ea", fontsize=12, family="monospace")
+ax.text(0.08, 0.39, "$ 1,240 este mes · 31 cargos", color="#b0aea5", fontsize=9, family="monospace")
+for k in range(31):
+    ax.add_patch(plt.Circle((0.09 + (k % 11) * 0.083, 0.33 - (k // 11) * 0.03), 0.009, color=C["product"], alpha=0.7))
+ax.text(0.08, 0.18, "split con amigos", color="#f2f0ea", fontsize=12, family="monospace")
+ax.text(0.08, 0.15, "cena · 4 personas · $ 380 c/u", color="#b0aea5", fontsize=9, family="monospace")
+ax.text(0.08, 0.05, "tus datos se quedan en tu teléfono", color=C["product"], fontsize=9, family="monospace")
+save(f, "glass_ui.png")
+
+# 14. fantasy draft: floor vs ceiling on the risk-return plane
+f, ax = fig(6, 4)
+fl = rng.normal((0.25, 0.55), (0.05, 0.06), (400, 2)); ce = rng.normal((0.7, 0.75), (0.12, 0.13), (400, 2))
+ax.scatter(fl[:, 0], fl[:, 1], s=6, color=C["math"], alpha=0.8); ax.scatter(ce[:, 0], ce[:, 1], s=6, color="#c6f2dc", alpha=0.6)
+xs = np.linspace(0.12, 0.98, 60); ax.plot(xs, 0.35 + 0.62 * np.sqrt(xs - 0.1), color="#f2f0ea", lw=1.4)
+ax.text(0.17, 0.72, "floor", color=C["math"], fontsize=16, family="monospace"); ax.text(0.72, 0.95, "ceiling", color="#c6f2dc", fontsize=16, family="monospace")
+ax.text(0.03, 0.04, "risk (weekly variance) →", color="#b0aea5", fontsize=11, family="monospace")
+ax.text(0.02, 0.5, "expected points ↑", color="#b0aea5", fontsize=11, family="monospace", rotation=90)
+ax.set_xlim(0, 1.05); ax.set_ylim(0, 1.05)
+save(f, "risk_return.png")
+
+# 15. telemetry, two panels: signal with the dip, residual with the spike
+f, ax = fig(8, 4)
+t = np.linspace(0, 6, 900); day = np.clip(np.sin(np.pi * (t % 1)), 0, None)
+sig = 40 * day * (1 + 0.08 * rng.standard_normal(t.size)); sig[600:660] *= 0.15
+res = 3 * rng.standard_normal(t.size); res[600:660] -= 30 * day[600:660]
+ax.plot(t, sig + 52, color=C["energy"], lw=1.2); ax.plot(t, 40 * day + 52, color="#5a4a20", lw=0.9, ls="--")
+ax.plot(t, res + 12, color="#f2f0ea", lw=1.0); ax.axhline(12, color="#3a3a3a", lw=0.8)
+ax.axvspan(t[600], t[660], color="#ff3b3b", alpha=0.22)
+ax.text(0.05, 96, "señal", color="#b0aea5", fontsize=18, family="monospace"); ax.text(0.05, 30, "residuo", color="#b0aea5", fontsize=18, family="monospace")
+ax.set_ylim(-25, 105)
+save(f, "telemetry.png")
+print("extra textures done")

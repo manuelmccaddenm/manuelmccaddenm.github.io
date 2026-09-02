@@ -364,7 +364,7 @@ def setup_render():
         sc.view_settings.look = "AgX - Medium High Contrast"
     except Exception:
         sc.view_settings.view_transform = "Filmic"
-    sc.view_settings.exposure = 1.3
+    sc.view_settings.exposure = 1.45
     # glare on the lamps and signs
     try:
         tree = None
@@ -419,7 +419,7 @@ def setup_world():
     up = nt.nodes.new("ShaderNodeMath"); up.operation = "GREATER_THAN"; up.inputs[1].default_value = 0.03
     mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"
     scale = nt.nodes.new("ShaderNodeMath"); scale.operation = "MULTIPLY"; scale.inputs[1].default_value = 1.4
-    add = nt.nodes.new("ShaderNodeMath"); add.operation = "ADD"; add.inputs[1].default_value = 0.0012
+    add = nt.nodes.new("ShaderNodeMath"); add.operation = "ADD"; add.inputs[1].default_value = 0.01
     nt.links.new(coord.outputs["Generated"], vor.inputs["Vector"])
     nt.links.new(coord.outputs["Generated"], sep.inputs["Vector"])
     nt.links.new(vor.outputs["Distance"], lt.inputs[0])
@@ -428,7 +428,7 @@ def setup_world():
     nt.links.new(mul.outputs["Value"], scale.inputs[0])
     nt.links.new(scale.outputs["Value"], add.inputs[0])
     nt.links.new(add.outputs["Value"], bg.inputs["Strength"])
-    bg.inputs["Color"].default_value = (0.8, 0.85, 1.0, 1)
+    bg.inputs["Color"].default_value = (0.55, 0.65, 1.0, 1)
     nt.links.new(bg.outputs["Background"], out.inputs["Surface"])
 
 # ----------------------------------------------------------------------------- graph geometry
@@ -479,15 +479,21 @@ def free_side(stop_id, along=7.0, out=5.0):
                 best = (score, d, s)
     return best[1], best[2]
 
-def lot(stop_id, depth, width, setback=6.0, along=7.0):
-    """A concrete island beside a stop's road: returns (centre xy, facing dir toward road, road dir, side)."""
+def lot(stop_id, depth, width, setback=7.0, along=7.0):
+    """Ground beside a stop's road for a monument: a dark pad starting behind the sidewalk (no stage),
+    two lamp posts at its front corners and a soft fill light. Returns (centre xy, facing dir toward road, road dir, side)."""
     d, s = free_side(stop_id)
     p = pos(stop_id)
     pp = perp(d)
     cx = p[0] + d[0] * along + pp[0] * s * (setback + depth / 2)
     cy = p[1] + d[1] * along + pp[1] * s * (setback + depth / 2)
-    box(f"lot_{stop_id}", (width + 4, depth + 4, WALK_H), (cx, cy, WALK_H / 2), yaw_of(d), M()["concrete"])
+    ground = mat_plain("ground", (0.022, 0.022, 0.02, 1), rough=0.95)
+    box(f"lot_{stop_id}", (width + 2, depth + 2, 0.12), (cx, cy, 0.06), yaw_of(d), ground)
     facing = (-pp[0] * s, -pp[1] * s)
+    for a in (-width / 2 - 0.5, width / 2 + 0.5):
+        base = (cx + d[0] * a + facing[0] * (depth / 2 + 0.5), cy + d[1] * a + facing[1] * (depth / 2 + 0.5))
+        lamp(f"lotlamp_{stop_id}_{a}", base, (-facing[0], -facing[1]))
+    spot(f"lotfill_{stop_id}", (cx + facing[0] * (depth / 2 + 6), cy + facing[1] * (depth / 2 + 6), 11), (cx, cy, 2.5), 1400, color=(1, 0.9, 0.78), size_deg=100, blend=0.7, radius=1.2)
     HOTSPOTS[stop_id] = {"x": round(cx, 2), "y": round(cy, 2), "z": 3.0, "r": round(max(width, depth) / 2 + 1, 1)}
     return (cx, cy), facing, d, s
 
@@ -514,7 +520,7 @@ def build_roads():
             for k in range(n):
                 t = -Ls / 2 + 4.5 + 9 * k
                 box(f"dash_{i}_{k}", (3.0, 0.15, 0.004), (c[0] + d[0] * t, c[1] + d[1] * t, 0.002 + z), yaw, m["paint_yellow"])
-            nl = max(1, int(Ls // 24))
+            nl = max(1, int(Ls // 17))
             for k in range(nl):
                 t = -Ls / 2 + (k + 0.5) * (Ls / nl)
                 s = 1 if k % 2 == 0 else -1
@@ -532,7 +538,7 @@ def lamp(name, base, toward):
     hx, hy = base[0] + toward[0] * arm, base[1] + toward[1] * arm
     box(f"{name}_head", (0.7, 0.3, 0.14), (hx, hy, h + WALK_H - 0.2), yaw_of(toward), m["pole"])
     box(f"{name}_glass", (0.55, 0.22, 0.02), (hx, hy, h + WALK_H - 0.28), yaw_of(toward), m["lamp"])
-    spot(f"{name}_light", (hx, hy, h + WALK_H - 0.35), (hx, hy, 0), 2600, size_deg=150, blend=0.5, radius=0.2)
+    spot(f"{name}_light", (hx, hy, h + WALK_H - 0.35), (hx, hy, 0), 3600, size_deg=155, blend=0.55, radius=0.25)
 
 def signpost(stop):
     """Fingerpost at a stop: street-name plate on top, one blade per road pointing to where it goes."""
@@ -541,7 +547,7 @@ def signpost(stop):
     p = pos(sid)
     d, s = free_side(sid, along=3.0, out=4.6)
     pp = perp(d)
-    base = (p[0] + d[0] * 3.0 + pp[0] * 4.6 * s, p[1] + d[1] * 3.0 + pp[1] * 4.6 * s)
+    base = (p[0] - d[0] * 3.8 + pp[0] * 4.6 * s, p[1] - d[1] * 3.8 + pp[1] * 4.6 * s)
     h = 4.6
     cylinder(f"sign_{sid}_pole", 0.055, h, (base[0], base[1], h / 2 + WALK_H), m["pole"], segments=16)
     dests = []
@@ -649,43 +655,109 @@ def autoencoder_arch(stop):
             box(f"ae_{k}_strip{s}", (0.04, 0.05, h - 0.4), (cx + pp[0] * (w / 2 - sec / 2 - 0.02) * s, cy + pp[1] * (w / 2 - sec / 2 - 0.02) * s, h / 2), yaw, green)
         box(f"ae_{k}_striptop", (0.04, w - sec, 0.05), (cx, cy, h - sec / 2 - 0.03), yaw, green)
     plaque(stop, (p[0] + d[0] * 3.0 + pp[0] * 5.0, p[1] + d[1] * 3.0 + pp[1] * 5.0), (-pp[0], -pp[1]))
+    # markers: encoder at the mouth, z at the bottleneck, decoder at the far end; all readable when walking in
+    back = (-d[0], -d[1])
+    for body, t, z, size in (("encoder", 5.0, 8.4, 0.7), ("z", 5.0 + 6 * 1.55, 4.6, 1.1), ("decoder", 5.0 + 12 * 1.55, 8.4, 0.7)):
+        text(f"ae_lbl_{body}", body, size, (p[0] + d[0] * t, p[1] + d[1] * t, z), (math.pi / 2, 0, yaw_of(perp(back))), green, extrude=0.03)
+    point("ae_zlight", (p[0] + d[0] * (5.0 + 6 * 1.55), p[1] + d[1] * (5.0 + 6 * 1.55), 2.2), 120, color=hex_rgb("#199e70")[:3], radius=0.5)
     for k in (1, 6, 11):
         t = 5.0 + k * 1.55
         spot(f"ae_light_{k}", (p[0] + d[0] * t, p[1] + d[1] * t, 0.3), (p[0] + d[0] * t, p[1] + d[1] * t, 8), 250, color=hex_rgb("#199e70")[:3], size_deg=120, blend=0.9)
+    loss_landscape(stop)
+    HOTSPOTS[sid] = {"x": round(p[0] + d[0] * 14, 2), "y": round(p[1] + d[1] * 14, 2), "z": 4.0, "r": 9.0}
 
-def coin_under_blanket(stop):
-    """A giant coin on a plinth, half hidden by a blanket (cloth-simulated, then frozen)."""
+def loss_landscape(stop):
+    """Beside the arch: the loss surface as a wireframe bowl standing on edge toward the road, the trust-region
+    steps walking down it as glowing beads, the current trust region as a ring."""
     m = M()
     sid = stop["id"]
-    (cx, cy), facing, d, s = lot(sid, depth=13, width=13, along=5.0)
+    (cx, cy), facing, d, s = lot(sid, depth=12, width=14, along=5.0)
+    pp = perp(d)
+    green = mat_cluster("math", 2.2)
+    n = 26; size = 9.0
+    def f(u, v):  # a valley with a shallow bowl and a ridge, in [0,1]^2
+        return 3.2 * ((u - 0.62) ** 2 * 2.2 + (v - 0.45) ** 2 * 0.9) + 0.6 * math.exp(-((u - 0.2) ** 2 + (v - 0.7) ** 2) / 0.03)
+    verts, faces = [], []
+    for i in range(n + 1):
+        for j in range(n + 1):
+            u, v = i / n, j / n
+            verts.append(((u - 0.5) * size, (v - 0.5) * size, f(u, v)))
+    for i in range(n):
+        for j in range(n):
+            a = i * (n + 1) + j
+            faces.append((a, a + 1, a + n + 2, a + n + 1))
+    surf = mesh_obj("ae_loss", verts, faces, green, smooth=True)
+    wf = surf.modifiers.new("wire", "WIREFRAME"); wf.thickness = 0.03
+    # stand it up: local z (height) points toward the road, local y up
+    tilt = math.radians(62)
+    nrm = Vector((facing[0] * math.sin(tilt), facing[1] * math.sin(tilt), math.cos(tilt)))
+    surf.rotation_euler = nrm.to_track_quat("Z", "Y").to_euler()
+    surf.location = (cx, cy, WALK_H + 4.2)
+    # descent path in surface coordinates, then mapped through the same transform
+    from mathutils import Matrix
+    M4 = Matrix.Translation(surf.location) @ surf.rotation_euler.to_matrix().to_4x4()
+    u, v = 0.08, 0.15
+    prev = None
+    for k in range(14):
+        gu = 3.2 * 2 * (u - 0.62) * 2.2; gv = 3.2 * 2 * (v - 0.45) * 0.9
+        step = 0.16 / (1 + 0.12 * k)
+        gn = math.hypot(gu, gv) or 1
+        u2, v2 = u - gu / gn * step, v - gv / gn * step
+        q = M4 @ Vector(((u2 - 0.5) * size, (v2 - 0.5) * size, f(u2, v2) + 0.12))
+        sphere(f"ae_step{k}", 0.13, tuple(q), mat_emit("optimum", (1, 1, 1, 1), 10))
+        if prev:
+            mid = (prev + q) / 2; L = (q - prev).length
+            seg = cylinder(f"ae_stepseg{k}", 0.025, L, tuple(mid), mat_cluster("math", 5), segments=8)
+            seg.rotation_euler = (q - prev).to_track_quat("Z", "Y").to_euler()
+        prev = q; u, v = u2, v2
+    ring = torus("ae_trust", 0.9, 0.04, tuple(prev), mat_emit("optimum", (1, 1, 1, 1), 6), nu=64)
+    ring.rotation_euler = surf.rotation_euler
+    text("ae_lossl", "f(W)", 0.7, (cx + facing[0] * 5.6, cy + facing[1] * 5.6, WALK_H + 8.4), (math.pi / 2, 0, yaw_of(perp(facing))), green, extrude=0.02)
+    text("ae_lossl2", "trust region · quasi-Newton · no autodiff", 0.32, (cx + facing[0] * 5.6, cy + facing[1] * 5.6, WALK_H + 0.9), (math.pi / 2, 0, yaw_of(perp(facing))), m["sign_white"], extrude=0.01)
+    spot("ae_losslight", (cx + facing[0] * 8, cy + facing[1] * 8, 9), (cx, cy, WALK_H + 4), 400, color=(0.85, 1, 0.9), size_deg=55, blend=0.6)
+
+def coin_under_blanket(stop):
+    """A giant coin leaning toward the road, its upper half under a blanket that hides the answer."""
+    m = M()
+    sid = stop["id"]
+    (cx, cy), facing, d, s = lot(sid, depth=14, width=14, along=5.0)
     yaw = yaw_of(d)
-    plinth = box(f"coin_plinth_{sid}", (10.0, 10.0, 0.7), (cx, cy, 0.35 + WALK_H), yaw, m["concrete"])
+    plinth = box(f"coin_plinth_{sid}", (9.0, 9.0, 0.7), (cx, cy, 0.35 + WALK_H), yaw, m["concrete"])
     top = 0.7 + WALK_H
-    coin = cylinder(f"coin_{sid}", 3.4, 0.36, (cx, cy, top + 0.18), m["gold"], segments=128)
+    R = 3.4
+    tilt = math.radians(58)
+    centre = (cx - facing[0] * 0.6, cy - facing[1] * 0.6, top + R * math.sin(tilt) * 0.98)
+    nrm = Vector((facing[0] * math.sin(tilt), facing[1] * math.sin(tilt), math.cos(tilt)))
+    rot = nrm.to_track_quat("Z", "Y").to_euler()
+    coin = cylinder(f"coin_{sid}", R, 0.36, centre, m["gold"], segments=128)
+    coin.rotation_euler = rot
     bev = coin.modifiers.new("bevel", "BEVEL"); bev.width = 0.05; bev.segments = 4
-    torus(f"coin_rim_{sid}", 3.15, 0.045, (cx, cy, top + 0.36), m["gold"], nu=128)
-    text(f"coin_q_{sid}", "?", 3.2, (cx, cy, top + 0.36), (0, 0, yaw_of(facing) + math.pi / 2), m["gold"], extrude=0.03)
-    # blanket: simulate a plane falling over the coin, then freeze it
+    rim = torus(f"coin_rim_{sid}", R - 0.25, 0.045, (centre[0] + nrm.x * 0.18, centre[1] + nrm.y * 0.18, centre[2] + nrm.z * 0.18), m["gold"], nu=128)
+    rim.rotation_euler = rot
+    patina = mat_plain("patina", (0.08, 0.06, 0.04, 1), rough=0.6)
+    q = text(f"coin_q_{sid}", "?", 3.4, (centre[0] + nrm.x * 0.2, centre[1] + nrm.y * 0.2, centre[2] + nrm.z * 0.2), (0, 0, 0), patina, extrude=0.06)
+    q.rotation_euler = rot
+    # wedge holding the coin up
+    box(f"coin_wedge_{sid}", (3.0, 1.4, 2.4), (cx - facing[0] * 2.4, cy - facing[1] * 2.4, top + 1.2), yaw, m["concrete"])
+    # blanket: drop a plane onto the leaning coin, it hangs over the upper half
     sc = bpy.context.scene
-    sc.frame_start, sc.frame_end = 1, 80
-    pf = perp(facing)
-    off = (-facing[0] * 1.35 + pf[0] * 0.5, -facing[1] * 1.35 + pf[1] * 0.5)
-    cloth = grid(f"blanket_sim_{sid}", 7.2, 80, (cx + off[0] * 1.55, cy + off[1] * 1.55, top + 0.75), None)
-    cloth.rotation_euler = (0, 0, yaw + 0.35)
+    sc.frame_start, sc.frame_end = 1, 70
+    cloth = grid(f"blanket_sim_{sid}", 7.0, 80, (centre[0] - facing[0] * 1.0, centre[1] - facing[1] * 1.0, centre[2] + R * 0.7 + 0.6), None)
+    cloth.rotation_euler = (0, 0, yaw + 0.2)
     for ob in (coin, plinth):
         ob.modifiers.new("collision", "COLLISION")
         ob.collision.thickness_outer = 0.02
-        ob.collision.cloth_friction = 60
+        ob.collision.cloth_friction = 70
     cmod = cloth.modifiers.new("cloth", "CLOTH")
     st = cmod.settings
     st.quality = 8; st.mass = 0.3
     st.tension_stiffness = 5; st.compression_stiffness = 5; st.shear_stiffness = 3; st.bending_stiffness = 0.05
     st.air_damping = 1.0
     cmod.collision_settings.distance_min = 0.012
-    cmod.collision_settings.friction = 40
+    cmod.collision_settings.friction = 50
     cmod.collision_settings.use_self_collision = True
-    cmod.point_cache.frame_start, cmod.point_cache.frame_end = 1, 80
-    for f in range(1, 81):
+    cmod.point_cache.frame_start, cmod.point_cache.frame_end = 1, 70
+    for f in range(1, 71):
         sc.frame_set(f)
     dg = bpy.context.evaluated_depsgraph_get()
     me = bpy.data.meshes.new_from_object(cloth.evaluated_get(dg))
@@ -699,9 +771,13 @@ def coin_under_blanket(stop):
     me.polygons.foreach_set("use_smooth", [True] * len(me.polygons))
     sub = frozen.modifiers.new("subsurf", "SUBSURF"); sub.levels = 1; sub.render_levels = 2
     sol = frozen.modifiers.new("solidify", "SOLIDIFY"); sol.thickness = 0.012
-    me.materials.append(mat_pbr("fabric", "fabric", tile=0.9, base=(0.03, 0.05, 0.14, 1), sheen=0.45, normal_strength=1.0))
-    spot(f"coin_key_{sid}", (cx + facing[0] * 5 + pf[0] * 3, cy + facing[1] * 5 + pf[1] * 3, 6.5), (cx, cy, top + 0.3), 750, size_deg=60, blend=0.5, radius=0.4)
-    spot(f"coin_fill_{sid}", (cx - facing[0] * 4 - pf[0] * 4, cy - facing[1] * 4 - pf[1] * 4, 4.5), (cx, cy, top + 0.3), 180, color=(0.6, 0.72, 1.0), size_deg=70, blend=0.7, radius=0.6)
+    me.materials.append(mat_pbr("fabric", "fabric", tile=0.9, base=(0.10, 0.22, 0.60, 1), sheen=0.6, normal_strength=1.0))
+    # light under the blanket, raking key from the side, the two answers on the plinth
+    point(f"coin_under_{sid}", (centre[0] - facing[0] * 0.4 + nrm.x * 0.5, centre[1] - facing[1] * 0.4 + nrm.y * 0.5, centre[2] + 1.2), 220, color=(1, 0.8, 0.55), radius=0.4)
+    spot(f"coin_key_{sid}", (cx + d[0] * 8, cy + d[1] * 8, 4.5), centre, 700, color=(1, 0.9, 0.75), size_deg=50, blend=0.5, radius=0.4)
+    spot(f"coin_fill_{sid}", (cx + facing[0] * 6, cy + facing[1] * 6, 3.5), centre, 300, color=(0.7, 0.8, 1.0), size_deg=60, blend=0.7, radius=0.6)
+    for a, word in ((-2.6, "CARA"), (2.6, "CRUZ")):
+        text(f"coin_{word}", word, 0.6, (cx + d[0] * a + facing[0] * 4.52, cy + d[1] * a + facing[1] * 4.52, top - 0.35), (math.pi / 2, 0, yaw_of(perp(facing))), mat_cluster("stats", 1.6), extrude=0.01)
     plaque(stop, (cx + facing[0] * 7.6, cy + facing[1] * 7.6), facing)
 
 def itam(stop):
@@ -714,18 +790,23 @@ def itam(stop):
     box("itam_body", (W, D, H), (bx, by, H / 2 + WALK_H), yaw, m["brick"])
     box("itam_parapet", (W + 0.4, D + 0.4, 0.5), (bx, by, H + WALK_H + 0.25), yaw, m["concrete"])
     fx, fy = bx + facing[0] * (D / 2), by + facing[1] * (D / 2)
-    warm = mat_emit("window_on", (1.0, 0.86, 0.66, 1), 3.2)
     dark_glass = m["glass"]
     rng = random.Random(3)
+    def win_mat():
+        r = rng.random()
+        if r < 0.45: return dark_glass
+        if r < 0.75: return mat_emit(f"itam_warm{int(rng.random()*3)}", (1.0, 0.86, 0.66, 1), 1.2 + 0.4 * int(rng.random() * 3))
+        return mat_emit("itam_cool", (0.85, 0.9, 1.0, 1), 1.4)
     for floor in range(3):
         zc = 2.4 + floor * 3.9
         for k in range(9):
             u = (k - 4) * 3.4
             if floor == 0 and abs(u) < 4.5:
                 continue  # entrance
-            wx, wy = fx + d[0] * u + facing[0] * 0.02, fy + d[1] * u + facing[1] * 0.02
-            lit = rng.random() < 0.6
-            box(f"itam_win_{floor}_{k}", (1.5, 0.05, 2.0), (wx, wy, zc + WALK_H), yaw, warm if lit else dark_glass)
+            wx, wy = fx + d[0] * u - facing[0] * 0.22, fy + d[1] * u - facing[1] * 0.22
+            box(f"itam_win_{floor}_{k}", (1.5, 0.05, 2.0), (wx, wy, zc + WALK_H), yaw, win_mat())
+            box(f"itam_mull_{floor}_{k}", (0.06, 0.3, 2.0), (wx + facing[0] * 0.1, wy + facing[1] * 0.1, zc + WALK_H), yaw, m["pole"])
+            box(f"itam_mullh_{floor}_{k}", (1.5, 0.3, 0.06), (wx + facing[0] * 0.1, wy + facing[1] * 0.1, zc + WALK_H), yaw, m["pole"])
             box(f"itam_sill_{floor}_{k}", (1.7, 0.25, 0.08), (wx + facing[0] * 0.12, wy + facing[1] * 0.12, zc + WALK_H - 1.05), yaw, m["concrete"])
     for side in (1, -1):
         sx, sy = bx + d[0] * (W / 2) * side, by + d[1] * (W / 2) * side
@@ -734,8 +815,7 @@ def itam(stop):
             for k in range(4):
                 u = (k - 1.5) * 3.4
                 wx, wy = sx + facing[0] * u + d[0] * 0.02 * side, sy + facing[1] * u + d[1] * 0.02 * side
-                lit = rng.random() < 0.5
-                box(f"itam_swin_{side}_{floor}_{k}", (0.05, 1.5, 2.0), (wx, wy, zc + WALK_H), yaw, warm if lit else dark_glass)
+                box(f"itam_swin_{side}_{floor}_{k}", (0.05, 1.5, 2.0), (wx, wy, zc + WALK_H), yaw, win_mat())
     ex, ey = fx + facing[0] * 0.4, fy + facing[1] * 0.4
     box("itam_door_glass", (7.5, 0.06, 4.4), (ex, ey, 2.2 + WALK_H + 0.3), yaw, dark_glass)
     for u in (-3.75, -1.25, 1.25, 3.75):
@@ -751,6 +831,17 @@ def itam(stop):
         spot(f"itam_up_{u}", (fx + d[0] * u + facing[0] * 2.5, fy + d[1] * u + facing[1] * 2.5, 0.3 + WALK_H), (fx + d[0] * u, fy + d[1] * u, 9), 500, color=(1, 0.85, 0.65), size_deg=50, blend=0.8)
     fpx, fpy = fx + facing[0] * 9 + d[0] * 10, fy + facing[1] * 9 + d[1] * 10
     cylinder("itam_flagpole", 0.06, 9, (fpx, fpy, 4.5 + WALK_H), m["pole"], segments=12)
+    leaf = mat_plain("leaf", (0.05, 0.16, 0.06, 1), rough=0.9)
+    trng = random.Random(12)
+    for k, (u, v) in enumerate(((-14, 5), (-10, 9), (14, 5), (10, 9), (-16, -3), (16, -3), (-6, 11), (6, 11))):
+        tx, ty = fx + d[0] * u + facing[0] * v, fy + d[1] * u + facing[1] * v
+        h = 2.6 + trng.random() * 1.2
+        cylinder(f"itam_trunk{k}", 0.16, h, (tx, ty, WALK_H + h / 2), m["dark"], segments=10)
+        for j in range(3):
+            sphere(f"itam_leaf{k}{j}", 1.3 + trng.random() * 0.8, (tx + trng.uniform(-0.8, 0.8), ty + trng.uniform(-0.8, 0.8), WALK_H + h + 0.6 + trng.uniform(0, 1.2)), leaf)
+        spot(f"itam_treelight{k}", (tx + facing[0] * 1.5, ty + facing[1] * 1.5, WALK_H + 0.2), (tx, ty, WALK_H + h + 1.5), 140, color=(0.75, 1.0, 0.7), size_deg=50, blend=0.8)
+    for u in (-4, 4):
+        box(f"itam_bench{u}", (1.8, 0.5, 0.45), (fx + d[0] * u + facing[0] * 8, fy + d[1] * u + facing[1] * 8, WALK_H + 0.225), yaw, m["concrete"])
     plaque(stop, (cx + facing[0] * (D / 2 + 7 + 3.5), cy + facing[1] * (D / 2 + 7 + 3.5)), facing)
 
 def compass():

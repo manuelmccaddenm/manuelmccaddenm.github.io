@@ -37,7 +37,7 @@ window.PROJECTS = [
     title:"Turning CFE bills into a data domain",
     meta:"Batu Energy · 2024 – 2026 · core contributor",
     body:[
-      "At Batu Energy, an energy-management platform for solar providers and multi-site enterprises in Mexico, I was a core contributor to the backend. My home turf was the domain that turns CFE electricity bills into structured data: automated collection, parsing the bills' many formats and concepts into normalized line items, and the tariff model that makes them comparable across contracts and pricing schemes.",
+      "At Batu Energy, an energy-management platform for solar providers and multi-site enterprises in Mexico, I was a core contributor to the backend. I owned the domain that turns CFE electricity bills into structured data: automated collection, parsing the bills' many formats and concepts into normalized line items, and the tariff model that makes them comparable across contracts and pricing schemes.",
       "On top of that domain I helped build the platform's public API, with idempotent job submission, typed contracts and metered access, so the same bill data the platform runs on could also be sold as a product."
     ],
     links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
@@ -49,7 +49,7 @@ window.PROJECTS = [
     meta:"Batu Energy · 2024 – 2026",
     body:[
       "Before a building can be flagged as consuming abnormally, you need a defensible definition of normal. I built linear and regularized regression models (ridge, lasso) of buildings' energy consumption for monitoring and demand forecasting: weather APIs joined with processed CFE billing data give each building an expected load as a function of conditions, and deviations from that baseline become alerts.",
-      "I kept the models simple on purpose. An alert should be something you can argue with, and residual structure, heteroscedasticity and seasonality are easier to reason about in a linear model than in a black box."
+      "I kept the models simple on purpose: an alert has to be explainable, and residual structure, heteroscedasticity and seasonality are easier to check in a linear model than in a black box."
     ],
     links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
     note:BATU_NOTE
@@ -60,7 +60,7 @@ window.PROJECTS = [
     meta:"Batu Energy · 2024 – 2026",
     body:[
       "The earlier generation of my work at Batu was serverless data engineering on AWS: ingestion pipelines pulling telemetry from inverter and meter platforms, services fetching design and production data from solar-engineering tools, and APIs exposing consumption histories, tariff rates and wholesale nodal prices, all deployed as infrastructure-as-code.",
-      "Step-function orchestration, queues and daily failure digests: the unglamorous plumbing that keeps an energy platform truthful across more than 8,000 sites."
+      "Step-function orchestration, queues and daily failure digests kept the data consistent across more than 8,000 sites."
     ],
     links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
     note:BATU_NOTE
@@ -71,7 +71,7 @@ window.PROJECTS = [
     meta:"Batu Energy · 2025 – 2026",
     body:[
       "Solar inverters produce dense time series, and most of what looks like an anomaly is weather. I designed a hybrid detector for inverter telemetry: a classical ARIMA component explains the predictable, seasonal part of the signal and an LSTM models what is left, so an alert fires on residual structure rather than on a cloudy afternoon.",
-      "The real work was less the architecture than the evaluation: defining what counts as an anomaly for the operations team, choosing the precision-recall tradeoff for a system where every alert costs a technician's time, and designing the pipeline that scores new data as it arrives."
+      "Most of the work was the evaluation: defining what counts as an anomaly for the operations team, choosing the precision-recall tradeoff for a system where every alert costs a technician's time, and designing the pipeline that scores new data as it arrives."
     ],
     links:[{label:"batuenergy.com", href:"https://batuenergy.com"}],
     note:BATU_NOTE
@@ -82,7 +82,7 @@ window.PROJECTS = [
     meta:"Tópicos de Políticas Públicas II · ITAM · 2026 · with D. Muñoz & E. Cruz",
     body:[
       "Mexico's balancing-capacity market settles on the 100 most demanding hours of the year, so knowing them in advance is worth money. We assembled an hourly 2019–2025 panel (about 150 million rows) of nodal prices, reservoir levels for nine hydro dams, weather reanalysis and natural-gas flows, using a purpose-built data agent to fetch and harmonize the sources.",
-      "Chained year-on-year gradient-boosted classifiers, cascaded hourly by daily, recover 64 of 2024's 100 true critical hours. A nowcast built only from day-old features generalizes better than same-day data, because days since the last critical hour carries most of the signal. The honest caveat: a relative target, the 100 lowest-reserve hours, moves across regime shifts, and generalization to 2025 drops accordingly."
+      "Chained year-on-year gradient-boosted classifiers, cascaded hourly by daily, recover 64 of 2024's 100 true critical hours. A nowcast built only from day-old features generalizes better than same-day data, because days since the last critical hour carries most of the signal. The caveat: a relative target, the 100 lowest-reserve hours, moves across regime shifts, and generalization to 2025 drops accordingly."
     ],
     links:[
       {label:"paper (pdf)", href:"/files/critical-hours-paper.pdf"},
@@ -116,7 +116,7 @@ window.PROJECTS = [
     meta:"Procesos Estocásticos · ITAM · 2026 · with C. Reyes & D. García-Gayou",
     body:[
       "An expository project on continuous-time Markov chains built around two models at opposite ends of tractability. First, a four-state delivery-truck reliability model where the generator matrix is explicit and the stationary distribution becomes fleet economics: what fraction of hours are productive, and whether reacting faster to warning lights pays for itself.",
-      "Then a stochastic SEIR epidemic, where the state space is too large to write down and only local rates exist. Simulation shows fluctuations decaying like 1/√N, outbreaks going extinct even when R₀ > 1, and the joint distribution of epidemic-peak height and timing, which is exactly the part a deterministic ODE's single trajectory hides."
+      "Then a stochastic SEIR epidemic, where the state space is too large to write down and only local rates exist. Simulation shows fluctuations decaying like 1/√N, outbreaks going extinct even when R₀ > 1, and the joint distribution of epidemic-peak height and timing, which a deterministic ODE's single trajectory cannot show."
     ],
     links:[{label:"notebook", href:"/files/ctmc-notebook.html"}]
   },
@@ -149,7 +149,7 @@ window.PROJECTS = [
     title:"Thesis (work in progress)",
     meta:"ITAM · in progress",
     body:[
-      "My undergraduate thesis lives in the intersection of Bayesian statistics and deep learning: what a prior means in a heavily overparameterized model, what non-informative can even mean there, what a posterior over weights knows about a network's internal representations that a point estimate doesn't, and when uncertainty can be trusted to guide decisions about model structure. Still taking shape. Conclusions to follow."
+      "My undergraduate thesis lives in the intersection of Bayesian statistics and deep learning: what a prior means in a heavily overparameterized model, what non-informative can even mean there, what a posterior over weights knows about a network's internal representations that a point estimate doesn't, and when uncertainty can be trusted to guide decisions about model structure. Still in progress; no conclusions yet."
     ],
     links:[]
   },
@@ -169,7 +169,7 @@ window.PROJECTS = [
     meta:"OpenAI × Kavak hackathon · 2025 · finalist · built in 13 hours",
     body:[
       "A hackathon build that made the final: three agents that own the ML lifecycle from raw CSV to recommended model. A data agent interrogates you until the business problem is pinned down; a model agent translates it into a custom loss weighting performance, interpretability and compute; an eval agent runs an evaluate-mutate loop against that loss on a fixed budget, with scoring routed through deterministic Python so nobody hallucinates a leaderboard.",
-      "The part I still think about is the slow loop: after each project the eval agent re-reads its own run history, extracts generalizable lessons and writes them to persistent memory, so model selection improves across projects, not within one. Thirteen hours of code that could use a rewrite, but the idea holds up."
+      "The part I still think about is the slow loop: after each project the eval agent re-reads its own run history, extracts generalizable lessons and writes them to persistent memory, so model selection improves across projects, not within one. The code shows its thirteen hours; the idea holds."
     ],
     links:[{label:"repo", href:"https://github.com/manuelmccaddenm/model-picker-system"}]
   },
@@ -180,17 +180,17 @@ window.PROJECTS = [
     meta:"Sistemas Dinámicos II · ITAM · 2025",
     body:[
       "A numerical study of a modified Leslie–Gower predator–prey system with a Holling type-II response: prey grow logistically but predation saturates, and predators are limited by the predator-to-prey ratio rather than by absolute abundance. A reparametrization gives the interior equilibrium in closed form.",
-      "Sweeping the predator growth rate traces a Hopf bifurcation: stable coexistence loses stability and a limit cycle is born. Populations that oscillate forever, not because of seasonality but because the interaction itself demands it. Phase portraits and bifurcation diagrams map exactly where."
+      "Sweeping the predator growth rate traces a Hopf bifurcation: stable coexistence loses stability and a limit cycle is born. Populations that oscillate without any external forcing. Phase portraits and bifurcation diagrams map exactly where."
     ],
     links:[{label:"notebook", href:"/files/predator-prey-notebook.html"}]
   },
   {
-    id:"autoencoder", label:"autoencoder", cluster:"math", kind:"project", x:294, y:190,
+    id:"autoencoder", label:"autoencoder", cluster:"math", kind:"project", x:235, y:470,
     title:"Training an autoencoder without autodiff",
     meta:"Análisis Aplicado · ITAM · 2026",
     body:[
       "A linear autoencoder trained with no automatic differentiation anywhere: matrix gradients derived by hand, optimized by a trust-region method with a Dogleg subproblem. Two twists. The quasi-Newton update maintains the inverse Hessian approximation directly, so nothing is ever inverted, and the Cauchy point comes from a one-dimensional quadratic interpolation instead of the usual curvature term.",
-      "Because the problem is linear, Eckart–Young gives the exact global optimum to test against: full-matrix iBFGS and limited-memory L-BFGS both land within 0.2% of it, and the real story becomes the trade. Twenty times less memory for L-BFGS at d = 100, quantified across a 5,000-configuration stress test."
+      "Because the problem is linear, Eckart–Young gives the exact global optimum to test against: full-matrix iBFGS and limited-memory L-BFGS both land within 0.2% of it, so the comparison is about cost. L-BFGS uses twenty times less memory than the full-matrix method at d = 100, measured across a 5,000-configuration stress test."
     ],
     links:[{label:"repo", href:"https://github.com/manuelmccaddenm/autoencoder-trust-region-optimization"}]
   },
@@ -200,7 +200,7 @@ window.PROJECTS = [
     meta:"Optimización Numérica · ITAM · 2026",
     body:[
       "A snake-format NFL fantasy draft recast as a sequence of constrained Markowitz problems, one per pick: expected points as returns, and as risk a weekly covariance matrix estimated over four seasons with missed games scored as zero, so injury risk lives inside the variance.",
-      "The floor strategy is convex and solved exactly with an interior-point method (Newton steps, log barrier, backtracking). The ceiling strategy maximizes a convex function instead, which is NP-hard with the optimum at a vertex, and is attacked by projected gradient ascent whose projection step is itself a QP. Monte Carlo over a 12-team league shows each strategy dominating exactly the metric it optimizes: what optimization buys is your position on the risk–return plane."
+      "The floor strategy is convex and solved exactly with an interior-point method (Newton steps, log barrier, backtracking). The ceiling strategy maximizes a convex function instead, which is NP-hard with the optimum at a vertex, and is attacked by projected gradient ascent whose projection step is itself a QP. Monte Carlo over a 12-team league shows each strategy dominating exactly the metric it optimizes; the choice of objective decides where the team lands on the risk–return plane."
     ],
     links:[{label:"repo", href:"https://github.com/manuelmccaddenm/optimization-fantasy-football-draft"}]
   },
@@ -210,7 +210,7 @@ window.PROJECTS = [
     meta:"Programación Lineal · ITAM · 2025",
     body:[
       "A primal Newton interior-point solver for linear programs written from scratch: log-barrier central path, a general transformation from arbitrary bounds to standard form, and recovery of the original solution, benchmarked against SciPy's solver across the NETLIB problem suite.",
-      "As a companion, a Bennett–Mangasarian-style LP classifier separates the Wisconsin breast-cancer dataset, with the primal derived by hand. The same machinery, pointed at learning."
+      "As a companion, a Bennett–Mangasarian-style LP classifier separates the Wisconsin breast-cancer dataset, with the primal derived by hand: the same solver, used for classification."
     ],
     links:[{label:"notebook", href:"/files/lp-solver-notebook.html"}]
   },
@@ -221,7 +221,7 @@ window.PROJECTS = [
     meta:"Arquitectura para Grandes Volúmenes de Datos · ITAM · 2026 · team",
     body:[
       "An end-to-end streaming pipeline asking whether Polymarket's BTC up-or-down five-minute market carries information about Bitcoin's next move. Async WebSocket producers for Binance and the Polymarket order book feed Kafka; Spark Structured Streaming aggregates windowed features into partitioned Parquet; forecasts flow back out to live Grafana dashboards. One overnight run ingested 21 million events, peaking above 5,200 messages per second.",
-      "A SARIMAX model with the market-implied probability as an exogenous regressor reaches 85% directional accuracy on five-minute returns, halving the error of the market baseline. The architectural lesson cut deeper: for tiny per-call inference a GPU is the wrong tool, since launch and transfer overhead dominate, while bulk training gains 12×. What decides is amortized compute per call, not streaming versus batch."
+      "A SARIMAX model with the market-implied probability as an exogenous regressor reaches 85% directional accuracy on five-minute returns, halving the error of the market baseline. On hardware: for tiny per-call inference a GPU is the wrong tool, since launch and transfer overhead dominate, while bulk training gains 12×. What matters is compute per call, not streaming versus batch."
     ],
     links:[{label:"repo (team)", href:"https://github.com/Andresaf03/streaming_polymarket"}]
   },
@@ -231,7 +231,7 @@ window.PROJECTS = [
     meta:"Cómputo Paralelo · ITAM · 2025 · with A. Yunes",
     body:[
       "Three C++ implementations of DBSCAN for outlier detection: a serial baseline, a naive OpenMP parallel-for, and a spatial decomposition that bins points into a grid and hands regions to threads. The interesting problem is the boundary: a point near a dividing line has neighbors in someone else's region.",
-      "Our answer triples every dividing line into read-shared buffer strips, so no ε-neighborhood is ever truncated, with points assigned to bins by binary search. At 16 threads the decomposition reaches about 9.8× speedup against about 6.3× for the naive version. Locality, not just parallelism, is what scales."
+      "Our answer triples every dividing line into read-shared buffer strips, so no ε-neighborhood is ever truncated, with points assigned to bins by binary search. At 16 threads the decomposition reaches about 9.8× speedup against about 6.3× for the naive version; the difference comes from locality, not from the thread count."
     ],
     links:[{label:"repo", href:"https://github.com/manuelmccaddenm/parallel-dbscan"}]
   },
@@ -259,21 +259,21 @@ window.PROJECTS = [
   },
   {
     id:"glass", label:"glass", cluster:"product", kind:"project", x:709, y:130,
-    title:"Glass: open finance, built with friends",
+    title:"Glass: open finance",
     meta:"2026 · team",
     body:[
-      "Glass is a personal-finance app a few friends and I are building around a simple ethos: your financial data belongs to you. The app unifies your bank accounts into one view, surfaces the small recurring leaks (the gastos hormiga) and makes splitting expenses with friends a first-class, social feature.",
-      "The technically distinctive choice is where aggregation happens: on your own device, with credentials that never leave it. Openness about your own money without handing it to yet another intermediary. I work on the backend."
+      "Glass is a personal-finance app we are building around a simple ethos: your financial data belongs to you. The app unifies your bank accounts into one view, surfaces the small recurring leaks (the gastos hormiga) and makes splitting expenses with friends a first-class, social feature.",
+      "The technical choice that defines it is where aggregation happens: on your own device, with credentials that never leave it. I work on the backend."
     ],
     links:[],
-    note:"The code lives in a teammate's private repo for now."
+    note:"The code isn't public."
   },
   {
     id:"cdmx-budget", label:"cdmx budget", cluster:"product", kind:"project", x:689, y:608,
     title:"Where does a CDMX peso go?",
     meta:"Claude Mexico City Lab · 2026 · 4-hour hackathon · team",
     body:[
-      "A four-hour hackathon sprint over Mexico City's open budget data: dashboards tracing where public money actually goes (la ruta de tu peso) plus a map of thousands of georeferenced public works. I built the conversational layer, an agent that answers budget questions through custom tools over the cleaned datasets, and the category crosswalk that makes official line items legible to citizens. Four hours of polish it did not receive; the data plumbing was real."
+      "A four-hour hackathon sprint over Mexico City's open budget data: dashboards tracing where public money actually goes (la ruta de tu peso) plus a map of thousands of georeferenced public works. I built the conversational layer, an agent that answers budget questions through custom tools over the cleaned datasets, and the category crosswalk that makes official line items legible to citizens. Four hours was not enough to polish it, but the data pipeline worked."
     ],
     links:[{label:"repo (team)", href:"https://github.com/diegomondra/impact-lab-cdmx"}]
   },

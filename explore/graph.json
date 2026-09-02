@@ -83,11 +83,11 @@
   ],
   [
    "spacetime-bayes",
-   "negreira"
+   "thesis"
   ],
   [
    "spacetime-bayes",
-   "thesis"
+   "autoencoder"
   ],
   [
    "spacetime-bayes",
@@ -95,27 +95,27 @@
   ],
   [
    "markov-chains",
-   "negreira"
-  ],
-  [
-   "markov-chains",
-   "nutrition"
-  ],
-  [
-   "markov-chains",
    "predator-prey"
+  ],
+  [
+   "markov-chains",
+   "autoencoder"
   ],
   [
    "negreira",
    "autoencoder"
   ],
   [
+   "negreira",
+   "fantasy-draft"
+  ],
+  [
    "probability",
    "thesis"
   ],
   [
-   "thesis",
-   "nutrition"
+   "nutrition",
+   "autoencoder"
   ],
   [
    "model-picker",
@@ -126,16 +126,12 @@
    "fantasy-draft"
   ],
   [
-   "autoencoder",
-   "lp-solver"
-  ],
-  [
-   "autoencoder",
-   "parallel-dbscan"
-  ],
-  [
    "fantasy-draft",
    "lp-solver"
+  ],
+  [
+   "lp-solver",
+   "parallel-dbscan"
   ],
   [
    "btc-streaming",
@@ -281,22 +277,22 @@
   },
   {
    "from": "spacetime-bayes",
-   "to": "negreira",
-   "length": 75.3,
-   "nodes": [
-    "spacetime-bayes",
-    "spacetime-bayes--negreira-1",
-    "negreira"
-   ]
-  },
-  {
-   "from": "spacetime-bayes",
    "to": "thesis",
    "length": 49.1,
    "nodes": [
     "spacetime-bayes",
     "spacetime-bayes--thesis-1",
     "thesis"
+   ]
+  },
+  {
+   "from": "spacetime-bayes",
+   "to": "autoencoder",
+   "length": 56.8,
+   "nodes": [
+    "spacetime-bayes",
+    "spacetime-bayes--autoencoder-1",
+    "autoencoder"
    ]
   },
   {
@@ -312,27 +308,6 @@
   },
   {
    "from": "markov-chains",
-   "to": "negreira",
-   "length": 98.0,
-   "nodes": [
-    "markov-chains",
-    "markov-chains--negreira-1",
-    "markov-chains--negreira-2",
-    "negreira"
-   ]
-  },
-  {
-   "from": "markov-chains",
-   "to": "nutrition",
-   "length": 63.6,
-   "nodes": [
-    "markov-chains",
-    "markov-chains--nutrition-1",
-    "nutrition"
-   ]
-  },
-  {
-   "from": "markov-chains",
    "to": "predator-prey",
    "length": 51.6,
    "nodes": [
@@ -342,14 +317,34 @@
    ]
   },
   {
+   "from": "markov-chains",
+   "to": "autoencoder",
+   "length": 56.3,
+   "nodes": [
+    "markov-chains",
+    "markov-chains--autoencoder-1",
+    "autoencoder"
+   ]
+  },
+  {
    "from": "negreira",
    "to": "autoencoder",
-   "length": 80.8,
+   "length": 72.7,
    "nodes": [
     "negreira",
     "negreira--autoencoder-1",
-    "negreira--autoencoder-2",
     "autoencoder"
+   ]
+  },
+  {
+   "from": "negreira",
+   "to": "fantasy-draft",
+   "length": 89.8,
+   "nodes": [
+    "negreira",
+    "negreira--fantasy-draft-1",
+    "negreira--fantasy-draft-2",
+    "fantasy-draft"
    ]
   },
   {
@@ -363,13 +358,13 @@
    ]
   },
   {
-   "from": "thesis",
-   "to": "nutrition",
-   "length": 62.1,
+   "from": "nutrition",
+   "to": "autoencoder",
+   "length": 47.1,
    "nodes": [
-    "thesis",
-    "thesis--nutrition-1",
-    "nutrition"
+    "nutrition",
+    "nutrition--autoencoder-1",
+    "autoencoder"
    ]
   },
   {
@@ -394,26 +389,6 @@
    ]
   },
   {
-   "from": "autoencoder",
-   "to": "lp-solver",
-   "length": 25.8,
-   "nodes": [
-    "autoencoder",
-    "lp-solver"
-   ]
-  },
-  {
-   "from": "autoencoder",
-   "to": "parallel-dbscan",
-   "length": 100.4,
-   "nodes": [
-    "autoencoder",
-    "autoencoder--parallel-dbscan-1",
-    "autoencoder--parallel-dbscan-2",
-    "parallel-dbscan"
-   ]
-  },
-  {
    "from": "fantasy-draft",
    "to": "lp-solver",
    "length": 47.0,
@@ -421,6 +396,17 @@
     "fantasy-draft",
     "fantasy-draft--lp-solver-1",
     "lp-solver"
+   ]
+  },
+  {
+   "from": "lp-solver",
+   "to": "parallel-dbscan",
+   "length": 102.9,
+   "nodes": [
+    "lp-solver",
+    "lp-solver--parallel-dbscan-1",
+    "lp-solver--parallel-dbscan-2",
+    "parallel-dbscan"
    ]
   },
   {
@@ -585,8 +571,8 @@
    "x": 172.5,
    "y": 111.0,
    "neighbors": [
-    "spacetime-bayes--negreira-1",
     "spacetime-bayes--thesis-1",
+    "spacetime-bayes--autoencoder-1",
     "spacetime-bayes--itam-1"
    ]
   },
@@ -601,9 +587,8 @@
    "x": 67.0,
    "y": 150.0,
    "neighbors": [
-    "markov-chains--negreira-1",
-    "markov-chains--nutrition-1",
-    "markov-chains--predator-prey-1"
+    "markov-chains--predator-prey-1",
+    "markov-chains--autoencoder-1"
    ]
   },
   {
@@ -617,9 +602,8 @@
    "x": 158.5,
    "y": 185.0,
    "neighbors": [
-    "spacetime-bayes--negreira-1",
-    "markov-chains--negreira-2",
-    "negreira--autoencoder-1"
+    "negreira--autoencoder-1",
+    "negreira--fantasy-draft-1"
    ]
   },
   {
@@ -649,8 +633,7 @@
    "y": 70.0,
    "neighbors": [
     "spacetime-bayes--thesis-1",
-    "probability--thesis-1",
-    "thesis--nutrition-1"
+    "probability--thesis-1"
    ]
   },
   {
@@ -664,8 +647,7 @@
    "x": 86.5,
    "y": 89.5,
    "neighbors": [
-    "markov-chains--nutrition-1",
-    "thesis--nutrition-1"
+    "nutrition--autoencoder-1"
    ]
   },
   {
@@ -706,12 +688,13 @@
    "title": "Training an autoencoder without autodiff",
    "cluster": "math",
    "kind": "project",
-   "x": 147.0,
-   "y": 265.0,
+   "x": 117.5,
+   "y": 125.0,
    "neighbors": [
-    "negreira--autoencoder-2",
-    "lp-solver",
-    "autoencoder--parallel-dbscan-1"
+    "spacetime-bayes--autoencoder-1",
+    "markov-chains--autoencoder-1",
+    "negreira--autoencoder-1",
+    "nutrition--autoencoder-1"
    ]
   },
   {
@@ -725,6 +708,7 @@
    "x": 100.5,
    "y": 253.5,
    "neighbors": [
+    "negreira--fantasy-draft-2",
     "predator-prey--fantasy-draft-2",
     "fantasy-draft--lp-solver-1"
    ]
@@ -740,8 +724,8 @@
    "x": 133.5,
    "y": 287.0,
    "neighbors": [
-    "autoencoder",
-    "fantasy-draft--lp-solver-1"
+    "fantasy-draft--lp-solver-1",
+    "lp-solver--parallel-dbscan-1"
    ]
   },
   {
@@ -771,7 +755,7 @@
    "x": 231.0,
    "y": 320.0,
    "neighbors": [
-    "autoencoder--parallel-dbscan-2",
+    "lp-solver--parallel-dbscan-2",
     "btc-streaming--parallel-dbscan-2"
    ]
   },
@@ -810,7 +794,7 @@
    "type": "monument",
    "project": "glass",
    "label": "glass",
-   "title": "Glass: open finance, built with friends",
+   "title": "Glass: open finance",
    "cluster": "product",
    "kind": "project",
    "x": 354.5,
@@ -1092,21 +1076,6 @@
    ]
   },
   {
-   "id": "spacetime-bayes--negreira-1",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 165.5,
-   "y": 148.0,
-   "neighbors": [
-    "spacetime-bayes",
-    "negreira"
-   ]
-  },
-  {
    "id": "spacetime-bayes--thesis-1",
    "type": "road",
    "project": null,
@@ -1119,6 +1088,21 @@
    "neighbors": [
     "spacetime-bayes",
     "thesis"
+   ]
+  },
+  {
+   "id": "spacetime-bayes--autoencoder-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 145.0,
+   "y": 118.0,
+   "neighbors": [
+    "spacetime-bayes",
+    "autoencoder"
    ]
   },
   {
@@ -1152,51 +1136,6 @@
    ]
   },
   {
-   "id": "markov-chains--negreira-1",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 97.5,
-   "y": 161.67,
-   "neighbors": [
-    "markov-chains",
-    "markov-chains--negreira-2"
-   ]
-  },
-  {
-   "id": "markov-chains--negreira-2",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 128.0,
-   "y": 173.33,
-   "neighbors": [
-    "markov-chains--negreira-1",
-    "negreira"
-   ]
-  },
-  {
-   "id": "markov-chains--nutrition-1",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 76.75,
-   "y": 119.75,
-   "neighbors": [
-    "markov-chains",
-    "nutrition"
-   ]
-  },
-  {
    "id": "markov-chains--predator-prey-1",
    "type": "road",
    "project": null,
@@ -1212,6 +1151,21 @@
    ]
   },
   {
+   "id": "markov-chains--autoencoder-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 92.25,
+   "y": 137.5,
+   "neighbors": [
+    "markov-chains",
+    "autoencoder"
+   ]
+  },
+  {
    "id": "negreira--autoencoder-1",
    "type": "road",
    "project": null,
@@ -1219,26 +1173,41 @@
    "title": null,
    "cluster": null,
    "kind": "road",
-   "x": 154.67,
-   "y": 211.67,
+   "x": 138.0,
+   "y": 155.0,
    "neighbors": [
     "negreira",
-    "negreira--autoencoder-2"
+    "autoencoder"
    ]
   },
   {
-   "id": "negreira--autoencoder-2",
+   "id": "negreira--fantasy-draft-1",
    "type": "road",
    "project": null,
    "label": null,
    "title": null,
    "cluster": null,
    "kind": "road",
-   "x": 150.83,
-   "y": 238.33,
+   "x": 139.17,
+   "y": 207.83,
    "neighbors": [
-    "negreira--autoencoder-1",
-    "autoencoder"
+    "negreira",
+    "negreira--fantasy-draft-2"
+   ]
+  },
+  {
+   "id": "negreira--fantasy-draft-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 119.83,
+   "y": 230.67,
+   "neighbors": [
+    "negreira--fantasy-draft-1",
+    "fantasy-draft"
    ]
   },
   {
@@ -1257,18 +1226,18 @@
    ]
   },
   {
-   "id": "thesis--nutrition-1",
+   "id": "nutrition--autoencoder-1",
    "type": "road",
    "project": null,
    "label": null,
    "title": null,
    "cluster": null,
    "kind": "road",
-   "x": 116.0,
-   "y": 79.75,
+   "x": 102.0,
+   "y": 107.25,
    "neighbors": [
-    "thesis",
-    "nutrition"
+    "nutrition",
+    "autoencoder"
    ]
   },
   {
@@ -1317,36 +1286,6 @@
    ]
   },
   {
-   "id": "autoencoder--parallel-dbscan-1",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 175.0,
-   "y": 283.33,
-   "neighbors": [
-    "autoencoder",
-    "autoencoder--parallel-dbscan-2"
-   ]
-  },
-  {
-   "id": "autoencoder--parallel-dbscan-2",
-   "type": "road",
-   "project": null,
-   "label": null,
-   "title": null,
-   "cluster": null,
-   "kind": "road",
-   "x": 203.0,
-   "y": 301.67,
-   "neighbors": [
-    "autoencoder--parallel-dbscan-1",
-    "parallel-dbscan"
-   ]
-  },
-  {
    "id": "fantasy-draft--lp-solver-1",
    "type": "road",
    "project": null,
@@ -1359,6 +1298,36 @@
    "neighbors": [
     "fantasy-draft",
     "lp-solver"
+   ]
+  },
+  {
+   "id": "lp-solver--parallel-dbscan-1",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 166.0,
+   "y": 298.0,
+   "neighbors": [
+    "lp-solver",
+    "lp-solver--parallel-dbscan-2"
+   ]
+  },
+  {
+   "id": "lp-solver--parallel-dbscan-2",
+   "type": "road",
+   "project": null,
+   "label": null,
+   "title": null,
+   "cluster": null,
+   "kind": "road",
+   "x": 198.5,
+   "y": 309.0,
+   "neighbors": [
+    "lp-solver--parallel-dbscan-1",
+    "parallel-dbscan"
    ]
   },
   {
