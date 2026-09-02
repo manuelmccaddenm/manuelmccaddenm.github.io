@@ -4,120 +4,124 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Manuel McCadden</title>
-<meta name="description" content="Manuel McCadden — data science & applied mathematics at ITAM, backend engineering at Batu Energy.">
+<meta name="description" content="Manuel McCadden. Applied mathematics and data science at ITAM. Statistical models and the data systems that feed them.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:title" content="Manuel McCadden">
-<meta property="og:description" content="Data science & applied mathematics · backend engineering. Projects live on the embeddings page.">
+<meta property="og:description" content="Applied mathematics and data science. Every project on one map, placed next to what it's most like.">
 <style>
   :root{
-    --bg:#0a0a0a; --panel:#121212; --ink:#f2f0ea; --sec:#b0aea5; --muted:#85837b;
+    --bg:#0a0a0a; --ink:#f2f0ea; --sec:#b0aea5; --muted:#85837b; --faint:#6a6862;
     --hair:rgba(255,255,255,.08); --accent:#5598e7; --accent-soft:#86b6ef; --dot:#ded9cf;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{
-    background:var(--bg); color:var(--ink);
-    font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif;
-    min-height:100svh; display:flex; flex-direction:column;
-  }
+  body{background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
   a{color:var(--accent-soft); text-decoration:none}
   a:hover{text-decoration:underline; text-underline-offset:3px}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-  nav{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:22px 28px; border-bottom:1px solid var(--hair);
+
+  .stage{
+    min-height:100svh; display:grid; grid-template-columns:minmax(250px,330px) minmax(0,1fr);
+    gap:24px 48px; align-items:center; padding:40px 44px; max-width:1400px; margin:0 auto;
   }
-  nav .brand{color:var(--sec); font-size:13px; letter-spacing:.08em}
-  nav .links{display:flex; gap:22px; font-size:13px}
-  main{
-    flex:1; display:flex; align-items:center; justify-content:center; padding:48px 28px;
-  }
-  .hero{max-width:640px; width:100%}
-  .hero svg{display:block; margin-bottom:34px}
-  h1{font-size:clamp(34px,6vw,52px); line-height:1.08; margin:0 0 14px; font-weight:650; letter-spacing:-.015em}
-  .role{color:var(--sec); font-size:15px; margin:0 0 22px}
-  .bio{color:var(--sec); margin:0 0 34px; max-width:56ch}
-  .cta{
-    display:inline-block; font-size:14px; letter-spacing:.04em;
-    border:1px solid var(--hair); border-radius:999px; padding:11px 22px;
-    color:var(--ink); transition:border-color .2s, background .2s;
-  }
-  .cta:hover{border-color:var(--accent); background:rgba(85,152,231,.08); text-decoration:none}
-  .cta .arrow{color:var(--accent-soft)}
-  .cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:28px; margin-top:46px; padding-top:30px; border-top:1px solid var(--hair)}
-  .cols h2{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--muted); font-weight:500; margin:0 0 12px}
-  .cols ul{list-style:none; margin:0; padding:0}
-  .cols li{color:var(--sec); font-size:14px; padding:3px 0}
-  .cols li .k{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:9px; vertical-align:-1px}
-  footer{
-    padding:20px 28px; border-top:1px solid var(--hair);
-    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
-    color:var(--muted); font-size:12.5px;
-  }
-  footer a{color:var(--muted)}
-  @media (prefers-reduced-motion:no-preference){
-    .float{animation:float 7s ease-in-out infinite}
-    .float.f2{animation-duration:9s; animation-delay:-3s}
-    .float.f3{animation-duration:11s; animation-delay:-5s}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .intro h1{font-size:clamp(28px,3.2vw,40px); line-height:1.1; margin:0 0 10px; font-weight:650; letter-spacing:-.015em}
+  .intro .role{color:var(--sec); font-size:12.5px; letter-spacing:.04em; margin:0 0 22px; line-height:1.7}
+  .intro .bio{color:var(--sec); font-size:14.5px; margin:0 0 26px; max-width:38ch}
+  .intro .links{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:12.5px; margin:0 0 34px}
+  .intro .links a{color:var(--ink)}
+  .intro .links a:hover{color:var(--accent-soft)}
+  .cap{border-top:1px solid var(--hair); padding-top:14px; min-height:64px}
+  .cap .k{font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--faint); margin:0 0 4px}
+  .cap .t{font-size:14px; color:var(--sec); margin:0}
+  .cap.on .t{color:var(--ink)}
+
+  svg.map{display:block; width:100%; height:auto}
+  a.dot{cursor:pointer; outline:none}
+  a.dot .core{fill:var(--c,var(--dot)); transition:filter .15s}
+  a.dot.wip .core{fill:none; stroke:var(--c,var(--dot)); stroke-width:2; stroke-dasharray:4 3}
+  a.dot.writing .core{fill:none; stroke:var(--c,var(--dot)); stroke-width:2}
+  a.dot .halo{fill:transparent}
+  a.dot .lbl{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; fill:var(--faint); text-anchor:middle; transition:fill .15s}
+  a.dot:hover .core, a.dot:focus-visible .core{filter:brightness(1.35)}
+  a.dot:hover .lbl, a.dot:focus-visible .lbl{fill:var(--ink)}
+  a.dot:focus-visible .core{stroke:#fff; stroke-width:2}
+
+  @media (max-width:820px){
+    .stage{grid-template-columns:1fr; align-items:start; padding:34px 24px}
+    .intro .bio{max-width:none}
+    .cap{display:none}
   }
 </style>
 </head>
 <body>
-<nav class="mono">
-  <span class="brand">manuel mccadden</span>
-  <span class="links">
-    <a href="/embeddings/">embeddings</a>
-    <a href="https://github.com/manuelmccaddenm">github</a>
-    <a href="https://www.linkedin.com/in/manuel-mccadden-madrazo-404899238/">linkedin</a>
-  </span>
-</nav>
-
-<main>
-  <div class="hero">
-    <svg width="220" height="84" viewBox="0 0 220 84" aria-hidden="true">
-      <circle class="float" cx="18" cy="58" r="4.5" fill="#199e70"/>
-      <circle class="float f2" cx="44" cy="40" r="4.5" fill="#199e70"/>
-      <circle class="float f3" cx="36" cy="70" r="4.5" fill="#d95926"/>
-      <circle class="float f2" cx="96" cy="24" r="4.5" fill="#3987e5"/>
-      <circle class="float" cx="118" cy="44" r="4.5" fill="#3987e5"/>
-      <circle class="float f3" cx="140" cy="20" r="4.5" fill="#c98500"/>
-      <circle class="float" cx="188" cy="56" r="4.5" fill="#9085e9"/>
-      <circle class="float f3" cx="206" cy="38" r="4.5" fill="#c98500"/>
-      <circle class="float f2" cx="164" cy="66" r="5" fill="#d55181"/>
-    </svg>
+<main class="stage">
+  <div class="intro">
     <h1>Manuel McCadden</h1>
-    <p class="role mono">data science &amp; applied mathematics · ITAM<br>data &amp; backend engineering</p>
-    <p class="bio">I like the places where statistics, computation and real systems meet:
-      Bayesian models, optimization from first principles, data pipelines that don't lie,
-      and energy markets. Everything I've built lives on one map — each project a dot,
-      placed by what it's near.</p>
-    <a class="cta mono" href="/embeddings/">explore the embeddings <span class="arrow">→</span></a>
-
-    <div class="cols">
-      <div>
-        <h2>now</h2>
-        <ul>
-          <li><span class="k" style="background:#d55181"></span>thesis: bayesian statistics ∩ deep learning</li>
-          <li><span class="k" style="background:#9085e9"></span>building a retail-intelligence product</li>
-          <li><span class="k" style="background:#9085e9"></span>building Glass — an open-finance app</li>
-        </ul>
-      </div>
-      <div>
-        <h2>elsewhere</h2>
-        <ul>
-          <li><a href="https://github.com/manuelmccaddenm">github</a></li>
-          <li><a href="https://www.linkedin.com/in/manuel-mccadden-madrazo-404899238/">linkedin</a></li>
-          <li><a href="mailto:manuel.mccaddenm@gmail.com">manuel.mccaddenm@gmail.com</a></li>
-        </ul>
-      </div>
+    <p class="role mono">applied mathematics &amp; data science · ITAM<br>mexico city</p>
+    <p class="bio">I build statistical models and the systems that feed them: Bayesian inference,
+      optimization written from scratch, data pipelines, energy markets. Every dot on the right is
+      something I've made, placed next to what it's most like.</p>
+    <p class="links mono">
+      <a href="/embeddings/">embeddings</a>
+      <a href="https://github.com/manuelmccaddenm">github</a>
+      <a href="https://www.linkedin.com/in/manuel-mccadden-madrazo-404899238/">linkedin</a>
+      <a href="mailto:manuel.mccaddenm@gmail.com">email</a>
+    </p>
+    <div class="cap mono" id="cap">
+      <p class="k" id="cap-k">hover a dot</p>
+      <p class="t" id="cap-t">click one to read the idea</p>
     </div>
   </div>
+
+  <svg class="map" viewBox="0 0 1000 720" role="group" aria-label="Project map: dots positioned by similarity">
+    <g id="dots"></g>
+  </svg>
 </main>
 
-<footer class="mono">
-  <span>© 2026 Manuel McCadden</span>
-  <span><a href="mailto:manuel.mccaddenm@gmail.com">manuel.mccaddenm@gmail.com</a></span>
-</footer>
+<script src="/embeddings/data.js"></script>
+<script>
+const { CLUSTERS, PROJECTS } = window;
+const svgNS = "http://www.w3.org/2000/svg";
+const dotsG = document.getElementById("dots");
+const cap = document.getElementById("cap");
+const capK = document.getElementById("cap-k");
+const capT = document.getElementById("cap-t");
+
+function show(p) {
+  cap.classList.add("on");
+  capK.textContent = CLUSTERS[p.cluster].name + (p.kind === "wip" ? " · in progress" : p.kind === "writing" ? " · writing" : "");
+  capK.style.color = CLUSTERS[p.cluster].color;
+  capT.textContent = p.title;
+}
+function reset() {
+  cap.classList.remove("on");
+  capK.textContent = "hover a dot"; capK.style.color = "";
+  capT.textContent = "click one to read the idea";
+}
+
+PROJECTS.forEach(p => {
+  const a = document.createElementNS(svgNS, "a");
+  a.setAttribute("href", "/embeddings/#" + p.id);
+  a.setAttribute("class", "dot " + p.kind);
+  a.setAttribute("aria-label", p.title);
+  a.style.setProperty("--c", CLUSTERS[p.cluster].color);
+  a.setAttribute("transform", `translate(${p.x},${p.y})`);
+
+  const halo = document.createElementNS(svgNS, "circle");
+  halo.setAttribute("class", "halo"); halo.setAttribute("r", "20");
+  const core = document.createElementNS(svgNS, "circle");
+  core.setAttribute("class", "core"); core.setAttribute("r", "7");
+  const lbl = document.createElementNS(svgNS, "text");
+  lbl.setAttribute("class", "lbl"); lbl.setAttribute("y", "24");
+  lbl.textContent = p.label;
+
+  a.append(halo, core, lbl);
+  a.addEventListener("mouseenter", () => show(p));
+  a.addEventListener("focus", () => show(p));
+  a.addEventListener("mouseleave", reset);
+  a.addEventListener("blur", reset);
+  dotsG.appendChild(a);
+});
+</script>
 </body>
 </html>
