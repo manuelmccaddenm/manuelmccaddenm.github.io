@@ -26,6 +26,9 @@ from mathutils import Vector
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
+sys.path.insert(0, str(HERE))
+import monuments, monuments_b  # noqa: E402  (sibling modules, need HERE on sys.path)
+HOTSPOTS = {}   # stop id -> {x, y, z, r}: click targets for the viewer
 ASSETS = HERE / "assets"
 PANOS = ROOT / "explore" / "panos"
 GRAPH = json.loads((ROOT / "explore" / "graph.json").read_text())
@@ -302,7 +305,7 @@ def M():
         steel=mat_plain("steel", (0.28, 0.29, 0.3, 1), rough=0.35, metallic=1.0),
         pole=mat_plain("pole", (0.06, 0.07, 0.07, 1), rough=0.45, metallic=0.6),
         sign_green=mat_plain("sign_green", (0.02, 0.22, 0.10, 1), rough=0.35),
-        sign_white=mat_plain("sign_white", (0.92, 0.92, 0.9, 1), rough=0.3, emit=0.35),
+        sign_white=mat_plain("sign_white", (0.92, 0.92, 0.9, 1), rough=0.3, emit=0.9),
         bronze=mat_plain("bronze", (0.35, 0.22, 0.10, 1), rough=0.4, metallic=1.0),
         lamp=mat_emit("lamp", (1.0, 0.8, 0.58, 1), 40),
         glass=mat_glass(),
@@ -485,6 +488,7 @@ def lot(stop_id, depth, width, setback=6.0, along=7.0):
     cy = p[1] + d[1] * along + pp[1] * s * (setback + depth / 2)
     box(f"lot_{stop_id}", (width + 4, depth + 4, WALK_H), (cx, cy, WALK_H / 2), yaw_of(d), M()["concrete"])
     facing = (-pp[0] * s, -pp[1] * s)
+    HOTSPOTS[stop_id] = {"x": round(cx, 2), "y": round(cy, 2), "z": 3.0, "r": round(max(width, depth) / 2 + 1, 1)}
     return (cx, cy), facing, d, s
 
 # ----------------------------------------------------------------------------- streets
@@ -535,10 +539,10 @@ def signpost(stop):
     m = M()
     sid = stop["id"]
     p = pos(sid)
-    d, s = free_side(sid, along=3.6, out=4.7)
+    d, s = free_side(sid, along=3.0, out=4.6)
     pp = perp(d)
-    base = (p[0] + d[0] * 3.6 + pp[0] * 4.7 * s, p[1] + d[1] * 3.6 + pp[1] * 4.7 * s)
-    h = 4.4
+    base = (p[0] + d[0] * 3.0 + pp[0] * 4.6 * s, p[1] + d[1] * 3.0 + pp[1] * 4.6 * s)
+    h = 4.6
     cylinder(f"sign_{sid}_pole", 0.055, h, (base[0], base[1], h / 2 + WALK_H), m["pole"], segments=16)
     dests = []
     for nb in NODES[sid]["neighbors"]:
@@ -548,32 +552,32 @@ def signpost(stop):
         if target is None:
             continue
         dests.append((dd, NODES[target]["label"] or target, length))
-    z = 2.5 + WALK_H
+    z = 2.6 + WALK_H
     for k, (dd, label, length) in enumerate(dests):
         yaw = yaw_of(dd)
-        bl = 1.9
+        bl = 2.7
         cx, cy = base[0] + dd[0] * (bl / 2 + 0.06), base[1] + dd[1] * (bl / 2 + 0.06)
-        box(f"sign_{sid}_blade{k}", (bl, 0.035, 0.36), (cx, cy, z), yaw, m["sign_green"])
-        box(f"sign_{sid}_tip{k}", (0.36, 0.035, 0.36), (base[0] + dd[0] * (bl + 0.12), base[1] + dd[1] * (bl + 0.12), z), yaw + math.pi / 4, m["sign_green"])
+        box(f"sign_{sid}_blade{k}", (bl, 0.035, 0.52), (cx, cy, z), yaw, m["sign_green"])
+        box(f"sign_{sid}_tip{k}", (0.52, 0.035, 0.52), (base[0] + dd[0] * (bl + 0.12), base[1] + dd[1] * (bl + 0.12), z), yaw + math.pi / 4, m["sign_green"])
         body = f"{label}  {length:.0f} m"
         pq = perp(dd)
         for face in (1, -1):
             tx, ty = cx - pq[0] * 0.025 * face, cy - pq[1] * 0.025 * face
             rot_z = yaw + (math.pi if face == -1 else 0)
-            text(f"sign_{sid}_txt{k}_{face}", body, 0.17, (tx, ty, z), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.004)
-        z += 0.46
+            text(f"sign_{sid}_txt{k}_{face}", body, 0.27, (tx, ty, z), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.004)
+        z += 0.64
     # street-name plate on top: the stop's own name in its colour, district below; plate faces the road
     name = (stop["label"] or sid).upper()
     cl = stop["cluster"]
-    plate_w = max(1.6, 0.21 * len(name) + 0.5)
+    plate_w = max(2.0, 0.27 * len(name) + 0.6)
     pz = h + WALK_H - 0.05
-    box(f"sign_{sid}_plate", (plate_w, 0.04, 0.56), (base[0], base[1], pz), yaw_of(d), m["sign_green"])
+    box(f"sign_{sid}_plate", (plate_w, 0.04, 0.72), (base[0], base[1], pz), yaw_of(d), m["sign_green"])
     for face in (1, -1):
         tx, ty = base[0] - pp[0] * 0.03 * face, base[1] - pp[1] * 0.03 * face
         rot_z = yaw_of(d) + (math.pi if face == -1 else 0)
-        text(f"sign_{sid}_name_{face}", name, 0.27, (tx, ty, pz + 0.09), (math.pi / 2, 0, rot_z), mat_cluster(cl, 3.0) if cl else m["sign_white"], extrude=0.004)
-        text(f"sign_{sid}_sub_{face}", CLUSTER_NAME.get(cl, "campus"), 0.11, (tx, ty, pz - 0.17), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.003)
-    point(f"sign_{sid}_light", (base[0] - pp[0] * s * 0.7, base[1] - pp[1] * s * 0.7, h + WALK_H + 0.5), 60, color=(1, 0.9, 0.8), radius=0.05)
+        text(f"sign_{sid}_name_{face}", name, 0.34, (tx, ty, pz + 0.12), (math.pi / 2, 0, rot_z), mat_cluster(cl, 3.0) if cl else m["sign_white"], extrude=0.004)
+        text(f"sign_{sid}_sub_{face}", CLUSTER_NAME.get(cl, "campus"), 0.14, (tx, ty, pz - 0.22), (math.pi / 2, 0, rot_z), m["sign_white"], extrude=0.003)
+    point(f"sign_{sid}_light", (base[0] - pp[0] * s * 0.9, base[1] - pp[1] * s * 0.9, h + WALK_H + 0.6), 160, color=(1, 0.9, 0.8), radius=0.08)
 
 def plaque(stop, at, facing):
     """Lectern plaque with the project's title, angled toward the reader."""
@@ -629,6 +633,7 @@ def autoencoder_arch(stop):
     d = target_dir or road_dirs(sid)[0]
     yaw = yaw_of(d)
     pp = perp(d)
+    HOTSPOTS[sid] = {"x": round(p[0] + d[0] * 14, 2), "y": round(p[1] + d[1] * 14, 2), "z": 4.0, "r": 9.0}
     green = mat_cluster("math", 5.0)
     n = 13
     for k in range(n):
@@ -754,16 +759,40 @@ def compass():
         text(f"compass_{name}", name, 6.0, (p[0] + dx * 70, p[1] + dy * 70, 8), (math.pi / 2, 0, math.atan2(dy, dx) + math.pi / 2), mat_emit("compass", (1, 0.2, 0.2, 1), 8), extrude=0.3)
 
 # ----------------------------------------------------------------------------- build + render
+ENERGY = {"batu", "cfe-bills", "building-monitors", "solar-pipelines", "critical-hours", "inverter-anomalies"}
+
+def energy_lines():
+    """Transmission towers along the energy district's roads, cables strung between them."""
+    prev_arms = None
+    k = 0
+    for r in GRAPH["roads"]:
+        if r["from"] not in ENERGY or r["to"] not in ENERGY:
+            continue
+        a, b = pos(r["from"]), pos(r["to"])
+        d = unit(b[0] - a[0], b[1] - a[1]); pp = perp(d)
+        chain = []
+        for t in (0.3, 0.7):
+            base = (a[0] + d[0] * r["length"] * t + pp[0] * 16, a[1] + d[1] * r["length"] * t + pp[1] * 16, 0)
+            chain.append(monuments.pylon(f"pylon_{k}", base, yaw_of(pp), h=24))
+            k += 1
+        for i in range(len(chain) - 1):
+            for j in range(4):
+                monuments.cable(f"line_{k}_{i}_{j}", chain[i][j], chain[i + 1][j], sag=1.8, r=0.03)
+
 def build():
     reset(); setup_render(); setup_world()
     M()
+    monuments.install(globals()); monuments_b.install(globals())
     build_roads()
-    detailed = {"autoencoder": autoencoder_arch, "probability": coin_under_blanket, "itam": itam}
+    energy_lines()
+    builders = {"autoencoder": autoencoder_arch, "probability": coin_under_blanket, "itam": itam,
+                **monuments.BUILDERS, **monuments_b.BUILDERS}
     for stop in STOPS:
         signpost(stop)
-        (detailed.get(stop["id"]) or placeholder)(stop)
+        (builders.get(stop["id"]) or placeholder)(stop)
     if flag("--compass", False):
         compass()
+    (ROOT / "explore" / "hotspots.json").write_text(json.dumps(HOTSPOTS, indent=1))
 
 def render(node_ids):
     sc = bpy.context.scene
