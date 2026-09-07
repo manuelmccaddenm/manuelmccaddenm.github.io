@@ -49,8 +49,6 @@ export function modelWorkshop(k) {
     box(x, 5.64, -0.5, 2.7, 0.12, 4.6, M.glass, 0, roof);
   for (const x of [-5.5, 5.5])
     box(x, 5.85, -2.9, 1.1, 0.55, 1.25, M.steel, 0, roof);
-  const lamps = [],
-    bars = [];
   for (let i = 0; i < 3; i++) {
     const x = -4.2 + i * 4.2,
       desk = group(`workstation-${i}`, x, 0, -1.8);
@@ -68,7 +66,6 @@ export function modelWorkshop(k) {
     );
     display.position.set(0, 1.49, -0.285);
     desk.add(display);
-    lamps.push(display.material);
     label(
       ["01 DATA AGENT", "02 MODEL AGENT", "03 EVAL AGENT"][i],
       x,
@@ -95,13 +92,6 @@ export function modelWorkshop(k) {
         0.025,
         j % 2 ? M.white : M.orange,
       );
-    const bar = new T.Mesh(
-      new T.BoxGeometry(0.38, 0.12, 0.18),
-      mat("#64c5af", 0.5),
-    );
-    bar.position.set(x, 1.35, -2.02);
-    root.add(bar);
-    bars.push(bar);
   }
   // Memory is a physical shared shelf behind the three stations.
   for (const x of [-5.6, 5.6]) {
@@ -110,14 +100,7 @@ export function modelWorkshop(k) {
       box(x, 0.55 + j * 0.65, -3.3, 0.5, 0.06, 1.12, M.steel);
   }
   label("RUN HISTORY → LESSONS → NEXT PROJECT", 0, 4.5, -3.96, 9.5, 0.4);
-  const status = label(
-    "READY · SET A LOSS AND BUDGET",
-    0,
-    3.5,
-    -3.88,
-    8.5,
-    0.48,
-  );
+  label("DATA → CANDIDATES → EVALUATION", 0, 3.5, -3.88, 8.5, 0.48);
   // Sidewalk apron joins the building to the existing approach without a display plinth.
   box(0, -0.075, 5.65, 13.6, 0.12, 3, M.stone);
   for (const side of [-1, 1]) {
@@ -128,33 +111,4 @@ export function modelWorkshop(k) {
   root.userData.setInspection = (enabled) => {
     roof.visible = !enabled;
   };
-  root.userData.setDemo = (stage, result) => {
-    lamps.forEach((m, i) => {
-      m.emissiveIntensity = stage === i + 1 ? 1.3 : 0.18;
-    });
-    bars.forEach((bar, i) => {
-      bar.scale.x =
-        stage === 3 && result
-          ? Math.max(0.3, 4 - result.rows[i].loss * 0.15)
-          : 1;
-    });
-    const message =
-      stage === 3 && result
-        ? `SELECTED: ${result.winner.name.toUpperCase()}`
-        : [
-            "READY · SET A LOSS AND BUDGET",
-            "DATA: 24 LABELED CASES",
-            "MODELS: CHECK COMPUTE BUDGET",
-          ][stage];
-    const next = label(message, 0, 3.5, -3.87, 8.5, 0.48);
-    if (root.userData.statusSign) {
-      const old = root.userData.statusSign;
-      old.removeFromParent();
-      old.geometry.dispose();
-      old.material.map?.dispose();
-      old.material.dispose();
-    }
-    root.userData.statusSign = next;
-  };
-  root.userData.statusSign = status;
 }

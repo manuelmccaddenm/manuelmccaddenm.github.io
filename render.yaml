@@ -4,7 +4,7 @@ services:
     name: manuel-idea-district
     runtime: static
     repo: https://github.com/manuelmccaddenm/manuelmccaddenm.github.io
-    branch: codex/model-picker-workshop
+    branch: codex/city-integrated-monuments
     buildCommand: npm ci --include=dev && npm run build
     staticPublishPath: ./dist
     autoDeployTrigger: commit

@@ -1,4 +1,5 @@
 import * as T from "three";
+import { URBAN_STOPS } from "./monuments/urban.js";
 import { parkedCar } from "./streetscape.js";
 import { leafCanopies } from "./foliage.js";
 import { createMonument } from "./monuments/index.js";
@@ -325,7 +326,7 @@ export function createWorld(scene, graph, projects, hotspots) {
       !nearRoad(p, 15) &&
       [...lots.values()].every((l) => distance(p, l.center) > 20);
     const isBridge = id === "autoencoder";
-    const isWorkshop = id === "model-picker";
+    const isUrban = URBAN_STOPS.has(id);
     const bridgeRoad =
       nodes[n.neighbors.find((key) => key.includes("negreira"))];
     const bridgeDirection = isBridge
@@ -361,7 +362,7 @@ export function createWorld(scene, graph, projects, hotspots) {
     group.position.set(center.x, 0.2, center.z);
     scene.add(group);
     const radius = 8.5;
-    if (!isBridge && !isWorkshop) {
+    if (!isBridge && !isUrban) {
       const plinth = mesh(
         new T.CylinderGeometry(radius, radius + 0.3, 0.26, 48),
         stone,
@@ -412,7 +413,7 @@ export function createWorld(scene, graph, projects, hotspots) {
     marker.rotation.x = -Math.PI / 2;
     lots.set(id, { id, center, entry, group, color: col });
     // Solid pedestal beneath the central exhibit (player stays on level streets/plazas).
-    if (isBridge || isWorkshop) {
+    if (isBridge || isUrban) {
       const model = group.getObjectByName(`monument-${id}`);
       for (const footprint of model.userData.solidFootprints) {
         const c = Math.cos(facing),
@@ -427,7 +428,7 @@ export function createWorld(scene, graph, projects, hotspots) {
           minZ: z - hd,
           maxZ: z + hd,
           height: footprint.height,
-          ...(isWorkshop
+          ...(isUrban
             ? {
                 oriented: {
                   x,
@@ -460,16 +461,36 @@ export function createWorld(scene, graph, projects, hotspots) {
     }
     const toward = { x: center.x - origin.x, z: center.z - origin.z };
     const len = Math.hypot(toward.x, toward.z);
-    for (let t = 3; t < len - radius; t += 2)
-      box(
-        origin.x + (toward.x / len) * t,
-        0.14,
-        origin.z + (toward.z / len) * t,
-        0.22,
-        0.04,
-        0.22,
-        material(col, 0.12),
-      );
+    if (isUrban) {
+      // A continuous pedestrian approach meets the actual street and the entrance apron.
+      const start = 3.5,
+        end = len - 6.8,
+        length = end - start;
+      if (length > 0) {
+        const mid = (start + end) / 2;
+        box(
+          origin.x + (toward.x / len) * mid,
+          0.105,
+          origin.z + (toward.z / len) * mid,
+          3.2,
+          0.09,
+          length,
+          stone,
+          facing,
+        );
+      }
+    } else {
+      for (let t = 3; t < len - radius; t += 2)
+        box(
+          origin.x + (toward.x / len) * t,
+          0.14,
+          origin.z + (toward.z / len) * t,
+          0.22,
+          0.04,
+          0.22,
+          material(col, 0.12),
+        );
+    }
   }
   // A planted, inhabited skyline. Footprints never cover a street, spawn, or exhibit.
   const buildingMats = [

@@ -254,3 +254,49 @@ test("the workshop has an open entry, solid furniture and an inspection roof", (
   );
   assert.ok(distance(stopped, desk) > 0.5, "desk and chair remain solid");
 });
+
+for (const [id, obstacle] of [
+  ["nutrition", [-3.55, -1.7]],
+  ["retail", [0, -3.15]],
+  ["cdmx-budget", [0, -5.2]],
+]) {
+  test(`${id}: street approach and public space are walkable while fixtures remain solid`, () => {
+    const lot = world.lots.get(id);
+    const model = lot.group.getObjectByName(`monument-${id}`);
+    const point = (x, z) => {
+      const p = lot.group.localToWorld(new T.Vector3(x, 0, z));
+      return { x: p.x, z: p.z };
+    };
+    const interior = point(0, 1);
+    const entered = movePlayer(
+      lot.entry,
+      interior.x - lot.entry.x,
+      interior.z - lot.entry.z,
+      world.colliders,
+      world.bounds,
+    );
+    assert.ok(
+      distance(entered, interior) < 0.01,
+      "continuous route from the original road through the entrance",
+    );
+    const target = point(...obstacle);
+    const stopped = movePlayer(
+      interior,
+      target.x - interior.x,
+      target.z - interior.z,
+      world.colliders,
+      world.bounds,
+    );
+    assert.ok(
+      distance(stopped, target) > 0.5,
+      "counter or civic building stops the player",
+    );
+    if (id !== "cdmx-budget") {
+      const roof = model.getObjectByName("inspection-roof");
+      model.userData.setInspection(true);
+      assert.equal(roof.visible, false);
+      model.userData.setInspection(false);
+      assert.equal(roof.visible, true);
+    }
+  });
+}

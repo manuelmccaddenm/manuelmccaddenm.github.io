@@ -1,5 +1,4 @@
 import * as T from "three";
-import { bindWorkshop } from "./game/workshop-ui.js";
 import { photographicEnvironment } from "./game/photographic.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
@@ -130,10 +129,6 @@ async function main() {
   pmrem.dispose();
   await photographicEnvironment(renderer, scene);
   const world = createWorld(scene, graph, projects, hotspots);
-  const workshop = world.lots
-    .get("model-picker")
-    .group.getObjectByName("monument-model-picker");
-  bindWorkshop(workshop);
   const projectLabels = createProjectLabels(view, world, projects);
   const renderTarget = new T.WebGLRenderTarget(innerWidth, innerHeight, {
     type: T.HalfFloatType,
@@ -513,7 +508,11 @@ async function main() {
   });
   function setMonumentOverview(enabled) {
     if (enabled && !nearby) return;
-    workshop.userData.setInspection(enabled && nearby === "model-picker");
+    for (const [id, lot] of world.lots) {
+      lot.group
+        .getObjectByName(`monument-${id}`)
+        ?.userData.setInspection?.(enabled && nearby === id);
+    }
     overviewId = enabled ? nearby : null;
     $("monument-guide").hidden = !enabled;
     if (enabled) {
@@ -535,14 +534,6 @@ async function main() {
   $("monument-view").addEventListener("click", () =>
     setMonumentOverview(!overviewId),
   );
-  $("workshop-source").addEventListener("click", () => {
-    $("workshop-dialog").close();
-    readProject("model-picker");
-  });
-  $("workshop-button").addEventListener("click", () => {
-    setMonumentOverview(true);
-    showDialog("workshop-dialog");
-  });
   function openMap() {
     updateDirectory();
     drawAtlas();
@@ -842,7 +833,6 @@ async function main() {
       `${visited.size} / ${graph.stops.length} places discovered`;
     $("interaction").hidden = !nearby || !playing || anyDialog();
     $("monument-view").hidden = !nearby;
-    $("workshop-button").hidden = nearby !== "model-picker";
     $("monument-guide").hidden = !overviewId || anyDialog();
     if (!overviewId)
       $("monument-view").textContent =

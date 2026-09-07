@@ -1,3 +1,4 @@
+import { urban, URBAN_STOPS } from "./urban.js";
 import { kit } from "./kit.js";
 import { MONUMENTS } from "./catalog.js";
 import { energy } from "./energy.js";
@@ -8,12 +9,14 @@ export function createMonument(id, parent, sign, color) {
   const definition = MONUMENTS[id];
   if (!definition) throw new Error(`Missing monument design: ${id}`);
   const k = kit(parent, id, sign);
-  if (![energy, science, learning, products].some((build) => build(id, k)))
+  if (
+    ![urban, energy, science, learning, products].some((build) => build(id, k))
+  )
     throw new Error(`Missing monument model: ${id}`);
   if (id === "itam") {
     k.label("ITAM · APPLIED MATHEMATICS", 0, 4.75, 1.3, 8.5, 0.5, color);
     for (const x of [-4, 4]) k.box(x, 4.45, 1.26, 0.06, 0.65, 0.07);
-  } else if (id !== "autoencoder" && id !== "model-picker") {
+  } else if (id !== "autoencoder" && !URBAN_STOPS.has(id)) {
     const stand = k.group("interpretation-plaque");
     k.box(0, 1.55, 6.25, 6.2, 1.05, 0.15, undefined, 0, stand);
     for (const x of [-2.5, 2.5])

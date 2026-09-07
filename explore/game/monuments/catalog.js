@@ -68,12 +68,12 @@ export const MONUMENTS = {
   nutrition: [
     "NUTRITION5K",
     "PHOTO → GUIDED ATTENTION → INGREDIENT MASSES",
-    "A camera scans a plate of recognizable foods, which connect to ingredient bins and a nutrition display. Guided attention combines the photo with ingredient embeddings to estimate per-ingredient masses.",
+    "A neighborhood café houses a food-scanning counter, ingredient shelves and seating. A camera above a meal connects the familiar act of photographing food to guided attention, ingredient embeddings and per-ingredient mass estimates. Walk inside or lift the roof with the inspection view.",
   ],
   "model-picker": [
     "MODEL PICKER",
     "DATA AGENT → MODEL AGENT → EVAL AGENT",
-    "A street-facing workshop houses three agent workstations. Walk through the open entrance, or inspect the interior with the roof lifted. Try model selection to change the cost of missed cases and the compute budget, then follow data, candidates and deterministic evaluation. The shared history shelf represents learning between projects.",
+    "A street-facing workshop houses three agent workstations. Walk through the open entrance, or inspect the interior with the roof lifted. The data, model and evaluation desks surround a shared history shelf representing learning between projects.",
   ],
   autoencoder: [
     "AUTOENCODER WITHOUT AUTODIFF",
@@ -113,7 +113,7 @@ export const MONUMENTS = {
   retail: [
     "RETAIL INTELLIGENCE · WIP",
     "RAW → PROCESSED → GOLDEN · GOVERNED RELEASES",
-    "A storefront and product shelves connect to three data-promotion gates and a release registry. The gates show how data becomes a governed product with defined consumers, while the registry tracks releases. This project is in progress.",
+    "An enterable neighborhood shop has stocked aisles and a registry counter. Receiving, checking and released-stock bays embed the raw → processed → golden lifecycle in the stockroom. The registry and manifest connect the shelves to governed data releases. This project is in progress.",
   ],
   glass: [
     "GLASS · OPEN FINANCE",
@@ -123,16 +123,18 @@ export const MONUMENTS = {
   "cdmx-budget": [
     "WHERE DOES A CDMX PESO GO?",
     "PUBLIC BUDGET → CATEGORIES → WORKS → QUESTIONS",
-    "A civic plaza routes a peso through labeled public-service branches toward map pins and a conversational kiosk. The routes explain the category crosswalk and tool-backed questions; they do not assert specific spending shares.",
+    "A civic building and open colonnades frame a walkable public courtyard. Bronze lines in the paving lead to mobility, public works and services notice boards, connecting budget categories to the places they affect. The routes illustrate the category crosswalk without asserting spending shares.",
   ],
 };
 export const overviewFor = (id) =>
-  id === "model-picker"
+  ["model-picker", "nutrition", "retail"].includes(id)
     ? { eye: [10, 10, 19], target: [0, 1.7, 0] }
-    : id === "autoencoder"
-      ? { eye: [18, 13, 26], target: [1.5, 3.2, 0] }
-      : id === "fantasy-draft"
-        ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
-        : id === "predator-prey"
-          ? { eye: [0, 9, 17], target: [0, 4, 0] }
-          : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };
+    : id === "cdmx-budget"
+      ? { eye: [11, 10, 20], target: [0, 2, 0] }
+      : id === "autoencoder"
+        ? { eye: [18, 13, 26], target: [1.5, 3.2, 0] }
+        : id === "fantasy-draft"
+          ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
+          : id === "predator-prey"
+            ? { eye: [0, 9, 17], target: [0, 4, 0] }
+            : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };

@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/model-picker-workshop`
+- Branch: `codex/city-integrated-monuments`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -69,7 +69,7 @@ Docs: https://render.com/docs/static-sites and https://render.com/docs/blueprint
 
 This is a stylized, explorable portfolio game. It has a level ground plane and
 solid building/exhibit footprints; jumping does not let the player climb buildings.
-Model Picker includes a walkable workshop interior; other buildings remain exterior exhibits. Multiplayer is not included. The geometry remains a modeled city; the realism pass adds photographed surface maps and a photographic sky.
+Model Picker, Nutrition5K and Retail include walkable interiors, and CDMX Budget has an open civic courtyard. Other buildings remain exterior exhibits. Multiplayer is not included. The geometry remains a modeled city; the realism pass adds photographed surface maps and a photographic sky.
 Balanced renders up to native 2× resolution with contact shading; High adds higher resolution and subtle bloom. Both include nearby sun shadows. WebGL2 is required.
 The 2D map remains available if the game cannot initialize.
 
@@ -162,16 +162,23 @@ Visitors can walk inside; oriented wall and furniture footprints keep the doorwa
 clear at any building angle. V lifts the roof for inspection and restores it when
 returning to the street.
 
-**Try model selection** opens a local, three-stage experiment. Choose a missed-case
-cost and a per-candidate compute limit, then inspect the fixed data, check candidate
-eligibility, and evaluate. The score is false positives plus missed-case cost times
-false negatives. The same 24 illustrative held-out cases are used for all three
-fixed prediction sets; this demonstrates deterministic selection without running
-live agents or training. Higher missed-case cost can favor recall; a tighter
-compute constraint excludes that candidate. The previous run is remembered for
-comparison within the current page session. The original hackathon project remains
-accessible from the experiment and the original project panel.
+The model-selection experiment has been removed, including its controls, dialog,
+selection engine, run history state and scene status updates. The workshop remains
+an architectural interpretation; the original project panel is available through E.
 
-Tests cover the recommendation changing with the objective, budget enforcement,
-invalid constraints, the open workshop entrance, solid furniture and roof state,
-alongside all existing road, bridge and monument checks (21 tests total).
+## Monuments integrated into the city
+
+Nutrition5K is a café with a food-scanning counter, ingredient shelves, tables and
+a striped street awning. Retail Intelligence is an enterable shop with stocked
+shelves, a registry counter and receiving / checked / released stockroom bays.
+The CDMX budget project is a civic courtyard framed by a municipal façade and
+colonnades; bronze paving lines connect public-service notice boards.
+
+These places and the Model Picker workshop have continuous paved approaches from
+the original streets. Individual wall and furniture colliders allow actual walking
+through their public spaces. V lifts the café and shop roofs for inspection; it
+restores them on exit. All original project content, stops and roads are retained.
+
+Validation: 22 automated tests cover navigation, original road access, bridge and
+workshop traversal, the new public-space entrances and solid fixtures, roof states,
+and the existing subject-specific exhibits.
