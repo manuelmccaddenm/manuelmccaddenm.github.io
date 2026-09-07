@@ -82,10 +82,10 @@ button:disabled:hover {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    #07182360,
-    transparent 26%,
-    transparent 70%,
-    #071823b0
+    #07182320,
+    transparent 18%,
+    transparent 80%,
+    #07182325
   );
 }
 .topbar {

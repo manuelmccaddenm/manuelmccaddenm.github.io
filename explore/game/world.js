@@ -1,6 +1,8 @@
 import * as T from "three";
 import { kit } from "./monuments/kit.js";
 import { cityBlocks, localStreetLines } from "./city-blocks.js";
+import { modelTrees } from "./city-assets.js";
+import { masonryBuilding } from "./masonry-buildings.js";
 import { neighborhoodBuilding } from "./neighborhoods.js";
 import { districtLandmarks } from "./district-landmarks.js";
 import { createMapPoster } from "./map-poster.js";
@@ -24,7 +26,7 @@ const palette = {
   dataeng: "#ff8c58",
   product: "#b0a0ff",
 };
-export function createWorld(scene, graph, projects, hotspots) {
+export function createWorld(scene, graph, projects, hotspots, assets = {}) {
   const nodes = Object.fromEntries(graph.nodes.map((n) => [n.id, n]));
   const colliders = [],
     animated = [],
@@ -110,7 +112,7 @@ export function createWorld(scene, graph, projects, hotspots) {
 
   const ground = mesh(
     new T.PlaneGeometry(1600, 1600),
-    surface("grass", "#9b9c85", 0.72, 0.2, true),
+    surface("grass", "#aeb296", 0.95, 0.25, true),
     scene,
     250,
     -0.05,
@@ -118,7 +120,7 @@ export function createWorld(scene, graph, projects, hotspots) {
   );
   ground.rotation.x = -Math.PI / 2;
   const pavement = surface("paving", "#b8b5a6", 0.35),
-    asphalt = surface("asphalt", "#454a4c", 0.18),
+    asphalt = surface("asphalt", "#747873", 0.65, 0.15),
     line = material("#d8cbb0");
   const lampPositions = [];
   for (const { a, b } of roads) {
@@ -284,7 +286,7 @@ export function createWorld(scene, graph, projects, hotspots) {
       animated.push(monument.update);
     }
   }
-  function sign(text, color, w = 8, h = 1.4) {
+  function sign(text, color, w = 8, h = 1.4, physical = false) {
     const canvas = document.createElement("canvas");
     canvas.width = Math.min(
       2048,
@@ -293,7 +295,7 @@ export function createWorld(scene, graph, projects, hotspots) {
     canvas.height = Math.round((canvas.width * h) / w);
     const c = canvas.getContext("2d");
     if (w !== h) {
-      c.fillStyle = "#10202b";
+      c.fillStyle = physical ? "#e1dccb" : "#10202b";
       c.fillRect(0, 0, canvas.width, canvas.height);
       c.fillStyle = color;
       c.fillRect(0, canvas.height - 8, canvas.width, 8);
@@ -307,16 +309,17 @@ export function createWorld(scene, graph, projects, hotspots) {
       ((canvas.width * 0.9) / c.measureText(text).width) * preferredSize,
     );
     c.font = `600 ${size}px system-ui`;
-    c.fillStyle = "#f8f6ee";
+    c.fillStyle = physical ? "#28332f" : "#f8f6ee";
     c.fillText(text, canvas.width / 2, canvas.height * 0.49);
     const tex = new T.CanvasTexture(canvas);
     tex.colorSpace = T.SRGBColorSpace;
     tex.anisotropy = 8;
     return new T.Mesh(
       new T.PlaneGeometry(w, h),
-      new T.MeshBasicMaterial({
+      new (physical ? T.MeshStandardMaterial : T.MeshBasicMaterial)({
+        ...(physical ? { roughness: 0.72, metalness: 0.12 } : {}),
         map: tex,
-        toneMapped: false,
+        toneMapped: physical,
         side: T.DoubleSide,
         transparent: true,
       }),
@@ -543,13 +546,23 @@ export function createWorld(scene, graph, projects, hotspots) {
     )[0];
     const cluster = projects[closest.id].cluster;
     const kind = ["ml", "dataeng"].includes(cluster) ? "technology" : "house";
-    const building = neighborhoodBuilding(
-      neighborhood,
-      p,
-      parcel.yaw,
-      kind,
-      buildingCount,
-    );
+    const building =
+      assets.architecture && buildingCount % 4 !== 0
+        ? masonryBuilding(
+            neighborhood,
+            assets.architecture,
+            p,
+            parcel.yaw,
+            kind,
+            buildingCount,
+          )
+        : neighborhoodBuilding(
+            neighborhood,
+            p,
+            parcel.yaw,
+            kind,
+            buildingCount,
+          );
     colliders.push(building.footprint);
     residentialPlanting.push(...building.crowns);
     neighborhoodBuildings.push({
@@ -618,7 +631,7 @@ export function createWorld(scene, graph, projects, hotspots) {
     const len = distance(road.a, road.b),
       ux = (road.b.x - road.a.x) / len,
       uz = (road.b.z - road.a.z) / len;
-    for (let t = 10; t < len - 8; t += 24)
+    for (let t = 10; t < len - 8; t += 18)
       for (const side of [-1, 1]) {
         const p = {
           x: road.a.x + ux * t + uz * 4.1 * side,
@@ -632,6 +645,20 @@ export function createWorld(scene, graph, projects, hotspots) {
           continue;
         treeCandidates.push({ p, street: true });
       }
+  }
+  // Trees frame the public gardens at human scale; their trunks remain outside
+  // road approaches, exhibits, buildings and reserved utility corridors.
+  for (const lot of lots.values()) {
+    for (const [dx, dz] of [
+      [-16, -15],
+      [16, -15],
+      [-19, 5],
+      [19, 5],
+    ])
+      treeCandidates.push({
+        p: { x: lot.center.x + dx, z: lot.center.z + dz },
+        street: false,
+      });
   }
   for (let i = 0; i < 220; i++)
     treeCandidates.push({
@@ -654,16 +681,18 @@ export function createWorld(scene, graph, projects, hotspots) {
     )
       continue;
     const h = 3 + random() * 2;
-    box(p.x, h / 2, p.z, 0.32, h, 0.32, material("#66513d"));
-    for (let branch = 0; branch < 3; branch++) {
-      const a = (branch * Math.PI * 2) / 3;
-      rod(
-        V(p.x, h * 0.55, p.z),
-        V(p.x + Math.cos(a) * 1.25, h + 0.3, p.z + Math.sin(a) * 1.25),
-        0.1,
-        material("#66513d"),
-        scene,
-      );
+    if (!assets.tree) {
+      box(p.x, h / 2, p.z, 0.32, h, 0.32, material("#66513d"));
+      for (let branch = 0; branch < 3; branch++) {
+        const a = (branch * Math.PI * 2) / 3;
+        rod(
+          V(p.x, h * 0.55, p.z),
+          V(p.x + Math.cos(a) * 1.25, h + 0.3, p.z + Math.sin(a) * 1.25),
+          0.1,
+          material("#66513d"),
+          scene,
+        );
+      }
     }
     trees.push({ p, h, street });
     colliders.push({
@@ -673,11 +702,13 @@ export function createWorld(scene, graph, projects, hotspots) {
       maxZ: p.z + 0.2,
     });
   }
-  leafCanopies(
-    scene,
-    trees.map(({ p, h }) => ({ x: p.x, y: h + 0.8, z: p.z, radius: 2.5 })),
-    240,
-  );
+  if (assets.tree) modelTrees(scene, assets.tree, trees);
+  else
+    leafCanopies(
+      scene,
+      trees.map(({ p, h }) => ({ x: p.x, y: h + 0.8, z: p.z, radius: 2.5 })),
+      240,
+    );
   // Layered planting beds soften the spaces between buildings without blocking routes.
   leafCanopies(
     scene,
@@ -790,7 +821,7 @@ export function createWorld(scene, graph, projects, hotspots) {
   );
   sky.visible = !scene.userData.photographicSky;
   scene.add(sky);
-  scene.fog = new T.FogExp2("#c4ced0", 0.0025);
+  scene.fog = new T.FogExp2("#c8d0ce", 0.0014);
   return {
     colliders,
     bounds,
@@ -804,16 +835,20 @@ export function createWorld(scene, graph, projects, hotspots) {
       isNight = night;
       sky.visible = night || !scene.userData.photographicSky;
       scene.background = night ? null : scene.userData.photographicSky || null;
-      scene.environmentIntensity = night ? 0.12 : 0.65;
+      scene.environmentIntensity = night ? 0.12 : 0.42;
       sun.color.set(night ? "#b2c9ed" : "#fff0dd");
       for (const mat of windowMats) mat.emissiveIntensity = night ? 1.35 : 0.03;
       sky.material.uniforms.night.value = night ? 1 : 0;
-      hemi.intensity = night ? 0.22 : 0.3;
-      sun.intensity = night ? 0.28 : 2.8;
-      scene.fog.color.set(night ? "#152638" : "#c4ced0");
+      hemi.intensity = night ? 0.22 : 0.08;
+      sun.intensity = night ? 0.28 : 3.7;
+      scene.fog.color.set(night ? "#152638" : "#c8d0ce");
     },
     update(t, camera, reduced) {
-      sun.position.set(camera.position.x + 70, 85, camera.position.z + 50);
+      sun.position.set(
+        camera.position.x + 55.46,
+        74.2,
+        camera.position.z + 37.67,
+      );
       sun.target.position.set(camera.position.x, 0, camera.position.z);
       if (!reduced) for (const fn of animated) fn(t);
       if (isNight) {

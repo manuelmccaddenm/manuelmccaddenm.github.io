@@ -12,8 +12,8 @@ export async function photographicEnvironment(renderer, scene) {
     pmrem.dispose();
     scene.environment = reflection.texture;
     scene.background = hdr;
-    scene.backgroundIntensity = 0.8;
-    scene.backgroundBlurriness = 0.025;
+    scene.backgroundIntensity = 1.25;
+    scene.backgroundBlurriness = 0;
     scene.userData.photographicSky = hdr;
   } catch (error) {
     console.warn(

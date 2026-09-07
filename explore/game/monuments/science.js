@@ -244,7 +244,7 @@ export function science(id, k) {
     cylinder(-2.7, 1.56, 0, 0.65, 0.09, M.orange);
     const cloth = group("partly-covered-coin", -2.1, 1.7, 0);
     sphere(0, 0, 0, 1.4, 0.2, 1.4, mat("#8883bb"), cloth);
-    label("HIDDEN OUTCOME", -2.7, 2.7, 1.2, 4, 0.45);
+    label("HIDDEN OUTCOME", -2.7, 1.4, 1.53, 1.9, 0.18);
     cylinder(2.4, 1.5, 0, 0.11, 2.8, M.steel);
     rod([0.5, 3, 0], [4.3, 3, 0], 0.07, M.orange);
     for (const x of [0.9, 3.9]) {
@@ -254,10 +254,21 @@ export function science(id, k) {
     for (let i = 0; i < 3; i++)
       sphere(0.5 + i * 0.35, 1.9, 0, 0.15, 0.15, 0.15, M.blue);
     box(3.9, 1.9, 0, 0.9, 0.3, 0.7, M.white);
-    label("EVIDENCE", 3.8, 3.8, 0.3, 3, 0.45);
-    const dial = ring(0, 5, -2, 1.25, "#72caff");
-    label("50%", 0, 5, -1.85, 1.8, 0.65);
-    label("UNCERTAINTY IS IN WHAT WE KNOW", 0, 0.65, 3.8, 11, 0.5);
+    label("EVIDENCE", 2.4, 2.55, 0.13, 1.5, 0.2);
+    box(0, 1.55, -2, 0.14, 3.1, 0.14, M.steel);
+    box(0, 0.13, -2, 0.7, 0.2, 0.7, M.steel);
+    const gauge = new T.Mesh(
+      new T.CylinderGeometry(0.88, 0.88, 0.16, 64),
+      M.steel,
+    );
+    gauge.rotation.x = Math.PI / 2;
+    gauge.position.set(0, 3.55, -2);
+    gauge.castShadow = gauge.receiveShadow = true;
+    root.add(gauge);
+    ring(0, 3.55, -1.9, 0.81, "#a9996d");
+    label("50%", 0, 3.55, -1.9, 1, 0.35);
+    box(0, 0.42, 3.8, 4.2, 0.4, 0.17, M.stone);
+    label("UNCERTAINTY IS IN WHAT WE KNOW", 0, 0.43, 3.9, 4, 0.22);
   } else if (id === "lp-solver") {
     const vertices = [
       [-3.8, 0.5, 0],

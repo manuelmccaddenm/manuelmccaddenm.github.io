@@ -17,7 +17,7 @@ export function cityBlocks(scene, mainRoads, lots, districts, poster, sign) {
   const k = kit(scene, "neighborhood-streets", sign),
     roads = [],
     parcels = [];
-  const asphalt = surface("asphalt", "#514f49", 0.42, 0.2);
+  const asphalt = surface("asphalt", "#747873", 0.65, 0.15);
   const pavement = surface("plaster", "#aaa69a", 0.8, 0.12);
   const curb = mat("#a9a599"),
     joint = mat("#79786f"),

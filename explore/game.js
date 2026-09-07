@@ -1,4 +1,5 @@
 import * as T from "three";
+import { loadCityAssets } from "./game/city-assets.js";
 import { photographicEnvironment } from "./game/photographic.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
@@ -99,9 +100,10 @@ async function main() {
   });
   renderer.shadowMap.enabled = settings.quality !== "low";
   renderer.shadowMap.type = T.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
   renderer.outputColorSpace = T.SRGBColorSpace;
-  renderer.toneMapping = T.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.88;
+  renderer.toneMapping = T.AgXToneMapping;
+  renderer.toneMappingExposure = 1.05;
   const view = $("view");
   view.append(renderer.domElement);
   renderer.domElement.setAttribute(
@@ -128,8 +130,11 @@ async function main() {
   scene.environmentIntensity = 0.45;
   environment.dispose();
   pmrem.dispose();
-  await photographicEnvironment(renderer, scene);
-  const world = createWorld(scene, graph, projects, hotspots);
+  const [, assets] = await Promise.all([
+    photographicEnvironment(renderer, scene),
+    loadCityAssets(),
+  ]);
+  const world = createWorld(scene, graph, projects, hotspots, assets);
   const projectLabels = createProjectLabels(view, world, projects);
   const renderTarget = new T.WebGLRenderTarget(innerWidth, innerHeight, {
     type: T.HalfFloatType,
@@ -138,9 +143,9 @@ async function main() {
   const composer = new EffectComposer(renderer, renderTarget);
   composer.addPass(new RenderPass(scene, camera));
   const ao = new GTAOPass(scene, camera, innerWidth, innerHeight);
-  ao.blendIntensity = 0.65;
+  ao.blendIntensity = 0.95;
   ao.updateGtaoMaterial({
-    radius: 1.4,
+    radius: 2.2,
     distanceExponent: 1.5,
     thickness: 1,
     samples: 8,
@@ -900,6 +905,8 @@ async function main() {
       colliders: world.colliders.length,
     }),
   };
+  let lastShadow = -Infinity;
+  const shadowPosition = new T.Vector3(Infinity, Infinity, Infinity);
   function frame(now) {
     const raw = (now - last) / 1000,
       dt = Math.min(Math.max(raw, 0), 0.05);
@@ -1015,6 +1022,16 @@ async function main() {
       lastRoute = elapsed;
     }
     if (!document.hidden) {
+      // Static architecture needs no new shadow render while the view stays put.
+      // Refresh animated shadows at a bounded cadence; movement/teleports update immediately.
+      if (
+        elapsed - lastShadow > (paused || settings.reduced ? 0.5 : 0.12) ||
+        camera.position.distanceToSquared(shadowPosition) > 1
+      ) {
+        renderer.shadowMap.needsUpdate = true;
+        shadowPosition.copy(camera.position);
+        lastShadow = elapsed;
+      }
       if (settings.quality !== "low") composer.render();
       else renderer.render(scene, camera);
     }

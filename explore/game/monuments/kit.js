@@ -32,7 +32,7 @@ export const M = {
   steel: mat("#324650", 0, 0.6),
   glass: mat("#82908b", 0, 0.92),
   white: mat("#eee6d4"),
-  wood: mat("#91633d"),
+  wood: surface("wood", "#d7c4a6", 0.55, 0.4),
   green: mat("#527848"),
   blue: mat("#72caff", 0.35),
   orange: mat("#ffb765", 0.35),
@@ -112,7 +112,7 @@ export function kit(parent, id, sign) {
     color = "#d9e8e2",
     into = root,
   ) {
-    const ob = sign(text, color, w, h);
+    const ob = sign(text, color, w, h, true);
     ob.position.set(x, y, z);
     ob.userData.text = text;
     into.add(ob);
@@ -247,6 +247,7 @@ export function kit(parent, id, sign) {
   }
   return {
     root,
+    add,
     v,
     group,
     box,

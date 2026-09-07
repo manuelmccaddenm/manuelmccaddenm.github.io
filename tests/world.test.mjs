@@ -1,4 +1,9 @@
 import test from "node:test";
+import { asset } from "./helpers/gltf.mjs";
+const shippedAssets = {
+  architecture: await asset("architecture"),
+  tree: await asset("tree"),
+};
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -50,6 +55,7 @@ const scene = new T.Scene(),
     graph,
     cityProjects(context.window.PROJECTS, graph),
     hotspots,
+    shippedAssets,
   );
 const free = (p) =>
   !world.colliders.some((b) => {
@@ -93,7 +99,11 @@ test("city contains actual geometry for all stops and instanced urban scenery", 
     });
     assert.ok(meshes > 3, `${id} has a modeled exhibit`);
   }
-  assert.ok(scene.children.filter((o) => o.isInstancedMesh).length > 10);
+  let instances = 0;
+  scene.traverse((o) => {
+    if (o.isInstancedMesh) instances++;
+  });
+  assert.ok(instances > 10);
 });
 
 test("predator–prey has visible animals that animate and remain visible with reduced motion", () => {
@@ -422,7 +432,8 @@ test("neighborhood roads can be walked and houses face an actual sidewalk", () =
 test("house window centers look through glass into recessed rooms, not a solid exterior box", () => {
   scene.updateMatrixWorld(true);
   const building = world.neighborhoodBuildings.find(
-    (b) => b.kind === "courtyard-house",
+    (b) =>
+      b.kind === "courtyard-house" && b.windows.some((w) => w.recess === 0.25),
   );
   const window = building.windows.find((w) => w.face === 0 && w.width > 2);
   const forward = new T.Vector3(

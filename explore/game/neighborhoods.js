@@ -7,11 +7,11 @@ const walls = ["#cec6b6", "#b6ada0", "#ba9b83", "#aaa99a"].map((c) =>
 );
 const masonry = surface("brick", "#8c7364", 0.72, 0.15);
 const stone = surface("plaster", "#a6a192", 0.6, 0.1);
-const wood = surface("brick", "#655449", 2.4, 0);
+const wood = surface("wood", "#b8a38b", 0.55, 0.3);
 const metal = mat("#333b38", 0, 0.35);
 const sill = mat("#c3bbaa");
-const roomWall = mat("#726c5d");
-const roomFloor = mat("#615447");
+const roomWall = mat("#39372e");
+const roomFloor = mat("#3f372d");
 const cloth = [mat("#a59e8c"), mat("#b7b3a5"), mat("#888d84")];
 const glass = new T.MeshPhysicalMaterial({
   color: "#bec8c3",
@@ -19,9 +19,9 @@ const glass = new T.MeshPhysicalMaterial({
   roughness: 0.08,
   ior: 1.5,
   transparent: true,
-  opacity: 0.2,
+  opacity: 0.38,
   depthWrite: false,
-  envMapIntensity: 1.15,
+  envMapIntensity: 1.6,
 });
 glass.userData.castShadow = false;
 const roofSurface = surface("asphalt", "#675f54", 0.7, 0.15);

@@ -1,0 +1,146 @@
+{
+  "tree": [
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/blend/1k/tree_small_02/tree_small_02_1k.blend",
+      "path": "work/assets/tree/source.blend",
+      "sha256": "af3fef6da3eb97057d9d4d3c4281c5944696b8d518715deddd8500482d30b1bd"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/tree_small_02/tree_small_02_branch_diff_1k.png",
+      "path": "work/assets/tree/textures/tree_small_02_branch_diff_1k.png",
+      "sha256": "a93ce54213c4a98cd01cb5c5f7ab46b77defcd66e1dd082e6912f6e60632e630"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/tree_small_02/tree_small_02_branch_nor_gl_1k.png",
+      "path": "work/assets/tree/textures/tree_small_02_branch_nor_gl_1k.png",
+      "sha256": "0338a1400391893fdf6c6cbd1c22a573d6ab2300ad771d4916184bf206e1a671"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/tree_small_02/tree_small_02_branch_rough_1k.png",
+      "path": "work/assets/tree/textures/tree_small_02_branch_rough_1k.png",
+      "sha256": "f285a54d141f30e39c7741e84a813c5cbccd9e9ee397af687176213f77d3e9a5"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/tree_small_02/tree_small_02_diff_1k.jpg",
+      "path": "work/assets/tree/textures/tree_small_02_diff_1k.jpg",
+      "sha256": "4e0093f407b3a1120a36de49a48ebe5a465a9a9b77e361c7a3e66866e115e404"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/tree_small_02/tree_small_02_leaves_alpha_1k.png",
+      "path": "work/assets/tree/textures/tree_small_02_leaves_alpha_1k.png",
+      "sha256": "4f143e2dda8a6a572f427ac378b92255d21761e4611de0d26e21816c01aa533b"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/tree_small_02/tree_small_02_leaves_diff_1k.png",
+      "path": "work/assets/tree/textures/tree_small_02_leaves_diff_1k.png",
+      "sha256": "d3fc48522c76aa1f91076c6b86f302669822ebe4e2acabd67d42c4d57eaa5ba0"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/tree_small_02/tree_small_02_leaves_nor_gl_1k.png",
+      "path": "work/assets/tree/textures/tree_small_02_leaves_nor_gl_1k.png",
+      "sha256": "fa4ad390f2e68b745db8f568cad64c3272696c5e01312ae564795e37724d79b8"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/png/1k/tree_small_02/tree_small_02_leaves_rough_1k.png",
+      "path": "work/assets/tree/textures/tree_small_02_leaves_rough_1k.png",
+      "sha256": "f005213467e38bcb355b00c9a6eb9896b8d810ee885d5c7fa308d9f3326ef602"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/tree_small_02/tree_small_02_nor_gl_1k.exr",
+      "path": "work/assets/tree/textures/tree_small_02_nor_gl_1k.exr",
+      "sha256": "cf999e30663267b55b6fab43ca97c1e96176bdc67268e6c25854d53f15267d64"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/exr/1k/tree_small_02/tree_small_02_rough_1k.exr",
+      "path": "work/assets/tree/textures/tree_small_02_rough_1k.exr",
+      "sha256": "1ed5ad24397c065beb2b2d3521470730f24e957cbd5fb323ad3f9b6d267b4585"
+    }
+  ],
+  "factory": [
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/modular_factory_facade/modular_factory_facade_1k.gltf",
+      "path": "work/assets/factory/source.gltf",
+      "sha256": "41ff58b722f9cb3e9db8bcacae3163946603ae99a1d42bb6f9045d7c4ec0f179"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_brick_diff_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_brick_diff_1k.jpg",
+      "sha256": "852b01c61efc07fd8e60e59767657ef51112bf65f5eaf184f02c27ea5170582d"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_doors_diff_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_doors_diff_1k.jpg",
+      "sha256": "157b59b9d1c929e51e2747f4f9481389743acba539308cecbb98c17294b6c7e1"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_trim_01_arm_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_trim_01_arm_1k.jpg",
+      "sha256": "0ab1657c75a9b5beb3d5552adfafccdd5174c391f20ccd6c0b41939c1a8bfe3f"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_doors_arm_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_doors_arm_1k.jpg",
+      "sha256": "794b16de5bd2aae6431fd8aee7b10b3b1095bbe89b233a158a1e031e0a27c4e3"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_trim_01_diff_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_trim_01_diff_1k.jpg",
+      "sha256": "beff49832938c5493a4b5bbb82eeabd138c29c6523e5228e006f702859bbc87f"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_windows_arm_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_windows_arm_1k.jpg",
+      "sha256": "7bfc0d579188dd88bb2d8962ae81402e6ccabff244709e68ba3be4cc5d500d0d"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_garage_nor_gl_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_garage_nor_gl_1k.jpg",
+      "sha256": "e8ac6265622fb8c8df454ae02a75746bc37ded0d4533dbe65fa275d0e40f28ba"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_windows_nor_gl_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_windows_nor_gl_1k.jpg",
+      "sha256": "4dc9e4a6b97d5384849faeebca87eae9f6736664971c6c10a41fc19bd01fc106"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_trim_01_nor_gl_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_trim_01_nor_gl_1k.jpg",
+      "sha256": "05441cf545c9d5f6786cd191e9b3b627668b1176e155d1fae7fbe28f6a8d3802"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_garage_diff_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_garage_diff_1k.jpg",
+      "sha256": "d1cf6239c7364900b02279600937a4c9bf0a21d315efabf18f16d5637020e39f"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_brick_arm_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_brick_arm_1k.jpg",
+      "sha256": "322cba4e6b03e39fa2a57335deddfbda6d819f8b29b108b9000790ded99b0d95"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_brick_nor_gl_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_brick_nor_gl_1k.jpg",
+      "sha256": "1168796e949c5ce3957142e86bce1d09531466aaea90dc46cbc3f3225cbdd78e"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_doors_nor_gl_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_doors_nor_gl_1k.jpg",
+      "sha256": "1e3bdff6d4b30cb26e901d6d14e42d398aeacfb46767900404eb38ec5ba016dc"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_windows_diff_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_windows_diff_1k.jpg",
+      "sha256": "d361dacbd23095dacf1d82eb5a509a305c44b007f8adfb221dc2e5efe56180e0"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/modular_factory_facade/modular_factory_facade.bin",
+      "path": "work/assets/factory/modular_factory_facade.bin",
+      "sha256": "12702fb065a838695e0621e1aac3947af92d32c439fb965c8b0563ad691fed70"
+    },
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/modular_factory_facade/modular_factory_facade_garage_arm_1k.jpg",
+      "path": "work/assets/factory/textures/modular_factory_facade_garage_arm_1k.jpg",
+      "sha256": "a72cfa9020a0a7aad2476b2ceb3c60dc21ac69d4e9026dcddc82710e6784b40f"
+    }
+  ]
+}

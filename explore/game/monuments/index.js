@@ -18,11 +18,12 @@ export function createMonument(id, parent, sign, color) {
     for (const x of [-4, 4]) k.box(x, 4.45, 1.26, 0.06, 0.65, 0.07);
   } else if (id !== "autoencoder" && !URBAN_STOPS.has(id)) {
     const stand = k.group("interpretation-plaque");
-    k.box(0, 1.55, 6.25, 6.2, 1.05, 0.15, undefined, 0, stand);
-    for (const x of [-2.5, 2.5])
-      k.box(x, 0.8, 6.25, 0.1, 1.55, 0.1, undefined, 0, stand);
-    k.label(definition[0], 0, 1.75, 6.34, 5.9, 0.4, color);
-    k.label(definition[1], 0, 1.3, 6.34, 5.9, 0.24, color);
+    stand.position.x = -4.1;
+    k.box(0, 1.04, 6.25, 3.6, 0.72, 0.14, undefined, 0, stand);
+    for (const x of [-1.35, 1.35])
+      k.box(x, 0.51, 6.25, 0.075, 1.02, 0.075, undefined, 0, stand);
+    k.label(definition[0], 0, 1.17, 6.33, 3.35, 0.27, color, stand);
+    k.label(definition[1], 0, 0.88, 6.33, 3.35, 0.18, color, stand);
   }
   // The exhibit is a designed explanation; project results remain in the original project panel.
   k.root.userData.interpretation = definition[2];

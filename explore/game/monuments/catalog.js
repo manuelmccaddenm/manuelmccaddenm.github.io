@@ -130,7 +130,7 @@ export const overviewFor = (id) =>
   id === "mantis"
     ? { eye: [-14, 8, 25], target: [-4, 2.3, 3] }
     : ["probability", "lp-solver"].includes(id)
-      ? { eye: [16, 13, 29], target: [8, 2.8, -1] }
+      ? { eye: [16, 6.8, 29], target: [8, 2.8, -1] }
       : ["model-picker", "nutrition", "retail"].includes(id)
         ? { eye: [10, 10, 19], target: [0, 1.7, 0] }
         : id === "cdmx-budget"
@@ -140,5 +140,5 @@ export const overviewFor = (id) =>
             : id === "fantasy-draft"
               ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
               : id === "predator-prey"
-                ? { eye: [0, 9, 17], target: [0, 4, 0] }
-                : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };
+                ? { eye: [0, 5.8, 17], target: [0, 4, 0] }
+                : { eye: [1.5, 5.8, 17], target: [0, 3.6, 0] };

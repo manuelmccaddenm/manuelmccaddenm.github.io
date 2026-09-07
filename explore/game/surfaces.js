@@ -13,27 +13,34 @@ flatNormal.needsUpdate = flatRough.needsUpdate = true;
 export async function loadPhotographicSurfaces() {
   const loader = new T.TextureLoader();
   await Promise.all(
-    ["asphalt", "brick", "concrete", "paving", "soil", "plaster", "grass"].map(
-      async (kind) => {
-        try {
-          const maps = await Promise.all(
-            ["diff", "nor_gl", "rough"].map(async (channel) => {
-              const tex = await loader.loadAsync(
-                `/explore/media/${kind}-${channel}.jpg`,
-              );
-              tex.wrapS = tex.wrapT = T.RepeatWrapping;
-              tex.anisotropy = 8;
-              tex.colorSpace =
-                channel === "diff" ? T.SRGBColorSpace : T.NoColorSpace;
-              return tex;
-            }),
-          );
-          photographed.set(kind, maps);
-        } catch (error) {
-          console.warn(`Using procedural ${kind} fallback.`, error);
-        }
-      },
-    ),
+    [
+      "asphalt",
+      "brick",
+      "concrete",
+      "paving",
+      "soil",
+      "plaster",
+      "grass",
+      "wood",
+    ].map(async (kind) => {
+      try {
+        const maps = await Promise.all(
+          ["diff", "nor_gl", "rough"].map(async (channel) => {
+            const tex = await loader.loadAsync(
+              `/explore/media/${kind}-${channel}.jpg`,
+            );
+            tex.wrapS = tex.wrapT = T.RepeatWrapping;
+            tex.anisotropy = 8;
+            tex.colorSpace =
+              channel === "diff" ? T.SRGBColorSpace : T.NoColorSpace;
+            return tex;
+          }),
+        );
+        photographed.set(kind, maps);
+      } catch (error) {
+        console.warn(`Using procedural ${kind} fallback.`, error);
+      }
+    }),
   );
   for (const apply of pending) apply();
 }
@@ -88,9 +95,7 @@ export function surface(
     mat.map = set[0];
     maps.normal = set[1];
     maps.rough = set[2];
-    mat.color
-      .set(color)
-      .lerp(new T.Color("white"), kind === "asphalt" ? 0.98 : whitening);
+    mat.color.set(color).lerp(new T.Color("white"), whitening);
     mat.needsUpdate = true;
   };
   pending.push(apply);
@@ -124,7 +129,16 @@ export function surface(
       vec4 texel = texture2D(map, surfaceUV.zy) * weights.x
                  + texture2D(map, surfaceUV.xz) * weights.y
                  + texture2D(map, surfaceUV.xy) * weights.z;
-      ${kind === "plaster" ? "texel.rgb = mix(vec3(.62), texel.rgb, .16);" : ""}
+      ${kind === "plaster" ? "texel.rgb = mix(vec3(.62), texel.rgb, .65);" : ""}
+      ${
+        kind === "grass"
+          ? `
+        float meadow = sin(vSurfacePosition.x * .071 + sin(vSurfacePosition.z * .047) * 2.5)
+          * sin(vSurfacePosition.z * .063 + cos(vSurfacePosition.x * .083));
+        texel.rgb *= mix(vec3(.77,.83,.66), vec3(1.13,1.1,.96), meadow*.5+.5);
+      `
+          : ""
+      }
       diffuseColor *= texel;`,
     );
     shader.fragmentShader = shader.fragmentShader.replace(
@@ -195,6 +209,6 @@ export function surface(
     };
   }
   mat.customProgramCacheKey = () =>
-    `photographic-world-surface-v4-${kind}-${untiled}`;
+    `photographic-world-surface-v6-${kind}-${untiled}`;
   return mat;
 }

@@ -259,3 +259,35 @@ raycast through glazing into a recessed room. Close-range browser reviews cover
 courtyard, clay-roof and research buildings, plus the complete city and map poster.
 No paid assets, APIs, new services or plan upgrades were introduced. The previous
 `codex/realistic-districts` branch remains available for rollback.
+
+## Authored assets and daylight pass
+
+`codex/cinematic-city` replaces three quarters of the background buildings with
+four-sided residences and research buildings assembled from Poly Haven's CC0
+[Modular Factory Facade](https://polyhaven.com/a/modular_factory_facade). The
+modules retain modeled masonry returns, window frames, hardware, doors, cornices
+and weathering. The remaining courtyard homes preserve the existing modern
+terraces and connected screens. All homes still face their local sidewalks.
+
+Street and garden trees now use the authored CC0
+[Tree Small 02](https://polyhaven.com/a/tree_small_02) with photographed bark and
+leaf maps. Two optimized detail levels, spatial instancing and distance hysteresis
+keep the full-resolution source model out of runtime. Additional trees frame
+public gardens while road, exhibit and utility clearances remain enforced.
+[Wood Table 001](https://polyhaven.com/a/wood_table_001) adds 2K grain, normal and
+roughness detail to timber and exhibit furniture. The new models and timber maps
+add about 21 MB, served from this static site without external runtime APIs.
+
+AgX tone mapping, a less tinted screen overlay, stronger daylight/shade separation,
+less distant fog and more restrained pavement colors replace the earlier washed
+look. Sun direction follows the bright solar position in the existing HDR sky.
+Shadow refresh is bounded independently of display resolution. General exhibit
+signs are physically lit cream plaques. Interpretation stands are smaller and set
+to the side, and Probability's former floating dial is mounted on a gauge stand.
+The NFL scoreboard and predator–prey/Hopf displays keep their existing behavior.
+
+Validation covers the actual shipped model geometry, both building orientations,
+recessed rooms, tree scale and LOD switching, as well as all prior routes, favorite
+monuments and the complete Mantis poster. This remains a real-time modeled city;
+it does not use offline path tracing, and it should not be described as fully
+photorealistic. No paid assets or service upgrades are introduced.

@@ -5,3 +5,22 @@ Downloaded for local hosting; no live asset API or paid service is used.
 White Plaster 02 by Rob Tuytel: https://polyhaven.com/a/white_plaster_02 (CC0; 1K diffuse, normal and roughness).
 
 Grass 004 — ambientCG, CC0. https://ambientcg.com/view?id=Grass004 — 1K color, OpenGL normal and roughness maps.
+
+Authored city models, added September 2026 (CC0 1.0):
+- Poly Haven, Modular Factory Facade, James Ray Cock.
+  https://polyhaven.com/a/modular_factory_facade
+  Source: https://api.polyhaven.com/files/modular_factory_facade
+  Selected meter-scale wall/window/door/cornice modules exported to models/architecture.glb.
+- Poly Haven, Tree Small 02, Rico Cilliers.
+  https://polyhaven.com/a/tree_small_02
+  Source: https://api.polyhaven.com/files/tree_small_02
+  Source botanical model and bark/leaf textures. Geometry optimized to near/far
+  LODs; leaves reconstructed as alpha-cut UV cards retaining source placement.
+  Exported to models/tree.glb. Not a new photogrammetry scan by this project.
+- Poly Haven, Wood Table 001: https://polyhaven.com/a/wood_table_001
+  2K diffuse, OpenGL normal and roughness maps: wood-{diff,nor_gl,rough}.jpg.
+  Source: https://api.polyhaven.com/files/wood_table_001
+
+All are free CC0 assets, served locally; no runtime asset API or paid service.
+License: https://creativecommons.org/publicdomain/zero/1.0/
+Source download URLs and SHA-256 checksums are recorded in scripts/assets/model-sources.json.
