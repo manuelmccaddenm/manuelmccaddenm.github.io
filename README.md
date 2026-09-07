@@ -21,7 +21,7 @@ sprint. Click the scene to capture the mouse where supported; Escape releases it
 
 Project panels pause movement. The map supports search, route guidance along the
 original road graph, and explicit fast travel. Discovery and graphics preferences
-are saved only in this browser; no account or backend is required. Dusk/night,
+are saved only in this browser; no account or backend is required. Daylight/night,
 reduced motion, sensitivity, and graphics quality are available in Settings.
 
 ## Build and verify
@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/playable-3d-city` (must be committed and pushed before deployment)
+- Branch: `codex/realistic-city`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -70,5 +70,16 @@ Docs: https://render.com/docs/static-sites and https://render.com/docs/blueprint
 This is a stylized, explorable portfolio game. It has a level ground plane and
 solid building/exhibit footprints; jumping does not let the player climb buildings.
 It does not include enterable interiors, multiplayer, or photorealistic assets.
-Balanced quality favors battery/performance; High adds bloom; Balanced and High include nearby sun shadows. WebGL2 is required.
+Balanced renders up to native 2× resolution; High adds multisample antialiasing, higher resolution, and bloom; Balanced and High include nearby sun shadows. WebGL2 is required.
 The 2D map remains available if the game cannot initialize.
+
+The realism pass adds world-scaled procedural brick/concrete/asphalt/paving, framed
+reflective windows, storefronts, cornices, rooftop equipment, sidewalk curbs, benches,
+and clustered tree crowns. Native browser text labels stay sharp in every quality
+mode, avoid overlapping each other, and hide behind solid buildings. Physical sign
+textures use 2048-pixel, aspect-correct artwork. Night lights use a bounded pool of
+six nearby lamps. All materials and lighting are generated locally with no paid
+assets, map API, external image service, or server-side rendering.
+
+The existing Render Hobby static service remains the deployment target. Preserve
+its $0 build spending limit and do not add paid compute or a payment method.

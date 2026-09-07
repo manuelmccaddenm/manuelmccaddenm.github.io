@@ -1,4 +1,5 @@
 import * as T from "three";
+import { surface } from "./surfaces.js";
 import { worldPoint, segmentDistance, distance } from "./navigation.js";
 
 const UP = new T.Vector3(0, 1, 0);
@@ -15,7 +16,6 @@ export function createWorld(scene, graph, projects, hotspots) {
   const nodes = Object.fromEntries(graph.nodes.map((n) => [n.id, n]));
   const colliders = [],
     animated = [],
-    labels = [],
     lots = new Map();
   const batches = new Map(),
     materials = new Map();
@@ -39,8 +39,8 @@ export function createWorld(scene, graph, projects, hotspots) {
       );
     return materials.get(key);
   };
-  const stone = material("#425b6b"),
-    edge = material("#53707a"),
+  const stone = surface("paving", "#8b9189", 0.55),
+    edge = material("#b1b0a0"),
     dark = material("#101f2c"),
     brass = material("#c0a477", 0, 0.6);
   const boxGeo = new T.BoxGeometry(1, 1, 1);
@@ -96,33 +96,19 @@ export function createWorld(scene, graph, projects, hotspots) {
   const nearRoad = (p, radius) =>
     roads.some((r) => segmentDistance(p, r.a, r.b) < radius);
 
-  // A single textured ground and batched street geometry keep the district inexpensive.
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 128;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#24323c";
-  ctx.fillRect(0, 0, 128, 128);
-  for (let i = 0; i < 5000; i++) {
-    const c = 40 + random() * 32;
-    ctx.fillStyle = `rgb(${c},${c + 8},${c + 12})`;
-    ctx.fillRect(random() * 128, random() * 128, 1, 1);
-  }
-  const texture = new T.CanvasTexture(canvas);
-  texture.wrapS = texture.wrapT = T.RepeatWrapping;
-  texture.repeat.set(90, 90);
-  texture.colorSpace = T.SRGBColorSpace;
   const ground = mesh(
     new T.PlaneGeometry(1600, 1600),
-    new T.MeshStandardMaterial({ map: texture, roughness: 0.95 }),
+    surface("paving", "#899084", 0.45),
     scene,
     250,
     -0.05,
     -180,
   );
   ground.rotation.x = -Math.PI / 2;
-  const pavement = material("#3b4c55"),
-    asphalt = material("#192b37"),
-    line = material("#9c9a7c", 0.1);
+  const pavement = surface("paving", "#b8b5a6", 0.65),
+    asphalt = surface("asphalt", "#454a4c", 1.5),
+    line = material("#d8cbb0");
+  const lampPositions = [];
   for (const { a, b } of roads) {
     const length = distance(a, b),
       yaw = Math.atan2(b.x - a.x, b.z - a.z),
@@ -143,6 +129,28 @@ export function createWorld(scene, graph, projects, hotspots) {
         yaw,
       );
     }
+    // Curbs stop at junctions rather than crossing the driving/walking surface.
+    for (const side of [-1, 1])
+      for (let t = 2; t < length - 2; t += 2) {
+        const k = t / length,
+          offset = 4.55 * side;
+        const curb = {
+          x: a.x + (b.x - a.x) * k + Math.cos(yaw) * offset,
+          z: a.z + (b.z - a.z) * k - Math.sin(yaw) * offset,
+        };
+        if (
+          roads.some((r) => r.a !== a && segmentDistance(curb, r.a, r.b) < 6.2)
+        )
+          continue;
+        if (
+          graph.nodes.some(
+            (n) =>
+              distance(curb, worldPoint(n)) < (n.type === "road" ? 6.8 : 8.8),
+          )
+        )
+          continue;
+        box(curb.x, 0.15, curb.z, 0.22, 0.2, 1.98, edge, yaw);
+      }
     // Warm streetlamps and inset edge lights, no per-lamp shadow maps.
     const ux = (b.x - a.x) / length,
       uz = (b.z - a.z) / length;
@@ -153,7 +161,27 @@ export function createWorld(scene, graph, projects, hotspots) {
       box(x, 3.5, z, 0.14, 7, 0.14, dark);
       box(x, 7, z, 1.6, 0.13, 1.6, stone);
       box(x, 6.9, z, 1.35, 0.05, 1.35, material("#ffd4a1", 2.8));
-      box(x, 0.14, z, 2.5, 0.02, 2.5, material("#aa875b", 0.1));
+      lampPositions.push(V(x, 6.6, z));
+      box(x, 0.23, z, 0.48, 0.4, 0.48, stone);
+      // Benches on the outer sidewalk, clear of the walkable road.
+      if (Math.floor(t / 23) % 3 === 0) {
+        const bx = x - uz * 1.1 * side,
+          bz = z + ux * 1.1 * side;
+        const wood = material("#896649");
+        box(bx, 0.65, bz, 2.3, 0.15, 0.65, wood, yaw);
+        box(bx + uz * 0.3, 1.03, bz - ux * 0.3, 2.3, 0.62, 0.09, wood, yaw);
+        for (const leg of [-0.85, 0.85])
+          box(
+            bx + Math.cos(yaw) * leg,
+            0.31,
+            bz - Math.sin(yaw) * leg,
+            0.09,
+            0.6,
+            0.5,
+            dark,
+            yaw,
+          );
+      }
     }
   }
   for (const n of graph.nodes) {
@@ -213,20 +241,51 @@ export function createWorld(scene, graph, projects, hotspots) {
       });
     } else if (id === "itam" || id === "batu" || id === "mantis") {
       const w = id === "itam" ? 13 : 10;
-      box(0, 4, 0, w, 8, 6, stone, 0, moving);
-      box(0, 8.3, 0, w + 1, 0.4, 7, edge, 0, moving);
-      for (let x = -w / 2 + 1; x < w / 2; x += 1.6)
-        for (let y = 2; y < 7; y += 2)
-          box(x, y, 3.04, 0.8, 1.1, 0.08, glow, 0, moving);
-      box(0, 1.6, 3.2, 2, 3.2, 0.3, dark, 0, moving);
-      const title = sign(id.toUpperCase(), col, 7, 1.5);
-      title.position.set(0, 9.7, 0);
+      const limestone = surface(
+        "concrete",
+        id === "itam" ? "#d8c9ab" : "#9da8a3",
+        0.8,
+      );
+      const glazing = new T.MeshStandardMaterial({
+        color: "#476878",
+        roughness: 0.16,
+        metalness: 0.7,
+      });
+      const frame = material("#343f41", 0, 0.45);
+      box(0, 4, 0, w, 8, 6, limestone, 0, moving);
+      box(0, 0.35, 0, w + 0.25, 0.7, 6.25, stone, 0, moving);
+      box(0, 8.2, 0, w + 0.65, 0.32, 6.65, edge, 0, moving);
+      box(0, 8.48, 0, w + 0.25, 0.2, 6.25, limestone, 0, moving);
+      for (const side of [-1, 1]) {
+        for (let x = -w / 2 + 1.25; x < w / 2 - 0.5; x += 2.1)
+          for (let y = 2; y < 7.5; y += 2.5) {
+            if (Math.abs(x) < 1.4 && y === 2) continue;
+            box(x, y, side * 3.04, 1.45, 1.8, 0.15, edge, 0, moving);
+            box(x, y, side * 3.14, 1.22, 1.56, 0.08, glazing, 0, moving);
+            box(x, y, side * 3.2, 0.055, 1.6, 0.06, frame, 0, moving);
+            box(x, y - 0.12, side * 3.2, 1.22, 0.055, 0.06, frame, 0, moving);
+            box(x, y - 0.94, side * 3.15, 1.65, 0.12, 0.4, edge, 0, moving);
+          }
+        for (const y of [3.3, 5.8])
+          box(0, y, side * 3.03, w + 0.12, 0.1, 0.2, edge, 0, moving);
+      }
+      box(0, 1.5, 3.13, 2.5, 2.8, 0.25, frame, 0, moving);
+      box(0, 1.5, 3.3, 2.2, 2.6, 0.08, glazing, 0, moving);
+      box(0, 1.5, 3.37, 0.07, 2.6, 0.07, brass, 0, moving);
+      for (const x of [-0.16, 0.16])
+        box(x, 1.3, 3.44, 0.045, 0.5, 0.06, brass, 0, moving);
+      box(0, 3.3, 3.65, 3.8, 0.18, 1.6, edge, 0, moving);
+      for (const x of [-1.72, 1.72])
+        box(x, 1.7, 4.25, 0.13, 3.3, 0.13, brass, 0, moving);
+      const title = sign(id.toUpperCase(), col, 4.6, 0.85);
+      title.position.set(0, 7.95, 3.4);
       moving.add(title);
       colliders.push({
         minX: parent.position.x - w / 2,
         maxX: parent.position.x + w / 2,
         minZ: parent.position.z - 3,
         maxZ: parent.position.z + 3,
+        height: 8.6,
       });
     } else if (id === "solar-pipelines") {
       for (let x = -4; x <= 4; x += 4)
@@ -413,26 +472,34 @@ export function createWorld(scene, graph, projects, hotspots) {
   }
   function sign(text, color, w = 8, h = 1.4) {
     const canvas = document.createElement("canvas");
-    canvas.width = 1024;
-    canvas.height = 256;
+    canvas.width = 2048;
+    canvas.height = Math.round((2048 * h) / w);
     const c = canvas.getContext("2d");
-    c.fillStyle = "#0d202cef";
-    c.fillRect(0, 0, 1024, 256);
-    c.fillStyle = color;
-    c.fillRect(0, 248, 1024, 8);
-    c.font = "600 68px system-ui";
+    if (w !== h) {
+      c.fillStyle = "#10202b";
+      c.fillRect(0, 0, canvas.width, canvas.height);
+      c.fillStyle = color;
+      c.fillRect(0, canvas.height - 8, canvas.width, 8);
+    }
+    const preferredSize = canvas.height * 0.57;
+    c.font = `600 ${preferredSize}px system-ui`;
     c.textAlign = "center";
     c.textBaseline = "middle";
-    const size = Math.min(68, (900 / c.measureText(text).width) * 68);
+    const size = Math.min(
+      preferredSize,
+      ((canvas.width * 0.9) / c.measureText(text).width) * preferredSize,
+    );
     c.font = `600 ${size}px system-ui`;
-    c.fillStyle = "#f2eee3";
-    c.fillText(text, 512, 125);
+    c.fillStyle = "#f8f6ee";
+    c.fillText(text, canvas.width / 2, canvas.height * 0.49);
     const tex = new T.CanvasTexture(canvas);
     tex.colorSpace = T.SRGBColorSpace;
+    tex.anisotropy = 8;
     return new T.Mesh(
       new T.PlaneGeometry(w, h),
       new T.MeshBasicMaterial({
         map: tex,
+        toneMapped: false,
         side: T.DoubleSide,
         transparent: true,
       }),
@@ -500,11 +567,6 @@ export function createWorld(scene, graph, projects, hotspots) {
         maxZ: center.z + z,
       });
     }
-    const label = sign(p.label.toUpperCase(), col, 10, 1.5);
-    label.position.set(center.x, 11.5, center.z);
-    label.rotation.y = facing;
-    scene.add(label);
-    labels.push(label);
     const entry = { x: origin.x, z: origin.z };
     const marker = ring(
       scene,
@@ -544,12 +606,23 @@ export function createWorld(scene, graph, projects, hotspots) {
       );
   }
   // A planted, inhabited skyline. Footprints never cover a street, spawn, or exhibit.
-  const buildingMats = ["#293e4d", "#354551", "#263947", "#394854"].map((c) =>
-    material(c),
+  const buildingMats = [
+    surface("brick", "#a77961", 0.55),
+    surface("brick", "#bdac8e", 0.55),
+    surface("concrete", "#bec2b8", 1),
+    surface("concrete", "#818e94", 1),
+  ];
+  const glass = new T.MeshStandardMaterial({
+    color: "#476574",
+    roughness: 0.19,
+    metalness: 0.65,
+  });
+  const windowMats = ["#e5b777", "#bdd4d3", "#e8d5af"].map((c) =>
+    material(c, 0.03, 0.2),
   );
-  const windowMats = ["#ffcf93", "#73bfd0", "#b2cad1"].map((c) =>
-    material(c, 1.4),
-  );
+  const frames = material("#3b4545", 0, 0.45),
+    trim = material("#d0c8b8");
+  const roof = surface("asphalt", "#5c6260", 1);
   let buildingCount = 0;
   for (let x = 0; x <= 500; x += 22)
     for (let z = -360; z <= 0; z += 22) {
@@ -561,31 +634,63 @@ export function createWorld(scene, graph, projects, hotspots) {
         continue;
       if (random() > 0.7) continue;
       const w = 8 + random() * 5,
-        d = 8 + random() * 5,
-        h = 8 + random() * 26;
+        d = 8 + random() * 5;
+      const floors = 3 + Math.floor(random() * 7),
+        h = floors * 3.2 + 0.6;
       box(p.x, h / 2, p.z, w, h, d, buildingMats[Math.floor(random() * 4)]);
-      box(p.x, h + 0.15, p.z, w + 0.35, 0.3, d + 0.35, edge);
+      box(p.x, 0.5, p.z, w + 0.15, 1, d + 0.15, stone);
+      box(p.x, h + 0.07, p.z, w, 0.14, d, roof);
+      // Cornices, floor bands, roof parapets and mechanical enclosures.
+      for (const y of [3.1, h - 0.35])
+        box(p.x, y, p.z, w + 0.24, 0.22, d + 0.24, trim);
+      for (const side of [-1, 1]) {
+        box(p.x, h + 0.38, p.z + side * (d / 2 - 0.1), w, 0.6, 0.2, trim);
+        box(p.x + side * (w / 2 - 0.1), h + 0.38, p.z, 0.2, 0.6, d, trim);
+      }
+      box(p.x + w * 0.15, h + 0.6, p.z, 2.3, 1.2, 2.6, edge);
+      box(p.x - w * 0.2, h + 0.28, p.z + d * 0.2, 1.6, 0.56, 1.8, frames);
       colliders.push({
         minX: p.x - w / 2,
         maxX: p.x + w / 2,
         minZ: p.z - d / 2,
         maxZ: p.z + d / 2,
+        height: h + 0.7,
       });
       buildingCount++;
-      for (let y = 2; y < h - 1; y += 3)
-        for (let u = -w / 2 + 1.5; u < w / 2 - 1; u += 2.5) {
-          if (random() < 0.3) continue;
-          const mat = windowMats[Math.floor(random() * 3)];
-          box(p.x + u, y, p.z + d / 2 + 0.02, 1, 1.3, 0.04, mat);
-          box(p.x + u, y, p.z - d / 2 - 0.02, 1, 1.3, 0.04, mat);
+      for (let face = 0; face < 4; face++) {
+        const side = face % 2 ? -1 : 1,
+          turn = face >= 2;
+        const width = turn ? d : w;
+        const pane = (u, y, outward, pw, ph, pd, mat) =>
+          box(
+            p.x + (turn ? side * (w / 2 + outward) : u),
+            y,
+            p.z + (turn ? u : side * (d / 2 + outward)),
+            turn ? pd : pw,
+            ph,
+            turn ? pw : pd,
+            mat,
+          );
+        // Shopfront glazing, recessed door, canopy, and transoms at pedestrian height.
+        for (let u = -width / 2 + 1.6; u < width / 2 - 1; u += 2.4) {
+          pane(u, 1.6, 0.08, 2.15, 2.25, 0.12, frames);
+          pane(u, 1.6, 0.16, 1.94, 2.02, 0.06, glass);
+          pane(u, 2.95, 0.35, 2.25, 0.13, 0.75, trim);
+          pane(u, 1.6, 0.2, 0.06, 2.04, 0.05, frames);
         }
-      for (let y = 2; y < h - 1; y += 3)
-        for (let u = -d / 2 + 1.5; u < d / 2 - 1; u += 2.5) {
-          if (random() < 0.4) continue;
-          const mat = windowMats[0];
-          box(p.x + w / 2 + 0.02, y, p.z + u, 0.04, 1.3, 1, mat);
-          box(p.x - w / 2 - 0.02, y, p.z + u, 0.04, 1.3, 1, mat);
-        }
+        for (let floor = 1; floor < floors; floor++)
+          for (let u = -width / 2 + 1.6; u < width / 2 - 1; u += 2.55) {
+            const y = floor * 3.2 + 1.6;
+            const mat =
+              random() < 0.28 ? windowMats[Math.floor(random() * 3)] : glass;
+            pane(u, y, 0.06, 1.66, 2.04, 0.15, trim);
+            pane(u, y, 0.15, 1.44, 1.82, 0.08, frames);
+            pane(u, y, 0.2, 1.29, 1.67, 0.04, mat);
+            pane(u, y, 0.24, 0.045, 1.7, 0.04, frames);
+            pane(u, y - 0.2, 0.24, 1.3, 0.045, 0.04, frames);
+            pane(u, y - 1.05, 0.22, 1.84, 0.13, 0.48, trim);
+          }
+      }
     }
   const trees = [];
   for (let i = 0; i < 220; i++) {
@@ -603,7 +708,17 @@ export function createWorld(scene, graph, projects, hotspots) {
     )
       continue;
     const h = 3 + random() * 2;
-    box(p.x, h / 2, p.z, 0.3, h, 0.3, brass);
+    box(p.x, h / 2, p.z, 0.32, h, 0.32, material("#66513d"));
+    for (let branch = 0; branch < 3; branch++) {
+      const a = (branch * Math.PI * 2) / 3;
+      rod(
+        V(p.x, h * 0.55, p.z),
+        V(p.x + Math.cos(a) * 1.25, h + 0.3, p.z + Math.sin(a) * 1.25),
+        0.1,
+        material("#66513d"),
+        scene,
+      );
+    }
     trees.push({ p, h });
     colliders.push({
       minX: p.x - 0.2,
@@ -613,17 +728,67 @@ export function createWorld(scene, graph, projects, hotspots) {
     });
   }
   const treeMesh = new T.InstancedMesh(
-    new T.IcosahedronGeometry(1, 1),
-    material("#345e56"),
-    trees.length,
+    new T.IcosahedronGeometry(1, 2),
+    material("#63794b"),
+    trees.length * 7,
   );
   const dummy = new T.Object3D();
   trees.forEach(({ p, h }, i) => {
-    dummy.position.set(p.x, h, p.z);
-    dummy.scale.set(1.6, 2.4, 1.6);
-    dummy.updateMatrix();
-    treeMesh.setMatrixAt(i, dummy.matrix);
+    for (let cluster = 0; cluster < 7; cluster++) {
+      const angle = cluster * 2.4,
+        spread = cluster === 0 ? 0 : 1.25;
+      dummy.position.set(
+        p.x + Math.cos(angle) * spread,
+        h + (cluster === 0 ? 1.5 : 0.1 + random()),
+        p.z + Math.sin(angle) * spread,
+      );
+      dummy.scale.set(
+        1.15 + random() * 0.45,
+        1.25 + random() * 0.6,
+        1.1 + random() * 0.5,
+      );
+      dummy.rotation.set(random(), random(), random());
+      dummy.updateMatrix();
+      treeMesh.setMatrixAt(i * 7 + cluster, dummy.matrix);
+      treeMesh.setColorAt(
+        i * 7 + cluster,
+        new T.Color().setHSL(
+          0.2 + random() * 0.04,
+          0.22 + random() * 0.15,
+          0.38 + random() * 0.16,
+        ),
+      );
+    }
   });
+  dummy.rotation.set(0, 0, 0);
+  const shadePixels = new Uint8Array(64 * 64 * 4);
+  for (let y = 0; y < 64; y++)
+    for (let x = 0; x < 64; x++) {
+      const radius = Math.hypot((x - 31.5) / 31.5, (y - 31.5) / 31.5);
+      shadePixels[(y * 64 + x) * 4 + 3] = Math.max(0, 1 - radius) ** 1.6 * 135;
+    }
+  const shadeMap = new T.DataTexture(shadePixels, 64, 64);
+  shadeMap.magFilter = shadeMap.minFilter = T.LinearFilter;
+  shadeMap.needsUpdate = true;
+  const contact = new T.InstancedMesh(
+    new T.PlaneGeometry(1, 1),
+    new T.MeshBasicMaterial({
+      map: shadeMap,
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+    }),
+    trees.length,
+  );
+  trees.forEach(({ p }, i) => {
+    dummy.position.set(p.x, -0.025, p.z);
+    dummy.rotation.set(-Math.PI / 2, 0, 0);
+    dummy.scale.set(8, 8, 1);
+    dummy.updateMatrix();
+    contact.setMatrixAt(i, dummy.matrix);
+  });
+  scene.add(contact);
+  dummy.rotation.set(0, 0, 0);
   treeMesh.castShadow = true;
   scene.add(treeMesh);
   for (const [mat, matrices] of batches) {
@@ -640,9 +805,16 @@ export function createWorld(scene, graph, projects, hotspots) {
     roads.length,
   );
   scene.add(pulses);
-  const sun = new T.DirectionalLight("#ffceaa", 3);
+  // Only six nearby lamps get real lighting; the complete city never needs hundreds of lights.
+  let isNight = false;
+  const localLights = Array.from({ length: 6 }, () => {
+    const light = new T.PointLight("#ffd5a0", 0, 18, 2);
+    scene.add(light);
+    return light;
+  });
+  const sun = new T.DirectionalLight("#ffdfb5", 3.2);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.mapSize.set(2048, 2048);
   Object.assign(sun.shadow.camera, {
     left: -65,
     right: 65,
@@ -654,7 +826,7 @@ export function createWorld(scene, graph, projects, hotspots) {
   sun.shadow.bias = -0.0004;
   sun.shadow.normalBias = 0.07;
   scene.add(sun, sun.target);
-  const hemi = new T.HemisphereLight("#9bcde6", "#26323d", 2.2);
+  const hemi = new T.HemisphereLight("#c0dcf0", "#777766", 1.8);
   scene.add(hemi);
   const sky = new T.Mesh(
     new T.SphereGeometry(1400, 32, 16),
@@ -665,30 +837,41 @@ export function createWorld(scene, graph, projects, hotspots) {
       vertexShader:
         "varying vec3 vPos; void main(){vPos=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}",
       fragmentShader:
-        "varying vec3 vPos; uniform float night; void main(){float h=normalize(vPos).y;vec3 top=mix(vec3(.10,.23,.34),vec3(.014,.028,.07),night);vec3 bottom=mix(vec3(.87,.53,.36),vec3(.12,.18,.25),night);vec3 c=mix(bottom,top,smoothstep(-.06,.6,h));float star=step(.9988,fract(sin(dot(floor(normalize(vPos).xz*950.),vec2(12.9898,78.233)))*43758.5453))*step(.16,h);gl_FragColor=vec4(c+star*night*.5,1.0);}",
+        "varying vec3 vPos; uniform float night; void main(){float h=normalize(vPos).y;vec3 top=mix(vec3(.25,.46,.68),vec3(.014,.028,.07),night);vec3 bottom=mix(vec3(.85,.79,.68),vec3(.03,.05,.08),night);vec3 c=mix(bottom,top,smoothstep(-.06,.6,h));float star=step(.9988,fract(sin(dot(floor(normalize(vPos).xz*950.),vec2(12.9898,78.233)))*43758.5453))*step(.16,h);gl_FragColor=vec4(c+star*night*.5,1.0);}",
     }),
   );
   scene.add(sky);
-  scene.fog = new T.FogExp2("#49606c", 0.0033);
+  scene.fog = new T.FogExp2("#b1bcb9", 0.0022);
   return {
     colliders,
     bounds,
     lots,
     buildingCount,
     setNight(night) {
+      isNight = night;
+      scene.environmentIntensity = night ? 0.08 : 0.45;
+      sun.color.set(night ? "#b2c9ed" : "#ffdfb5");
+      for (const mat of windowMats) mat.emissiveIntensity = night ? 1.35 : 0.03;
       sky.material.uniforms.night.value = night ? 1 : 0;
-      hemi.intensity = night ? 1.1 : 2.2;
-      sun.intensity = night ? 0.55 : 3;
-      scene.fog.color.set(night ? "#152638" : "#49606c");
+      hemi.intensity = night ? 0.55 : 1.8;
+      sun.intensity = night ? 0.4 : 3.2;
+      scene.fog.color.set(night ? "#152638" : "#b1bcb9");
     },
     update(t, camera, reduced) {
       sun.position.set(camera.position.x + 70, 140, camera.position.z + 60);
       sun.target.position.set(camera.position.x, 0, camera.position.z);
       if (!reduced) for (const fn of animated) fn(t);
-      for (const label of labels) {
-        label.visible = camera.position.distanceTo(label.position) < 130;
-        label.quaternion.copy(camera.quaternion);
-      }
+      if (isNight) {
+        const nearest = [...lampPositions].sort(
+          (a, b) =>
+            a.distanceToSquared(camera.position) -
+            b.distanceToSquared(camera.position),
+        );
+        localLights.forEach((light, i) => {
+          light.position.copy(nearest[i]);
+          light.intensity = 105;
+        });
+      } else for (const light of localLights) light.intensity = 0;
       roads.forEach(({ a, b }, i) => {
         const k = (t * 0.025 + i * 0.17) % 1;
         dummy.position.set(a.x + (b.x - a.x) * k, 0.35, a.z + (b.z - a.z) * k);

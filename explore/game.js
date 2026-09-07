@@ -4,6 +4,8 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { cityProjects } from "./game/content.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { createProjectLabels } from "./game/labels.js";
 import { createWorld } from "./game/world.js";
 import {
   clamp,
@@ -116,8 +118,19 @@ async function main() {
     1900,
   );
   camera.rotation.order = "YXZ";
+  const environment = new RoomEnvironment();
+  const pmrem = new T.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(environment, 0.04).texture;
+  scene.environmentIntensity = 0.45;
+  environment.dispose();
+  pmrem.dispose();
   const world = createWorld(scene, graph, projects, hotspots);
-  const composer = new EffectComposer(renderer);
+  const projectLabels = createProjectLabels(view, world, projects);
+  const renderTarget = new T.WebGLRenderTarget(innerWidth, innerHeight, {
+    type: T.HalfFloatType,
+    samples: Math.min(4, renderer.capabilities.maxSamples),
+  });
+  const composer = new EffectComposer(renderer, renderTarget);
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(
     new T.Vector2(innerWidth / 2, innerHeight / 2),
@@ -133,8 +146,16 @@ async function main() {
       settings.quality === "low"
         ? 1
         : settings.quality === "high"
-          ? Math.min(devicePixelRatio, 2)
-          : Math.min(devicePixelRatio, 1.4);
+          ? Math.min(
+              Math.max(devicePixelRatio, 1.25),
+              2.5,
+              Math.sqrt(7000000 / (innerWidth * innerHeight)),
+            )
+          : Math.min(
+              devicePixelRatio,
+              2,
+              Math.sqrt(4500000 / (innerWidth * innerHeight)),
+            );
     renderer.setPixelRatio(ratio);
     renderer.setSize(innerWidth, innerHeight);
     composer.setPixelRatio(ratio);
@@ -857,6 +878,7 @@ async function main() {
       camera,
       settings.reduced || paused || document.hidden,
     );
+    projectLabels.update(camera, playing && !anyDialog());
     if (elapsed - lastHud > 0.12) {
       updateNearby();
       lastHud = elapsed;

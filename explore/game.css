@@ -925,3 +925,58 @@ dialog h2 {
     transition: none !important;
   }
 }
+
+/* Native-resolution labels remain sharp even with low-resolution 3D rendering. */
+.world-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+.world-label {
+  position: absolute;
+  width: 220px;
+  max-width: calc(100vw - 32px);
+  transform: translate(-50%, -100%);
+  text-align: center;
+  padding: 9px 12px;
+  border: 1px solid #ffffff38;
+  border-bottom: 2px solid var(--label-color);
+  border-radius: 4px;
+  background: #14212bef;
+  color: #fffdf7;
+  box-shadow: 0 3px 14px #0005;
+}
+.world-label::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 14px;
+  top: 100%;
+  left: 50%;
+  background: var(--label-color);
+}
+.world-label strong {
+  display: block;
+  font: 600 14px/1.35 var(--heading);
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+.world-label span {
+  display: block;
+  margin-top: 3px;
+  color: #c8d2d8;
+  font-size: 11px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.identity small {
+  font-size: 11px;
+  letter-spacing: 0.13em;
+}
+@media (max-width: 640px) {
+  .world-label {
+    width: 190px;
+  }
+}
