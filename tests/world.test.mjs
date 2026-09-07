@@ -84,3 +84,28 @@ test("city contains actual geometry for all stops and instanced urban scenery", 
   }
   assert.ok(scene.children.filter((o) => o.isInstancedMesh).length > 10);
 });
+
+test("predator–prey has visible animals that animate and remain visible with reduced motion", () => {
+  const habitat = world.lots
+    .get("predator-prey")
+    .group.getObjectByName("predator-prey-habitat");
+  assert.ok(habitat, "the actual city includes the habitat");
+  const animals = habitat.children.filter((o) => o.userData.species);
+  assert.equal(
+    animals.filter((o) => o.userData.species === "predator").length,
+    2,
+  );
+  assert.equal(animals.filter((o) => o.userData.species === "prey").length, 6);
+  const initial = animals.map((o) => o.position.clone());
+  const camera = new T.PerspectiveCamera();
+  world.update(5, camera, false);
+  animals.forEach((o, i) => {
+    assert.ok(o.visible && o.position.distanceTo(initial[i]) > 0.1);
+    assert.ok(Math.hypot(o.position.x, o.position.z) < 6);
+  });
+  const paused = animals.map((o) => o.position.clone());
+  world.update(20, camera, true);
+  animals.forEach((o, i) =>
+    assert.ok(o.visible && o.position.equals(paused[i])),
+  );
+});

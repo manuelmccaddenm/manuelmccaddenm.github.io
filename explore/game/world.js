@@ -1,4 +1,5 @@
 import * as T from "three";
+import { createPredatorPrey } from "./animals.js";
 import { surface } from "./surfaces.js";
 import { worldPoint, segmentDistance, distance } from "./navigation.js";
 
@@ -449,25 +450,11 @@ export function createWorld(scene, graph, projects, hotspots) {
       }
       animated.push((t) => (moving.rotation.y = t * 0.2));
     } else if (id === "predator-prey") {
-      const pts = [];
-      for (let i = 0; i <= 150; i++) {
-        const t = (i / 150) * Math.PI * 6;
-        pts.push(V(Math.cos(t) * 3.7, 1 + (i / 150) * 7, Math.sin(t) * 3.7));
-      }
-      mesh(
-        new T.TubeGeometry(new T.CatmullRomCurve3(pts), 150, 0.1, 6, false),
-        glow,
-        moving,
-      );
-      const dot = mesh(new T.SphereGeometry(0.4, 12, 8), brass, moving);
-      animated.push((t) => {
-        const a = t % (Math.PI * 6);
-        dot.position.set(
-          Math.cos(a) * 3.7,
-          1 + (a / (Math.PI * 6)) * 7,
-          Math.sin(a) * 3.7,
-        );
-      });
+      const wildlife = createPredatorPrey(moving);
+      animated.push(wildlife.update);
+      const title = sign("FOXES & RABBITS", col, 7, 1.05);
+      title.position.set(0, 5.5, 0);
+      moving.add(title);
     }
   }
   function sign(text, color, w = 8, h = 1.4) {

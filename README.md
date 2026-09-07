@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/realistic-city`
+- Branch: `codex/predator-prey-animals`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -83,3 +83,5 @@ assets, map API, external image service, or server-side rendering.
 
 The existing Render Hobby static service remains the deployment target. Preserve
 its $0 build spending limit and do not add paid compute or a payment method.
+
+The predator–prey stop contains two modeled foxes chasing six hopping rabbits in a grass habitat. This is an illustrative chase animation, not a numerical population simulation. Reduced motion keeps every animal visible in a stationary pose.
