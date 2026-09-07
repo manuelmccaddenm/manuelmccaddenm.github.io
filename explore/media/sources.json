@@ -114,5 +114,26 @@
         "bytes": 644332
       }
     ]
+  },
+  {
+    "asset": "white_plaster_02",
+    "page": "https://polyhaven.com/a/white_plaster_02",
+    "files": [
+      {
+        "path": "explore/media/plaster-diff.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_plaster_02/white_plaster_02_diff_1k.jpg",
+        "bytes": 527219
+      },
+      {
+        "path": "explore/media/plaster-nor_gl.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_plaster_02/white_plaster_02_nor_gl_1k.jpg",
+        "bytes": 652310
+      },
+      {
+        "path": "explore/media/plaster-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_plaster_02/white_plaster_02_rough_1k.jpg",
+        "bytes": 295900
+      }
+    ]
   }
 ]

@@ -58,7 +58,7 @@ export const MONUMENTS = {
   probability: [
     "WHAT IS PROBABILITY?",
     "BELIEF + EVIDENCE → BAYESIAN UPDATE",
-    "A coin is partly concealed under a cloth beside an evidence scale and a probability dial. Its outcome can already be fixed while uncertainty remains in what the observer knows.",
+    "A coin is partly concealed under a cloth beside an evidence scale and a probability dial. Its outcome can already be fixed while uncertainty remains in what the observer knows. Beside the plaza, a ribbed Gaussian pavilion turns a bell curve into a shaded garden structure.",
   ],
   thesis: [
     "THESIS · WORK IN PROGRESS",
@@ -78,7 +78,7 @@ export const MONUMENTS = {
   autoencoder: [
     "AUTOENCODER WITHOUT AUTODIFF",
     "HAND GRADIENTS · TRUST REGION · DOGLEG",
-    "Walk through the bridge toward Negreira: thirteen structural frames narrow into the latent bottleneck, then open into reconstruction. Signal paths follow the same compression and expansion overhead. Beside the street, a loss landscape and bent Dogleg step connect the architecture to hand-derived gradients and trust-region optimization.",
+    "Walk through the bridge toward Negreira: thirteen structural frames narrow into the latent bottleneck, then open into reconstruction. Signal paths follow the same compression and expansion overhead. Beside the street, a loss landscape and bent Dogleg step connect the architecture to hand-derived gradients and trust-region optimization. A neighboring Möbius ribbon garden adds a continuous, single-sided mathematical surface to the street.",
   ],
   "fantasy-draft": [
     "NFL FANTASY DRAFT",
@@ -93,7 +93,7 @@ export const MONUMENTS = {
   "lp-solver": [
     "INTERIOR-POINT LP SOLVER",
     "LOG BARRIER → CENTRAL PATH → OPTIMUM",
-    "A transparent feasible region contains a curved interior path toward a highlighted vertex. A separate classification panel shows the same solver applied to a separating boundary. The geometry is illustrative, not a NETLIB benchmark output.",
+    "A transparent feasible region contains a curved interior path toward a highlighted vertex. A separate classification panel shows the same solver applied to a separating boundary. The geometry is illustrative, not a NETLIB benchmark output. A neighboring geometric garden uses nested polyhedral frames to connect mathematical constraints with architecture.",
   ],
   "btc-streaming": [
     "DOES A MARKET LEAD BITCOIN?",
@@ -108,7 +108,7 @@ export const MONUMENTS = {
   mantis: [
     "MANTIS",
     "ENTITIES + RELATIONSHIPS + EVENTS → REPRESENTATIONS",
-    "A mantis-inspired sculpture stands over an entity graph with several application portals. The graph connects entities, relationships and events to a shared learned representation across problems.",
+    "A mantis-inspired sculpture stands over an entity graph. Beside it, a printed district map numbers all 25 sites and marks Mantis as your current location. Press V for a clear view of the poster. The sculpture connects entities, relationships and events to a shared learned representation.",
   ],
   retail: [
     "RETAIL INTELLIGENCE · WIP",
@@ -127,14 +127,18 @@ export const MONUMENTS = {
   ],
 };
 export const overviewFor = (id) =>
-  ["model-picker", "nutrition", "retail"].includes(id)
-    ? { eye: [10, 10, 19], target: [0, 1.7, 0] }
-    : id === "cdmx-budget"
-      ? { eye: [11, 10, 20], target: [0, 2, 0] }
-      : id === "autoencoder"
-        ? { eye: [18, 13, 26], target: [1.5, 3.2, 0] }
-        : id === "fantasy-draft"
-          ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
-          : id === "predator-prey"
-            ? { eye: [0, 9, 17], target: [0, 4, 0] }
-            : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };
+  id === "mantis"
+    ? { eye: [-14, 8, 25], target: [-4, 2.3, 3] }
+    : ["probability", "lp-solver"].includes(id)
+      ? { eye: [16, 13, 29], target: [8, 2.8, -1] }
+      : ["model-picker", "nutrition", "retail"].includes(id)
+        ? { eye: [10, 10, 19], target: [0, 1.7, 0] }
+        : id === "cdmx-budget"
+          ? { eye: [11, 10, 20], target: [0, 2, 0] }
+          : id === "autoencoder"
+            ? { eye: [18, 13, 26], target: [1.5, 3.2, 0] }
+            : id === "fantasy-draft"
+              ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
+              : id === "predator-prey"
+                ? { eye: [0, 9, 17], target: [0, 4, 0] }
+                : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };

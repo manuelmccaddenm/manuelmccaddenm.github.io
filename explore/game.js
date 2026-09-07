@@ -514,6 +514,10 @@ async function main() {
         ?.userData.setInspection?.(enabled && nearby === id);
     }
     overviewId = enabled ? nearby : null;
+    document.body.classList.toggle(
+      "poster-overview",
+      enabled && nearby === "mantis",
+    );
     $("monument-guide").hidden = !enabled;
     if (enabled) {
       const definition = MONUMENTS[overviewId];
@@ -525,9 +529,11 @@ async function main() {
     document.body.classList.toggle("monument-overview", enabled);
     $("monument-view").textContent = enabled
       ? "Return to street · V / Esc"
-      : nearby === "fantasy-draft"
-        ? "View stadium · V"
-        : "View monument · V";
+      : nearby === "mantis"
+        ? "Read map poster · V"
+        : nearby === "fantasy-draft"
+          ? "View stadium · V"
+          : "View monument · V";
     $("monument-view").setAttribute("aria-pressed", String(enabled));
     if (enabled && document.pointerLockElement) document.exitPointerLock();
   }
@@ -836,7 +842,11 @@ async function main() {
     $("monument-guide").hidden = !overviewId || anyDialog();
     if (!overviewId)
       $("monument-view").textContent =
-        nearby === "fantasy-draft" ? "View stadium · V" : "View monument · V";
+        nearby === "mantis"
+          ? "Read map poster · V"
+          : nearby === "fantasy-draft"
+            ? "View stadium · V"
+            : "View monument · V";
     if (nearby) $("nearby-name").textContent = projects[nearby].label;
     if (playing && bestDistance < 9) visit(best);
     if (target) {
@@ -959,8 +969,16 @@ async function main() {
     if (overviewId) {
       const lot = world.lots.get(overviewId);
       const view = overviewFor(overviewId);
-      camera.position.copy(lot.group.localToWorld(new T.Vector3(...view.eye)));
-      camera.lookAt(lot.group.localToWorld(new T.Vector3(...view.target)));
+      if (overviewId === "mantis") {
+        const poster = world.mapPoster;
+        camera.position.copy(poster.localToWorld(new T.Vector3(0, 2.7, 5.7)));
+        camera.lookAt(poster.localToWorld(new T.Vector3(0, 2.7, 0)));
+      } else {
+        camera.position.copy(
+          lot.group.localToWorld(new T.Vector3(...view.eye)),
+        );
+        camera.lookAt(lot.group.localToWorld(new T.Vector3(...view.target)));
+      }
     }
     const desiredFov =
       playing && !settings.reduced && Math.hypot(velocity.x, velocity.z) > 10

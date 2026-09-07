@@ -182,3 +182,43 @@ restores them on exit. All original project content, stops and roads are retaine
 Validation: 22 automated tests cover navigation, original road access, bridge and
 workshop traversal, the new public-space entrances and solid fixtures, roof states,
 and the existing subject-specific exhibits.
+
+
+## Realistic districts and Mantis street map
+
+`codex/realistic-districts` builds on `codex/city-integrated-monuments`.
+The city now includes 92 courtyard houses with masonry screens, recessed glazing,
+balconies and three roof types (clay gables, timber terraces and planted terraces).
+Fifty-four glass-and-metal research buildings distinguish the ML and data-engineering
+neighborhoods with diagrid frames, folded roofs and equipment cabinets. Repeated
+parts share instanced geometry. Planting beds combine tree canopies and low shrubs;
+the broad ground surface blends offset texture samples to reduce obvious repetition.
+
+The electricity neighborhood has three 29-meter lattice towers with ceramic
+insulators and twelve sagging overhead conductors across two spans. Clear corridors
+keep background buildings and planting away from the lines. Mathematical gardens
+add a Möbius ribbon beside the autoencoder bridge, a Gaussian-rib pavilion beside
+Probability, and nested polyhedral frames beside the LP solver. These are illustrative
+architectural forms. The diamond paving is geometric decoration, not a Penrose tiling.
+
+A physical 4096 × 2560 map poster beside Mantis draws the actual street graph and
+all 25 numbered sites, with a matching index and a Mantis “you are here” marker.
+**V / Read map poster** gives a close view of the board. Its pedestrian approach
+stays clear. The existing map, project panels, NFL stadium, predator–prey habitat,
+Hopf explanation, autoencoder bridge and integrated public spaces are preserved.
+The removed Model Picker experiment remains removed.
+
+Architecture references (original interpretations, no copied building models):
+- [PPAA Carrizal](https://www.ppaa.mx/en/housing-en/carrizal-ing/): courtyard housing, screens and terraces.
+- [National Grid](https://www.nationalgrid.com/electricity-transmission/who-we-are/running-our-network/substations-pylons-and-overhead-lines): lattice structures, conductors and insulators.
+- [Oxford Mathematics](https://www.maths.ox.ac.uk/outreach/oxford-mathematics-alphabet/aperiodic-tiles): mathematics expressed through public architecture.
+- [Gensler NVIDIA campus](https://www.gensler.com/projects/nvidia): glass, exposed structure and triangular roof forms.
+- [Poly Haven white plaster](https://polyhaven.com/a/white_plaster_02): new locally served CC0 1K material maps, approximately 1.5 MB total.
+
+Validation: 25 automated tests, including all 625 original stop-to-stop routes,
+road traversal, monument/public-space access, cable attachment and clearance,
+district placement, and the exact 25-site poster index and walking approach.
+Production build and desktop browser checks are required before deployment.
+Render remains the existing free static service; no paid assets, APIs or services
+are introduced. This remains real-time browser rendering rather than an offline
+photographic render.

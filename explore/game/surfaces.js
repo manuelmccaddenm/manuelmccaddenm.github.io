@@ -13,29 +13,37 @@ flatNormal.needsUpdate = flatRough.needsUpdate = true;
 export async function loadPhotographicSurfaces() {
   const loader = new T.TextureLoader();
   await Promise.all(
-    ["asphalt", "brick", "concrete", "paving", "soil"].map(async (kind) => {
-      try {
-        const maps = await Promise.all(
-          ["diff", "nor_gl", "rough"].map(async (channel) => {
-            const tex = await loader.loadAsync(
-              `/explore/media/${kind}-${channel}.jpg`,
-            );
-            tex.wrapS = tex.wrapT = T.RepeatWrapping;
-            tex.anisotropy = 8;
-            tex.colorSpace =
-              channel === "diff" ? T.SRGBColorSpace : T.NoColorSpace;
-            return tex;
-          }),
-        );
-        photographed.set(kind, maps);
-      } catch (error) {
-        console.warn(`Using procedural ${kind} fallback.`, error);
-      }
-    }),
+    ["asphalt", "brick", "concrete", "paving", "soil", "plaster"].map(
+      async (kind) => {
+        try {
+          const maps = await Promise.all(
+            ["diff", "nor_gl", "rough"].map(async (channel) => {
+              const tex = await loader.loadAsync(
+                `/explore/media/${kind}-${channel}.jpg`,
+              );
+              tex.wrapS = tex.wrapT = T.RepeatWrapping;
+              tex.anisotropy = 8;
+              tex.colorSpace =
+                channel === "diff" ? T.SRGBColorSpace : T.NoColorSpace;
+              return tex;
+            }),
+          );
+          photographed.set(kind, maps);
+        } catch (error) {
+          console.warn(`Using procedural ${kind} fallback.`, error);
+        }
+      },
+    ),
   );
   for (const apply of pending) apply();
 }
-export function surface(kind, color, scale = 1) {
+export function surface(
+  kind,
+  color,
+  scale = 1,
+  whitening = 0.8,
+  untiled = false,
+) {
   const size = 256,
     pixels = new Uint8Array(size * size * 4);
   let seed = 91;
@@ -82,7 +90,7 @@ export function surface(kind, color, scale = 1) {
     maps.rough = set[2];
     mat.color
       .set(color)
-      .lerp(new T.Color("white"), kind === "asphalt" ? 0.98 : 0.8);
+      .lerp(new T.Color("white"), kind === "asphalt" ? 0.98 : whitening);
     mat.needsUpdate = true;
   };
   pending.push(apply);
@@ -142,6 +150,49 @@ export function surface(kind, color, scale = 1) {
     `,
     );
   };
-  mat.customProgramCacheKey = () => "photographic-world-surface-v2";
+  if (untiled) {
+    const compile = mat.onBeforeCompile;
+    mat.onBeforeCompile = (shader) => {
+      compile(shader);
+      // Blend four offset samples over broad overlapping cells. This removes
+      // visible repeat bands across the city-sized horizontal ground surface.
+      shader.fragmentShader =
+        `
+        vec2 terrainOffset(vec2 cell) {
+          return fract(sin(vec2(dot(cell, vec2(127.1, 311.7)),
+            dot(cell, vec2(269.5, 183.3)))) * 43758.5453) * 19.0;
+        }
+        vec4 terrainSample(sampler2D imageMap, vec2 uv) {
+          vec2 cell = floor(uv * .16);
+          vec2 blend = smoothstep(0.0, 1.0, fract(uv * .16));
+          vec4 a = texture2D(imageMap, uv + terrainOffset(cell));
+          vec4 b = texture2D(imageMap, uv + terrainOffset(cell + vec2(1., 0.)));
+          vec4 c = texture2D(imageMap, uv + terrainOffset(cell + vec2(0., 1.)));
+          vec4 d = texture2D(imageMap, uv + terrainOffset(cell + vec2(1., 1.)));
+          return mix(mix(a, b, blend.x), mix(c, d, blend.x), blend.y);
+        }
+      ` + shader.fragmentShader;
+      // This option is used only for the horizontal ground: avoid tripling its
+      // texture lookups for the unused vertical projections.
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          /vec4 texel = texture2D\(map,[\s\S]*?weights.z;/,
+          "vec4 texel = texture2D(map, surfaceUV.xz);",
+        )
+        .replace(
+          /float microRough = texture2D\(surfaceRoughMap,[\s\S]*?weights.z;/,
+          "float microRough = texture2D(surfaceRoughMap, surfaceUV.xz).r;",
+        )
+        .replace(
+          /vec3 detail = vec3\(0\., sx.y,[\s\S]*?weights.z;/,
+          "vec3 detail = vec3(sy.x, 0., sy.y);",
+        );
+      shader.fragmentShader = shader.fragmentShader.replace(
+        /texture2D\((map|surfaceNormalMap|surfaceRoughMap), surfaceUV\.(zy|xz|xy)\)/g,
+        "terrainSample($1, surfaceUV.$2)",
+      );
+    };
+  }
+  mat.customProgramCacheKey = () => `photographic-world-surface-v3-${untiled}`;
   return mat;
 }

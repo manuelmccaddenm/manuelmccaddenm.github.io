@@ -28,6 +28,12 @@ globalThis.document = {
     height: 0,
     getContext: () => ({
       fillRect() {},
+      beginPath() {},
+      moveTo() {},
+      lineTo() {},
+      arc() {},
+      fill() {},
+      stroke() {},
       fillText() {},
       save() {},
       restore() {},
@@ -300,3 +306,57 @@ for (const [id, obstacle] of [
     }
   });
 }
+
+test("energy conductors hang between real tower terminals and keep ground clearance", () => {
+  const { towers, cables } = world.districts;
+  assert.equal(towers.length, 3);
+  assert.equal(cables.length, 12);
+  for (const cable of cables) {
+    assert.ok(
+      cable.minHeight > 12,
+      "cables clear visitors and the energy exhibits",
+    );
+    assert.deepEqual(cable.points[0], cable.start);
+    assert.deepEqual(cable.points.at(-1), cable.end);
+    assert.ok(
+      cable.minHeight < cable.start[1],
+      "a cable sags between its supports",
+    );
+    for (const end of [cable.start, cable.end])
+      assert.ok(
+        towers.some((t) =>
+          t.terminals.some((p) => p.distanceTo(new T.Vector3(...end)) < 1e-8),
+        ),
+      );
+  }
+});
+
+test("the physical Mantis poster indexes every site and has an unobstructed reading position", () => {
+  const poster = world.mapPoster;
+  assert.deepEqual(poster.userData.posterStopIds, graph.stops);
+  assert.equal(new Set(poster.userData.posterStopIds).size, 25);
+  assert.ok(poster.getObjectByName("district-map-print"));
+  const start = world.lots.get("mantis").entry,
+    end = poster.userData.readingPoint;
+  const actual = movePlayer(
+    start,
+    end.x - start.x,
+    end.z - start.z,
+    world.colliders,
+    world.bounds,
+  );
+  assert.ok(distance(actual, end) < 0.01, "walk from Mantis to the poster");
+});
+
+test("neighborhood architecture and mathematical gardens match their districts", () => {
+  const buildings = world.neighborhoodBuildings;
+  assert.ok(buildings.filter((b) => b.kind === "courtyard-house").length > 30);
+  const technology = buildings.filter((b) => b.kind === "technology");
+  assert.ok(technology.length > 5);
+  assert.ok(technology.every((b) => ["ml", "dataeng"].includes(b.cluster)));
+  assert.deepEqual(
+    world.districts.gardens.map((g) => g.type),
+    ["mobius", "gaussian", "geometry"],
+  );
+  assert.ok(scene.getObjectByName("mobius-ribbon"));
+});

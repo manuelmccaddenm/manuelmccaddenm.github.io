@@ -1,4 +1,8 @@
 import * as T from "three";
+import { kit } from "./monuments/kit.js";
+import { neighborhoodBuilding } from "./neighborhoods.js";
+import { districtLandmarks } from "./district-landmarks.js";
+import { createMapPoster } from "./map-poster.js";
 import { URBAN_STOPS } from "./monuments/urban.js";
 import { parkedCar } from "./streetscape.js";
 import { leafCanopies } from "./foliage.js";
@@ -105,7 +109,7 @@ export function createWorld(scene, graph, projects, hotspots) {
 
   const ground = mesh(
     new T.PlaneGeometry(1600, 1600),
-    surface("concrete", "#a9a99d", 0.18),
+    surface("plaster", "#b5b1a2", 0.7, 0.08, true),
     scene,
     250,
     -0.05,
@@ -492,6 +496,29 @@ export function createWorld(scene, graph, projects, hotspots) {
         );
     }
   }
+  const districts = districtLandmarks(scene, lots, roads, colliders, sign);
+  const mapPoster = createMapPoster(
+    scene,
+    graph,
+    projects,
+    lots.get("mantis"),
+    colliders,
+    sign,
+  );
+  const neighborhood = kit(scene, "neighborhood-buildings", sign);
+  const neighborhoodBuildings = [];
+  const reserved = (p, radius) =>
+    districts.reserved.some((r) => distance(p, r) < r.radius + radius) ||
+    districts.cables.some(
+      (cable) =>
+        segmentDistance(
+          p,
+          { x: cable.start[0], z: cable.start[2] },
+          { x: cable.end[0], z: cable.end[2] },
+        ) <
+        radius + 4,
+    ) ||
+    distance(p, mapPoster.userData.position) < radius + 5;
   // A planted, inhabited skyline. Footprints never cover a street, spawn, or exhibit.
   const buildingMats = [
     surface("brick", "#a77961", 0.55),
@@ -516,13 +543,39 @@ export function createWorld(scene, graph, projects, hotspots) {
       const p = { x: x + (random() - 0.5) * 8, z: z + (random() - 0.5) * 8 };
       if (
         nearRoad(p, 17) ||
+        reserved(p, 10) ||
         [...lots.values()].some((l) => distance(p, l.center) < 22)
       )
         continue;
       if (random() > 0.7) continue;
       const w = 8 + random() * 5,
         d = 8 + random() * 5;
-      const floors = 3 + Math.floor(random() * 7),
+      const closest = [...lots.values()].sort(
+        (a, b) => distance(p, a.center) - distance(p, b.center),
+      )[0];
+      const cluster = projects[closest.id].cluster;
+      const kind = ["ml", "dataeng"].includes(cluster) ? "technology" : "house";
+      const nearFeature = distance(p, closest.center) < 70;
+      if (kind === "technology" || buildingCount % 4 !== 0 || nearFeature) {
+        const angle = Math.atan2(closest.entry.x - p.x, closest.entry.z - p.z);
+        const building = neighborhoodBuilding(
+          neighborhood,
+          p,
+          angle,
+          kind,
+          buildingCount,
+        );
+        colliders.push(building.footprint);
+        neighborhoodBuildings.push({
+          position: p,
+          kind: building.kind,
+          style: building.style,
+          cluster,
+        });
+        buildingCount++;
+        continue;
+      }
+      const floors = 3 + Math.floor(random() * 4),
         h = floors * 3.2 + 0.6;
       box(p.x, h / 2, p.z, w, h, d, buildingMats[Math.floor(random() * 4)]);
       box(p.x, 0.5, p.z, w + 0.15, 1, d + 0.15, stone);
@@ -579,11 +632,13 @@ export function createWorld(scene, graph, projects, hotspots) {
           }
       }
     }
+  neighborhood.finish();
   const trees = [];
   for (let i = 0; i < 220; i++) {
     const p = { x: random() * 500, z: -random() * 360 };
     if (
       nearRoad(p, 8) ||
+      reserved(p, 4) ||
       [...lots.values()].some((l) => distance(p, l.center) < 12) ||
       colliders.some(
         (b) =>
@@ -619,10 +674,24 @@ export function createWorld(scene, graph, projects, hotspots) {
     trees.map(({ p, h }) => ({ x: p.x, y: h + 0.8, z: p.z, radius: 2.5 })),
     240,
   );
+  // Layered planting beds soften the spaces between buildings without blocking routes.
+  leafCanopies(
+    scene,
+    trees.flatMap(({ p }) =>
+      [0, 1, 2].map((i) => ({
+        x: p.x + Math.cos((i * Math.PI * 2) / 3) * 1.8,
+        y: 0.65,
+        z: p.z + Math.sin((i * Math.PI * 2) / 3) * 1.8,
+        radius: 0.8,
+      })),
+    ),
+    65,
+  );
+  const plantedSoil = surface("soil", "#837763", 0.3);
   for (const { p } of trees) {
     const bed = mesh(
       new T.CircleGeometry(3.1, 24),
-      surface("soil", "#837763", 0.3),
+      plantedSoil,
       scene,
       p.x,
       -0.035,
@@ -718,6 +787,9 @@ export function createWorld(scene, graph, projects, hotspots) {
     bounds,
     lots,
     buildingCount,
+    neighborhoodBuildings,
+    districts,
+    mapPoster,
     setNight(night) {
       isNight = night;
       sky.visible = night || !scene.userData.photographicSky;

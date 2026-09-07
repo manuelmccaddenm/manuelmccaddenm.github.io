@@ -1081,3 +1081,7 @@ body.photo-mode
 .asset-credit a {
   text-decoration: underline;
 }
+
+.poster-overview #monument-guide {
+  display: none;
+}
