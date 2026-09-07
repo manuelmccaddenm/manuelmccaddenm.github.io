@@ -39,6 +39,23 @@ const material = new T.MeshStandardMaterial({
   side: T.DoubleSide,
 });
 export function leafCanopies(parent, crowns, sprays = 180) {
+  // Keep distant foliage out of the camera and shadow passes. One city-wide
+  // instance batch forces every leaf through the GPU even when it is behind us.
+  if (crowns.length > 20) {
+    const cells = new Map();
+    for (const crown of crowns) {
+      const key = `${Math.floor(crown.x / 48)},${Math.floor(crown.z / 48)}`;
+      if (!cells.has(key)) cells.set(key, []);
+      cells.get(key).push(crown);
+    }
+    if (cells.size > 1) {
+      const group = new T.Group();
+      group.name = "spatial-leaf-canopies";
+      parent.add(group);
+      for (const cell of cells.values()) leafCanopies(group, cell, sprays);
+      return group;
+    }
+  }
   const leaves = new T.InstancedMesh(
     geometry,
     material,

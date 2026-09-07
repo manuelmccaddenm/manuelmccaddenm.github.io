@@ -1082,6 +1082,8 @@ body.photo-mode
   text-decoration: underline;
 }
 
-.poster-overview #monument-guide {
+.poster-overview #monument-guide,
+.poster-overview #location,
+.poster-overview #compass {
   display: none;
 }

@@ -63,7 +63,11 @@ export function kit(parent, id, sign) {
     quaternion = new T.Quaternion(),
     into = root,
   ) {
-    const key = `${geo.uuid}/${material.uuid}/${into.uuid}`;
+    const cell =
+      id === "neighborhood-buildings" || id === "neighborhood-streets"
+        ? `/${Math.floor(position.x / 96)},${Math.floor(position.z / 96)}`
+        : "";
+    const key = `${geo.uuid}/${material.uuid}/${into.uuid}${cell}`;
     if (!batches.has(key))
       batches.set(key, { geo, material, into, transforms: [] });
     batches
@@ -232,7 +236,8 @@ export function kit(parent, id, sign) {
     for (const { geo, material, into, transforms } of batches.values()) {
       const batch = new T.InstancedMesh(geo, material, transforms.length);
       transforms.forEach((t, i) => batch.setMatrixAt(i, t));
-      batch.castShadow = batch.receiveShadow = true;
+      batch.castShadow = material.userData.castShadow !== false;
+      batch.receiveShadow = true;
       batch.computeBoundingSphere();
       into.add(batch);
     }

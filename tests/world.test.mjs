@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import * as T from "three";
+import { posterViewingDistance } from "../explore/game/map-poster.js";
 import { createWorld } from "../explore/game/world.js";
 import { cityProjects } from "../explore/game/content.js";
 import {
@@ -359,4 +360,114 @@ test("neighborhood architecture and mathematical gardens match their districts",
     ["mobius", "gaussian", "geometry"],
   );
   assert.ok(scene.getObjectByName("mobius-ribbon"));
+});
+
+test("perforated house screens have a continuous structural path to their base", () => {
+  for (const building of world.neighborhoodBuildings.filter(
+    (b) => b.screenParts.length,
+  )) {
+    const parts = building.screenParts;
+    const supported = new Set([0]);
+    const touches = (a, b) =>
+      Math.abs(a.x - b.x) <= (a.w + b.w) / 2 + 1e-7 &&
+      Math.abs(a.y - b.y) <= (a.h + b.h) / 2 + 1e-7;
+    let changed = true;
+    while (changed) {
+      changed = false;
+      parts.forEach((p, i) => {
+        if (
+          !supported.has(i) &&
+          [...supported].some((j) => touches(p, parts[j]))
+        ) {
+          supported.add(i);
+          changed = true;
+        }
+      });
+    }
+    assert.equal(
+      supported.size,
+      parts.length,
+      "every visible block touches supported structure",
+    );
+  }
+});
+
+test("neighborhood roads can be walked and houses face an actual sidewalk", () => {
+  for (const road of world.blocks.roads) {
+    const end = movePlayer(
+      road.a,
+      road.b.x - road.a.x,
+      road.b.z - road.a.z,
+      world.colliders,
+      world.bounds,
+    );
+    assert.ok(
+      distance(end, road.b) < 0.01,
+      `local road ${JSON.stringify(road)} is clear`,
+    );
+  }
+  for (const b of world.neighborhoodBuildings) {
+    const towards = {
+      x: b.entry.x - b.position.x,
+      z: b.entry.z - b.position.z,
+    };
+    assert.ok(towards.x * Math.sin(b.yaw) + towards.z * Math.cos(b.yaw) > 13.9);
+    assert.ok(
+      b.windows.some((w) => w.face === 0) &&
+        b.windows.some((w) => w.face === Math.PI),
+    );
+  }
+});
+
+test("house window centers look through glass into recessed rooms, not a solid exterior box", () => {
+  scene.updateMatrixWorld(true);
+  const building = world.neighborhoodBuildings.find(
+    (b) => b.kind === "courtyard-house",
+  );
+  const window = building.windows.find((w) => w.face === 0 && w.width > 2);
+  const forward = new T.Vector3(
+    Math.sin(building.yaw),
+    0,
+    Math.cos(building.yaw),
+  );
+  const right = new T.Vector3(
+    Math.cos(building.yaw),
+    0,
+    -Math.sin(building.yaw),
+  );
+  const origin = new T.Vector3(...window.center)
+    .addScaledVector(forward, 1)
+    .addScaledVector(right, 0.35);
+  const ray = new T.Raycaster(origin, forward.clone().negate(), 0, 5);
+  const hits = ray.intersectObject(
+    scene.getObjectByName("monument-neighborhood-buildings"),
+    true,
+  );
+  const pane = hits.find((h) =>
+    h.object.material === undefined ? false : h.object.material.transparent,
+  );
+  const solid = hits.find((h) => !h.object.material.transparent);
+  assert.ok(
+    pane && Math.abs(pane.distance - 1) < 0.03,
+    "thin glass spans the opening",
+  );
+  assert.ok(
+    solid && solid.distance > 1.15,
+    "the opaque surface is inside the room",
+  );
+});
+
+test("the complete poster fits landscape, square and portrait viewports", () => {
+  for (const aspect of [16 / 9, 1, 0.6, 0.45]) {
+    const distance = posterViewingDistance(aspect);
+    const halfHeight = distance * Math.tan((56 * Math.PI) / 360);
+    assert.ok(
+      3.725 / (halfHeight * aspect) < 0.95,
+      "both horizontal edges fit",
+    );
+    assert.ok(
+      2.5 / halfHeight < 0.84,
+      "the frame leaves vertical room for controls",
+    );
+  }
 });

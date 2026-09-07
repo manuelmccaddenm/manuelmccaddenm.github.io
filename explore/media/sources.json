@@ -135,5 +135,29 @@
         "bytes": 295900
       }
     ]
+  },
+  {
+    "asset": "Grass004",
+    "page": "https://ambientcg.com/view?id=Grass004",
+    "files": [
+      {
+        "path": "explore/media/grass-diff.jpg",
+        "source": "https://ambientcg.com/get?file=Grass004_1K-JPG.zip",
+        "member": "Grass004_1K-JPG_Color.jpg",
+        "bytes": 1985561
+      },
+      {
+        "path": "explore/media/grass-nor_gl.jpg",
+        "source": "https://ambientcg.com/get?file=Grass004_1K-JPG.zip",
+        "member": "Grass004_1K-JPG_NormalGL.jpg",
+        "bytes": 2339612
+      },
+      {
+        "path": "explore/media/grass-rough.jpg",
+        "source": "https://ambientcg.com/get?file=Grass004_1K-JPG.zip",
+        "member": "Grass004_1K-JPG_Roughness.jpg",
+        "bytes": 851664
+      }
+    ]
   }
 ]

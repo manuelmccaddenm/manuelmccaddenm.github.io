@@ -13,7 +13,7 @@ flatNormal.needsUpdate = flatRough.needsUpdate = true;
 export async function loadPhotographicSurfaces() {
   const loader = new T.TextureLoader();
   await Promise.all(
-    ["asphalt", "brick", "concrete", "paving", "soil", "plaster"].map(
+    ["asphalt", "brick", "concrete", "paving", "soil", "plaster", "grass"].map(
       async (kind) => {
         try {
           const maps = await Promise.all(
@@ -124,6 +124,7 @@ export function surface(
       vec4 texel = texture2D(map, surfaceUV.zy) * weights.x
                  + texture2D(map, surfaceUV.xz) * weights.y
                  + texture2D(map, surfaceUV.xy) * weights.z;
+      ${kind === "plaster" ? "texel.rgb = mix(vec3(.62), texel.rgb, .16);" : ""}
       diffuseColor *= texel;`,
     );
     shader.fragmentShader = shader.fragmentShader.replace(
@@ -146,7 +147,7 @@ export function surface(
       vec3 wn = inverseTransformDirection(normal, viewMatrix);
       vec3 detail = vec3(0., sx.y, sx.x) * weights.x
         + vec3(sy.x, 0., sy.y) * weights.y + vec3(sz.x, sz.y, 0.) * weights.z;
-      normal = normalize(mat3(viewMatrix) * normalize(wn + detail * .55));
+      normal = normalize(mat3(viewMatrix) * normalize(wn + detail * ${kind === "plaster" ? ".12" : ".45"}));
     `,
     );
   };
@@ -193,6 +194,7 @@ export function surface(
       );
     };
   }
-  mat.customProgramCacheKey = () => `photographic-world-surface-v3-${untiled}`;
+  mat.customProgramCacheKey = () =>
+    `photographic-world-surface-v4-${kind}-${untiled}`;
   return mat;
 }

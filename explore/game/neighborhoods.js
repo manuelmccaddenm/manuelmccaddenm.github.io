@@ -2,16 +2,31 @@ import * as T from "three";
 import { M, mat } from "./monuments/kit.js";
 import { surface } from "./surfaces.js";
 
-const plaster = ["#d6c8aa", "#be8263", "#ddd9c7", "#8f9c8c"].map((c) =>
-  surface("plaster", c, 0.65, 0.15),
+const walls = ["#cec6b6", "#b6ada0", "#ba9b83", "#aaa99a"].map((c) =>
+  surface("plaster", c, 0.75, 0.08),
 );
-const brick = surface("brick", "#c59272", 0.7, 0.48);
-const timber = mat("#77563b", 0, 0.05);
-const frame = mat("#344240", 0, 0.55);
-const glass = mat("#7e9b9c", 0.025, 0.65);
-const housePaving = surface("paving", "#b3b4a2", 0.4);
-const linen = mat("#d4c8ac");
-const cyan = mat("#79b9bd", 0.3, 0.45);
+const masonry = surface("brick", "#8c7364", 0.72, 0.15);
+const stone = surface("plaster", "#a6a192", 0.6, 0.1);
+const wood = surface("brick", "#655449", 2.4, 0);
+const metal = mat("#333b38", 0, 0.35);
+const sill = mat("#c3bbaa");
+const roomWall = mat("#726c5d");
+const roomFloor = mat("#615447");
+const cloth = [mat("#a59e8c"), mat("#b7b3a5"), mat("#888d84")];
+const glass = new T.MeshPhysicalMaterial({
+  color: "#bec8c3",
+  metalness: 0,
+  roughness: 0.08,
+  ior: 1.5,
+  transparent: true,
+  opacity: 0.2,
+  depthWrite: false,
+  envMapIntensity: 1.15,
+});
+glass.userData.castShadow = false;
+const roofSurface = surface("asphalt", "#675f54", 0.7, 0.15);
+const roofTile = mat("#8b6049");
+const screenStone = mat("#a99780");
 
 export function neighborhoodBuilding(k, position, yaw, kind, variant) {
   const c = Math.cos(yaw),
@@ -21,196 +36,317 @@ export function neighborhoodBuilding(k, position, yaw, kind, variant) {
     y,
     position.z - s * x + c * z,
   ];
-  const box = (x, y, z, w, h, d, m = M.stone) =>
+  const box = (x, y, z, w, h, d, m = stone) =>
     k.box(...p(x, y, z), w, h, d, m, yaw);
-  const rod = (a, b, r = 0.025, m = frame) => k.rod(p(...a), p(...b), r, m);
+  const rod = (a, b, r = 0.025, m = metal) => k.rod(p(...a), p(...b), r, m);
   const label = (text, x, y, z, w, h) => {
-    const sign = k.label(text, ...p(x, y, z), w, h);
-    sign.rotation.y = yaw;
+    const ob = k.label(text, ...p(x, y, z), w, h);
+    ob.rotation.y = yaw;
   };
+  const crowns = [];
+  const shrub = (x, y, z, radius) => {
+    const [wx, wy, wz] = p(x, y, z);
+    crowns.push({ x: wx, y: wy, z: wz, radius });
+  };
+  const technology = kind === "technology";
+  const levels = technology ? 3 : variant % 5 === 0 ? 3 : 2;
+  const height = 0.25 + levels * 3.15;
+  const wall = technology ? walls[1] : walls[variant % walls.length];
+  const windows = [],
+    screenParts = [];
   const footprint = {
     minX: position.x - 8.5,
     maxX: position.x + 8.5,
     minZ: position.z - 8.5,
     maxZ: position.z + 8.5,
-    height: kind === "technology" ? 10 : 9,
+    height: height + 2.2,
   };
-  function window(x, y, z, w, h) {
-    box(x, y, z, w + 0.18, h + 0.18, 0.22, frame);
-    box(x, y, z + 0.13, w, h, 0.04, glass);
-    box(x, y, z + 0.17, 0.045, h, 0.04, frame);
-    // Curtains set behind narrow frames add depth and domestic variation.
-    box(x - w * 0.36, y, z + 0.15, w * 0.2, h - 0.08, 0.025, linen);
-    box(x, y - h / 2 - 0.09, z + 0.13, w + 0.4, 0.13, 0.45, M.white);
+  box(0, 0.12, 0, 13, 0.24, 13, stone);
+  // Each façade is assembled around apertures. Side and rear elevations receive
+  // the same construction detail, because they are visible from neighboring streets.
+  function facade(level, face, front, width, offsetZ, entrance) {
+    const cf = Math.cos(face),
+      sf = Math.sin(face);
+    const lp = (x, y, z) => [cf * x + sf * z, y, -sf * x + cf * z + offsetZ];
+    const wp = (x, y, z) => p(...lp(x, y, z));
+    const box = (x, y, z, w, h, d, m) =>
+      k.box(...wp(x, y, z), w, h, d, m, yaw + face);
+    const rod = (a, b, r, m) => k.rod(wp(...a), wp(...b), r, m);
+    const base = 0.25 + level * 3.15;
+    const count = width > 10 ? 3 : 2,
+      spacing = width / count;
+    for (let bay = 0; bay < count; bay++) {
+      const x = -width / 2 + spacing * (bay + 0.5);
+      const door = entrance && level === 0 && bay === 1;
+      const w = door ? 1.35 : technology ? 2.8 : 2.45,
+        h = door ? 2.5 : 1.85;
+      const low = door ? 0.1 : 0.85,
+        bottom = base + low,
+        y = bottom + h / 2;
+      const pier = (spacing - w) / 2;
+      for (const side of [-1, 1])
+        box(
+          x + side * (w / 2 + pier / 2),
+          base + 1.575,
+          front,
+          pier,
+          3.15,
+          0.36,
+          wall,
+        );
+      box(
+        x,
+        base + low / 2,
+        front,
+        w,
+        low,
+        0.36,
+        level === 1 && variant % 3 === 1 ? masonry : wall,
+      );
+      const top = 3.15 - low - h;
+      box(x, base + 3.15 - top / 2, front, w, top, 0.36, wall);
+      // Deep jambs, lintel, sill and four independent frame members.
+      const glazingZ = front - 0.25;
+      for (const side of [-1, 1])
+        box(
+          x + side * (w / 2 + 0.07),
+          y,
+          front - 0.05,
+          0.14,
+          h + 0.2,
+          0.55,
+          sill,
+        );
+      for (const side of [-1, 1])
+        box(
+          x,
+          y + side * (h / 2 + 0.07),
+          front - 0.05,
+          w + 0.28,
+          0.14,
+          0.55,
+          sill,
+        );
+      for (const side of [-1, 1])
+        box(x + side * (w / 2 - 0.035), y, glazingZ, 0.07, h, 0.08, metal);
+      for (const side of [-1, 1])
+        box(x, y + side * (h / 2 - 0.035), glazingZ, w, 0.07, 0.08, metal);
+      box(x, y, glazingZ, w - 0.14, h - 0.14, 0.02, glass);
+      box(x, y, glazingZ + 0.03, 0.035, h, 0.045, metal);
+      box(x, y - h / 2 - 0.14, front + 0.12, w + 0.4, 0.11, 0.66, sill);
+      // A shaded room behind each aperture provides real parallax at street level.
+      box(x, base + 1.48, front - 2.5, 3.35, 2.95, 0.16, roomWall);
+      box(x, base + 0.12, front - 1.4, 3.35, 0.12, 2.2, roomFloor);
+      for (const side of [-1, 1])
+        box(x + side * 1.68, base + 1.5, front - 1.4, 0.1, 3, 2.3, roomWall);
+      if (!door) {
+        const opened = (variant + bay + level) % 3;
+        // Folded cloth sits inside the room and catches light across its folds.
+        if (technology) {
+          box(x, y + h / 2 - 0.16, front - 0.5, w - 0.1, 0.28, 0.07, cloth[1]);
+        }
+        for (const side of [-1, 1])
+          for (
+            let fold = 0;
+            fold < (technology ? 0 : opened === 0 ? 7 : 3);
+            fold++
+          ) {
+            box(
+              x + side * (w / 2 - 0.13 - fold * 0.11),
+              y,
+              front - 0.48 + (fold % 2) * 0.065,
+              0.12,
+              h - 0.05,
+              0.07,
+              cloth[(variant + level) % 3],
+            );
+          }
+        rod(
+          [x - w / 2, y + h / 2 + 0.08, front - 0.45],
+          [x + w / 2, y + h / 2 + 0.08, front - 0.45],
+          0.018,
+          metal,
+        );
+        if (opened !== 0) {
+          box(x - 0.3, base + 0.68, front - 1.8, 1.5, 0.12, 0.65, wood);
+          for (const dx of [-0.9, 0.3])
+            box(x + dx, base + 0.36, front - 1.8, 0.055, 0.6, 0.5, metal);
+          box(
+            x + 0.65,
+            base + 0.52,
+            front - 1.25,
+            0.55,
+            0.8,
+            0.55,
+            mat("#585e54"),
+          );
+        }
+      } else {
+        box(x, y - h * 0.3, glazingZ + 0.02, w - 0.12, h * 0.4, 0.1, wood);
+        rod(
+          [x + 0.38, y - 0.15, glazingZ + 0.1],
+          [x + 0.38, y + 0.2, glazingZ + 0.1],
+          0.026,
+          metal,
+        );
+        box(x + 1.28, base + 1.25, front + 0.2, 0.16, 0.26, 0.1, metal);
+      }
+      windows.push({
+        center: wp(x, y, glazingZ),
+        recess: 0.25,
+        depth: 2.25,
+        width: w,
+        height: h,
+        face,
+      });
+    }
+    box(0, base + 3.12, front + 0.1, width + 0.15, 0.16, 0.6, sill);
   }
-  if (kind === "technology") {
-    box(0, 0.16, 0, 13, 0.3, 12, M.stone);
-    box(0, 3.8, -1.2, 12, 7.3, 8.5, mat("#455b61", 0, 0.5));
-    for (const side of [-1, 1]) box(side * 5.85, 3.9, 0, 0.24, 7.7, 11, frame);
-    for (let x = -4.8; x <= 4.8; x += 2.4) {
-      window(x, 2.1, 3.12, 2.22, 3.25);
-      window(x, 5.7, 3.12, 2.22, 2.9);
-      box(x, 3.85, 3.33, 2.3, 0.06, 0.08, cyan);
+  for (let level = 0; level < levels; level++) {
+    const base = 0.25 + level * 3.15,
+      front = technology ? 4 : 3.2;
+    box(0, base, -0.9, 12, 0.2, 10, stone);
+    facade(level, 0, front, 12, 0, true);
+    facade(level, Math.PI, 5.78, 12, 0, false);
+    const depth = front + 5.78,
+      center = (front - 5.78) / 2;
+    for (const side of [-1, 1])
+      facade(level, (side * Math.PI) / 2, 5.85, depth, center, false);
+    if (level > 0 && !technology) {
+      const bx = variant % 2 ? -4 : 4;
+      box(bx, base + 0.07, front + 0.72, 3.5, 0.18, 1.4, stone);
+      for (let x = bx - 1.6; x <= bx + 1.61; x += 0.2)
+        rod(
+          [x, base + 0.17, front + 1.34],
+          [x, base + 1.14, front + 1.34],
+          0.017,
+        );
+      rod(
+        [bx - 1.65, base + 1.15, front + 1.34],
+        [bx + 1.65, base + 1.15, front + 1.34],
+        0.035,
+      );
+      for (const side of [-1, 1])
+        rod(
+          [bx + side * 1.65, base + 1.15, front],
+          [bx + side * 1.65, base + 1.15, front + 1.34],
+          0.035,
+        );
     }
-    // An exposed diagrid and a folded roof establish a technological district.
-    for (let x = -6; x < 6; x += 3) {
-      rod([x, 0.3, 3.4], [x + 3, 7.6, 3.4], 0.055, M.white);
-      rod([x, 7.6, 3.4], [x + 3, 0.3, 3.4], 0.055, M.white);
+  }
+  box(0, height, -0.9, 12.3, 0.22, 10.2, roofSurface);
+  if (technology) {
+    // External shading fins and actual rooftop services replace neon ornament.
+    for (const side of [-1, 1])
+      for (let z = -4.8; z < 4; z += 1.05)
+        box(side * 6.12, height / 2, z, 0.2, height, 0.36, metal);
+    for (let x = -5.2; x <= 5.2; x += 1.3) {
+      rod([x, 0.3, 4.5], [x + 0.8, height, 4.5], 0.045, sill);
+      box(x, 0.3, 4.5, 0.18, 0.08, 0.22, metal);
     }
-    for (const side of [-1, 1]) {
-      for (let z = -4.5; z <= 2; z += 1.3)
-        box(side * 6.1, 4, z, 0.1, 7.6, 0.14, cyan);
-      box(side * 3, 8.18, -0.7, 6.2, 0.18, 10, M.white);
+    box(0, 3.1, 5.1, 7.4, 0.14, 2.4, metal);
+    for (const x of [-3.5, 3.5]) box(x, 1.55, 6.1, 0.09, 3.1, 0.09, metal);
+    for (const x of [-3, 0, 3]) {
+      box(x, height + 0.6, -1.5, 1.7, 1, 2.2, mat("#a4a79f", 0, 0.25));
+      for (let z = -2.4; z < -0.5; z += 0.18)
+        box(x, height + 1.12, z, 1.5, 0.04, 0.04, metal);
     }
+    label(
+      variant % 2 ? "RESEARCH / COMPUTE" : "REPRESENTATION LAB",
+      0,
+      2.85,
+      6.32,
+      5.8,
+      0.32,
+    );
+  } else if (variant % 4 === 1) {
     const geo = new T.BufferGeometry();
-    const vertices = [
-      [-6.5, 8.25, -5.7],
-      [6.5, 8.25, -5.7],
-      [0, 9.8, -0.7],
-      [6.5, 8.25, -5.7],
-      [6.5, 8.25, 4.3],
-      [0, 9.8, -0.7],
-      [6.5, 8.25, 4.3],
-      [-6.5, 8.25, 4.3],
-      [0, 9.8, -0.7],
-      [-6.5, 8.25, 4.3],
-      [-6.5, 8.25, -5.7],
-      [0, 9.8, -0.7],
+    const corners = [
+      [-6.3, height + 0.1, -6.1],
+      [0, height + 2.1, -6.1],
+      [6.3, height + 0.1, -6.1],
+      [-6.3, height + 0.1, 4.3],
+      [0, height + 2.1, 4.3],
+      [6.3, height + 0.1, 4.3],
     ];
     geo.setAttribute(
       "position",
       new T.Float32BufferAttribute(
-        vertices.flatMap((v) => p(...v)),
+        [0, 1, 3, 3, 1, 4, 1, 2, 4, 4, 2, 5, 0, 2, 1, 3, 4, 5].flatMap((i) =>
+          p(...corners[i]),
+        ),
         3,
       ),
     );
     geo.computeVertexNormals();
-    const roof = new T.Mesh(geo, mat("#bfc9c4", 0, 0.35));
-    roof.material.side = T.DoubleSide;
+    const m = roofTile.clone();
+    m.side = T.DoubleSide;
+    geo.addGroup(0, 12, 0);
+    geo.addGroup(12, 6, 1);
+    const roof = new T.Mesh(geo, [m, wall]);
     roof.castShadow = roof.receiveShadow = true;
     k.root.add(roof);
-    box(0, 3.6, 4.2, 8, 0.2, 2.7, M.steel);
-    for (const x of [-3.6, 3.6]) box(x, 1.8, 5.25, 0.12, 3.6, 0.12, M.steel);
-    label(
-      variant % 2
-        ? "COMPUTE · REPRESENTATION LAB"
-        : "MACHINE LEARNING · RESEARCH",
-      0,
-      7.3,
-      3.55,
-      10.4,
-      0.42,
-    );
-    // Cabinet vents, heat exchangers and cable trays are physical infrastructure.
-    for (let x = -4; x <= 4; x += 2) {
-      box(x, 0.95, 5, 1.4, 1.8, 1, M.steel);
-      for (let y = 0.3; y < 1.8; y += 0.22)
-        box(x, y, 5.52, 1.1, 0.055, 0.04, mat("#98acaa"));
+    for (let z = -6; z < 4.3; z += 0.22) {
+      rod([-6.3, height + 0.13, z], [0, height + 2.13, z], 0.026, roofTile);
+      rod([0, height + 2.13, z], [6.3, height + 0.13, z], 0.026, roofTile);
     }
-    return { footprint, kind };
-  }
-  const wall = plaster[variant % plaster.length];
-  box(0, 0.12, 0, 13, 0.24, 12, M.stone);
-  box(-2.5, 1.65, -0.65, 6, 3.25, 8.7, wall);
-  box(3.1, 1.65, -2.15, 5.2, 3.25, 5.7, variant % 2 ? brick : wall);
-  // An offset upper floor leaves a terrace and a recessed planted courtyard.
-  box(-2.4, 4.8, -1.5, 6.2, 3.05, 7, variant % 2 ? wall : brick);
-  box(-2.4, 6.4, -1.5, 6.55, 0.22, 7.35, M.white);
-  for (const side of [-1, 1])
-    box(-2.4 + side * 3.2, 6.75, -1.5, 0.12, 0.65, 7.3, wall);
-  box(-2.4, 6.75, -5.05, 6.5, 0.65, 0.12, wall);
-  for (const x of [-4, -1]) {
-    window(x, 1.65, 3.77, 2.5, 2.65);
-    window(x, 4.9, 2.04, 2.35, 2.2);
-  }
-  window(3.1, 1.65, 0.75, 4.35, 2.65);
-  box(-2.4, 3.37, 3.1, 6.7, 0.2, 2.5, M.white);
-  for (let x = -5.4; x <= 0.6; x += 0.5)
-    rod([x, 3.47, 4.28], [x, 4.4, 4.28], 0.022, frame);
-  rod([-5.7, 4.4, 4.28], [0.9, 4.4, 4.28], 0.045, frame);
-  // Three roof types break up the skyline: clay gables, timber terraces, planted roofs.
-  if (variant % 3 === 0) {
-    const vertices = [
-      [-5.9, 6.6, -5.3],
-      [-2.4, 8.25, -5.3],
-      [-5.9, 6.6, 2.5],
-      [-5.9, 6.6, 2.5],
-      [-2.4, 8.25, -5.3],
-      [-2.4, 8.25, 2.5],
-      [-2.4, 8.25, -5.3],
-      [1.1, 6.6, -5.3],
-      [-2.4, 8.25, 2.5],
-      [-2.4, 8.25, 2.5],
-      [1.1, 6.6, -5.3],
-      [1.1, 6.6, 2.5],
-      [-5.9, 6.6, 2.5],
-      [-2.4, 8.25, 2.5],
-      [1.1, 6.6, 2.5],
-      [-5.9, 6.6, -5.3],
-      [1.1, 6.6, -5.3],
-      [-2.4, 8.25, -5.3],
-    ];
-    const geometry = new T.BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new T.Float32BufferAttribute(
-        vertices.flatMap((v) => p(...v)),
-        3,
-      ),
-    );
-    geometry.computeVertexNormals();
-    const roofMaterial = mat("#aa6545");
-    roofMaterial.side = T.DoubleSide;
-    const pitchedRoof = new T.Mesh(geometry, roofMaterial);
-    pitchedRoof.castShadow = pitchedRoof.receiveShadow = true;
-    k.root.add(pitchedRoof);
-    for (let z = -5.25; z < 2.5; z += 0.28) {
-      rod([-5.9, 6.63, z], [-2.4, 8.28, z], 0.025, mat("#bd7d59"));
-      rod([-2.4, 8.28, z], [1.1, 6.63, z], 0.025, mat("#bd7d59"));
-    }
-    box(-4, 7.8, -3.8, 0.65, 2.1, 0.7, brick);
+    box(-3.5, height + 1.7, -4, 0.7, 2, 0.7, masonry);
   } else {
-    for (const x of [-4.8, -0.3])
-      for (const z of [-3.8, 0.8]) box(x, 7.25, z, 0.1, 1.6, 0.1, timber);
-    if (variant % 3 === 1) {
-      for (let x = -5; x < 0; x += 0.42)
-        box(x, 8.03, -1.5, 0.15, 0.12, 5.1, timber);
-    } else {
-      box(-2.5, 8.03, -1.5, 5.2, 0.08, 5.1, glass);
-      for (const x of [-4.7, -0.5]) {
-        box(x, 6.65, -1.5, 0.6, 0.5, 4.6, M.stone);
-        box(x, 6.97, -1.5, 0.55, 0.18, 4.55, mat("#667a53"));
-      }
+    for (const side of [-1, 1])
+      box(side * 6, height + 0.4, -0.9, 0.22, 0.65, 10, wall);
+    box(0, height + 0.4, -5.85, 12, 0.65, 0.22, wall);
+    box(0, height + 0.4, 4, 12, 0.65, 0.22, wall);
+    for (const x of [-3.5, 1.3])
+      for (const z of [-3.5, 1.5])
+        box(x, height + 1.1, z, 0.12, 2.1, 0.12, wood);
+    for (let x = -3.7; x < 1.6; x += 0.24)
+      box(x, height + 2.2, -1, 0.1, 0.12, 5.4, wood);
+    box(3.8, height + 0.75, -3.5, 1.2, 1.2, 1.2, mat("#5c615b"));
+    for (const x of [-4.7, 4.7]) {
+      box(x, height + 0.35, 1.7, 0.8, 0.5, 2.2, stone);
+      for (const z of [1, 2.3]) shrub(x, height + 0.8, z, 0.65);
     }
   }
-  box(-5.57, 3.2, -4.5, 0.075, 6.4, 0.075, frame);
-  box(3, 3.35, -2, 4.8, 0.16, 5.9, M.white);
-  box(3.1, 3.65, -3.4, 2.5, 0.16, 1.55, glass);
-  // Entry gate, patterned masonry screen and a low garden wall, all at human scale.
-  box(3.1, 0.38, 5.3, 5.2, 0.76, 0.2, wall);
-  for (let row = 0; row < 4; row++)
-    for (let col = 0; col < 9; col++)
-      if ((row + col) % 2 === 0)
-        box(1 + col * 0.52, 0.95 + row * 0.32, 5.3, 0.38, 0.22, 0.18, brick);
-  box(0.55, 1.25, 4.05, 0.12, 2.5, 2.7, timber);
-  for (let z = 3; z < 5.3; z += 0.2)
-    box(0.64, 1.25, z, 0.08, 2.45, 0.065, frame);
-  box(-2.5, -0.005, 5.3, 4.4, 0.12, 2.5, housePaving);
-  for (const x of [1.6, 4.7]) {
-    box(x, 0.38, 2.1, 1.1, 0.75, 1.1, M.stone);
-    for (let j = 0; j < 5; j++)
-      k.sphere(
-        ...p(x + Math.cos(j * 2) * 0.25, 0.95, 2.1 + Math.sin(j * 2) * 0.25),
-        0.35,
-        0.3,
-        0.35,
-        mat("#667355"),
-      );
+  // Coping, a downpipe with elbows, meter boxes and door-side wall lights.
+  rod([-5.65, height, -5.3], [-5.65, 0.35, -5.3], 0.055, metal);
+  rod([-5.65, 0.35, -5.3], [-5.65, 0.2, -5.65], 0.055, metal);
+  box(-5.6, 1.3, 3.43, 0.35, 0.5, 0.14, mat("#8e9187", 0, 0.3));
+  box(-1.18, 2.2, 3.45, 0.16, 0.35, 0.15, metal);
+  label(String(100 + variant), -1.16, 1.55, 3.46, 0.42, 0.24);
+  if (!technology) {
+    // Every perforated screen cell is a connected four-sided block, supported by
+    // the continuous wall below. No alternating disconnected bricks remain.
+    const addScreen = (x, y, w, h) => {
+      screenParts.push({ x, y, z: 6.08, w, h, d: 0.22 });
+      box(x, y, 6.08, w, h, 0.22, screenStone);
+    };
+    addScreen(3.6, 0.5, 4.9, 0.75);
+    for (let col = 0; col < 10; col++)
+      for (let row = 0; row < 3; row++) {
+        const x = 1.35 + col * 0.5,
+          y = 0.875 + row * 0.4;
+        addScreen(x, y + 0.035, 0.5, 0.07);
+        addScreen(x, y + 0.365, 0.5, 0.07);
+        addScreen(x - 0.215, y + 0.2, 0.07, 0.26);
+        addScreen(x + 0.215, y + 0.2, 0.07, 0.26);
+      }
+    addScreen(3.6, 2.12, 5.05, 0.12);
+    box(3.6, 0.35, 4.95, 4.7, 0.45, 1.25, stone);
+    box(3.6, 0.6, 4.95, 4.5, 0.07, 1.1, mat("#3f4738"));
+    for (const x of [1.7, 2.8, 4, 5.1]) shrub(x, 1.03, 4.95, 0.55);
   }
-  label(String(100 + variant), -5.05, 1.9, 3.95, 0.58, 0.32);
+  // A continuous footpath reaches the sidewalk at the front of the parcel.
+  box(0, 0.15, 5.8, 2.2, 0.14, 5.8, stone);
   return {
     footprint,
-    kind: "courtyard-house",
-    style: ["clay-roof", "timber-terrace", "planted-terrace"][variant % 3],
+    kind: technology ? "technology" : "courtyard-house",
+    style: technology
+      ? "research"
+      : variant % 4 === 1
+        ? "clay-roof"
+        : "urban-terrace",
+    crowns,
+    windows,
+    screenParts,
   };
 }

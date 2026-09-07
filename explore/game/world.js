@@ -1,5 +1,6 @@
 import * as T from "three";
 import { kit } from "./monuments/kit.js";
+import { cityBlocks, localStreetLines } from "./city-blocks.js";
 import { neighborhoodBuilding } from "./neighborhoods.js";
 import { districtLandmarks } from "./district-landmarks.js";
 import { createMapPoster } from "./map-poster.js";
@@ -109,7 +110,7 @@ export function createWorld(scene, graph, projects, hotspots) {
 
   const ground = mesh(
     new T.PlaneGeometry(1600, 1600),
-    surface("plaster", "#b5b1a2", 0.7, 0.08, true),
+    surface("grass", "#9b9c85", 0.72, 0.2, true),
     scene,
     250,
     -0.05,
@@ -150,6 +151,7 @@ export function createWorld(scene, graph, projects, hotspots) {
           z: a.z + (b.z - a.z) * k - Math.sin(yaw) * offset,
         };
         if (
+          localStreetLines.some((r) => segmentDistance(curb, r.a, r.b) < 5.5) ||
           roads.some((r) => r.a !== a && segmentDistance(curb, r.a, r.b) < 6.2)
         )
           continue;
@@ -169,6 +171,10 @@ export function createWorld(scene, graph, projects, hotspots) {
       const side = Math.floor(t / 23) % 2 ? 1 : -1,
         x = a.x + ux * t - uz * 6 * side,
         z = a.z + uz * t + ux * 6 * side;
+      if (
+        localStreetLines.some((r) => segmentDistance({ x, z }, r.a, r.b) < 5.5)
+      )
+        continue;
       box(x, 3.5, z, 0.14, 7, 0.14, dark);
       box(x, 7, z, 1.6, 0.13, 1.6, stone);
       box(x, 6.9, z, 1.35, 0.05, 1.35, material("#ffd4a1", 2.8));
@@ -212,6 +218,7 @@ export function createWorld(scene, graph, projects, hotspots) {
     const x = a.x + ux * 19 - uz * 3.7,
       z = a.z + uz * 19 + ux * 3.7;
     if (
+      localStreetLines.some((r) => segmentDistance({ x, z }, r.a, r.b) < 7) ||
       roads.some((r) => r !== road && segmentDistance({ x, z }, r.a, r.b) < 9)
     )
       continue;
@@ -465,10 +472,10 @@ export function createWorld(scene, graph, projects, hotspots) {
     }
     const toward = { x: center.x - origin.x, z: center.z - origin.z };
     const len = Math.hypot(toward.x, toward.z);
-    if (isUrban) {
+    {
       // A continuous pedestrian approach meets the actual street and the entrance apron.
       const start = 3.5,
-        end = len - 6.8,
+        end = len - (isUrban ? 6.8 : radius - 0.3),
         length = end - start;
       if (length > 0) {
         const mid = (start + end) / 2;
@@ -483,17 +490,6 @@ export function createWorld(scene, graph, projects, hotspots) {
           facing,
         );
       }
-    } else {
-      for (let t = 3; t < len - radius; t += 2)
-        box(
-          origin.x + (toward.x / len) * t,
-          0.14,
-          origin.z + (toward.z / len) * t,
-          0.22,
-          0.04,
-          0.22,
-          material(col, 0.12),
-        );
     }
   }
   const districts = districtLandmarks(scene, lots, roads, colliders, sign);
@@ -505,6 +501,8 @@ export function createWorld(scene, graph, projects, hotspots) {
     colliders,
     sign,
   );
+  const blocks = cityBlocks(scene, roads, lots, districts, mapPoster, sign);
+  mapPoster.userData.updateStreets(blocks.roads);
   const neighborhood = kit(scene, "neighborhood-buildings", sign);
   const neighborhoodBuildings = [];
   const reserved = (p, radius) =>
@@ -519,133 +517,139 @@ export function createWorld(scene, graph, projects, hotspots) {
         radius + 4,
     ) ||
     distance(p, mapPoster.userData.position) < radius + 5;
-  // A planted, inhabited skyline. Footprints never cover a street, spawn, or exhibit.
-  const buildingMats = [
-    surface("brick", "#a77961", 0.55),
-    surface("brick", "#bdac8e", 0.55),
-    surface("concrete", "#bec2b8", 1),
-    surface("concrete", "#818e94", 1),
-  ];
-  const glass = new T.MeshStandardMaterial({
-    color: "#75817e",
-    roughness: 0.1,
-    metalness: 0.92,
-  });
-  const windowMats = ["#7b7565", "#7a807b", "#8a8372"].map((c) =>
-    material(c, 0.03, 0.2),
-  );
-  const frames = material("#3b4545", 0, 0.45),
-    trim = material("#d0c8b8");
-  const roof = surface("asphalt", "#5c6260", 1);
+  const residentialPlanting = [];
+  const windowMats = [];
   let buildingCount = 0;
-  for (let x = 0; x <= 500; x += 22)
-    for (let z = -360; z <= 0; z += 22) {
-      const p = { x: x + (random() - 0.5) * 8, z: z + (random() - 0.5) * 8 };
-      if (
-        nearRoad(p, 17) ||
-        reserved(p, 10) ||
-        [...lots.values()].some((l) => distance(p, l.center) < 22)
-      )
-        continue;
-      if (random() > 0.7) continue;
-      const w = 8 + random() * 5,
-        d = 8 + random() * 5;
-      const closest = [...lots.values()].sort(
-        (a, b) => distance(p, a.center) - distance(p, b.center),
-      )[0];
-      const cluster = projects[closest.id].cluster;
-      const kind = ["ml", "dataeng"].includes(cluster) ? "technology" : "house";
-      const nearFeature = distance(p, closest.center) < 70;
-      if (kind === "technology" || buildingCount % 4 !== 0 || nearFeature) {
-        const angle = Math.atan2(closest.entry.x - p.x, closest.entry.z - p.z);
-        const building = neighborhoodBuilding(
-          neighborhood,
-          p,
-          angle,
-          kind,
-          buildingCount,
-        );
-        colliders.push(building.footprint);
-        neighborhoodBuildings.push({
-          position: p,
-          kind: building.kind,
-          style: building.style,
-          cluster,
-        });
-        buildingCount++;
-        continue;
-      }
-      const floors = 3 + Math.floor(random() * 4),
-        h = floors * 3.2 + 0.6;
-      box(p.x, h / 2, p.z, w, h, d, buildingMats[Math.floor(random() * 4)]);
-      box(p.x, 0.5, p.z, w + 0.15, 1, d + 0.15, stone);
-      box(p.x, h + 0.07, p.z, w, 0.14, d, roof);
-      // Cornices, floor bands, roof parapets and mechanical enclosures.
-      for (const y of [3.1, h - 0.35])
-        box(p.x, y, p.z, w + 0.24, 0.22, d + 0.24, trim);
-      for (const side of [-1, 1]) {
-        box(p.x, h + 0.38, p.z + side * (d / 2 - 0.1), w, 0.6, 0.2, trim);
-        box(p.x + side * (w / 2 - 0.1), h + 0.38, p.z, 0.2, 0.6, d, trim);
-      }
-      box(p.x + w * 0.15, h + 0.6, p.z, 2.3, 1.2, 2.6, edge);
-      box(p.x - w * 0.2, h + 0.28, p.z + d * 0.2, 1.6, 0.56, 1.8, frames);
-      colliders.push({
-        minX: p.x - w / 2,
-        maxX: p.x + w / 2,
-        minZ: p.z - d / 2,
-        maxZ: p.z + d / 2,
-        height: h + 0.7,
-      });
-      buildingCount++;
-      for (let face = 0; face < 4; face++) {
-        const side = face % 2 ? -1 : 1,
-          turn = face >= 2;
-        const width = turn ? d : w;
-        const pane = (u, y, outward, pw, ph, pd, mat) =>
-          box(
-            p.x + (turn ? side * (w / 2 + outward) : u),
-            y,
-            p.z + (turn ? u : side * (d / 2 + outward)),
-            turn ? pd : pw,
-            ph,
-            turn ? pw : pd,
-            mat,
-          );
-        // Shopfront glazing, recessed door, canopy, and transoms at pedestrian height.
-        for (let u = -width / 2 + 1.6; u < width / 2 - 1; u += 2.4) {
-          pane(u, 1.6, 0.08, 2.15, 2.25, 0.12, frames);
-          pane(u, 1.6, 0.16, 1.94, 2.02, 0.06, glass);
-          pane(u, 2.95, 0.35, 2.25, 0.13, 0.75, trim);
-          pane(u, 1.6, 0.2, 0.06, 2.04, 0.05, frames);
-        }
-        for (let floor = 1; floor < floors; floor++)
-          for (let u = -width / 2 + 1.6; u < width / 2 - 1; u += 2.55) {
-            const y = floor * 3.2 + 1.6;
-            const mat =
-              random() < 0.28 ? windowMats[Math.floor(random() * 3)] : glass;
-            pane(u, y, 0.06, 1.66, 2.04, 0.15, trim);
-            pane(u, y, 0.15, 1.44, 1.82, 0.08, frames);
-            pane(u, y, 0.2, 1.29, 1.67, 0.04, mat);
-            pane(u, y, 0.24, 0.045, 1.7, 0.04, frames);
-            pane(u, y - 0.2, 0.24, 1.3, 0.045, 0.04, frames);
-            pane(u, y - 1.05, 0.22, 1.84, 0.13, 0.48, trim);
-          }
-      }
-    }
-  neighborhood.finish();
-  const trees = [];
-  for (let i = 0; i < 220; i++) {
-    const p = { x: random() * 500, z: -random() * 360 };
+  for (const parcel of blocks.parcels) {
+    const p = parcel.position;
     if (
-      nearRoad(p, 8) ||
-      reserved(p, 4) ||
-      [...lots.values()].some((l) => distance(p, l.center) < 12) ||
+      nearRoad(p, 17.5) ||
+      reserved(p, 10) ||
+      [...lots.values()].some((l) => distance(p, l.center) < 22)
+    )
+      continue;
+    if (
       colliders.some(
         (b) =>
-          p.x > b.minX - 3 &&
-          p.x < b.maxX + 3 &&
-          p.z > b.minZ - 3 &&
-          p.z < b.maxZ + 3,
+          p.x > b.minX - 9 &&
+          p.x < b.maxX + 9 &&
+          p.z > b.minZ - 9 &&
+          p.z < b.maxZ + 9,
+      )
+    )
+      continue;
+    const closest = [...lots.values()].sort(
+      (a, b) => distance(p, a.center) - distance(p, b.center),
+    )[0];
+    const cluster = projects[closest.id].cluster;
+    const kind = ["ml", "dataeng"].includes(cluster) ? "technology" : "house";
+    const building = neighborhoodBuilding(
+      neighborhood,
+      p,
+      parcel.yaw,
+      kind,
+      buildingCount,
+    );
+    colliders.push(building.footprint);
+    residentialPlanting.push(...building.crowns);
+    neighborhoodBuildings.push({
+      position: p,
+      entry: parcel.entry,
+      yaw: parcel.yaw,
+      kind: building.kind,
+      style: building.style,
+      cluster,
+      windows: building.windows,
+      screenParts: building.screenParts,
+    });
+    buildingCount++;
+  }
+  leafCanopies(scene, residentialPlanting, 48);
+  neighborhood.finish();
+  let localCars = 0;
+  for (const road of blocks.roads) {
+    if (localCars >= 26) break;
+    const len = distance(road.a, road.b);
+    if (len < 32) continue;
+    const ux = (road.b.x - road.a.x) / len,
+      uz = (road.b.z - road.a.z) / len;
+    const p = {
+      x: road.a.x + ux * 18 + uz * 2.15,
+      z: road.a.z + uz * 18 - ux * 2.15,
+    };
+    if (
+      nearRoad(p, 9) ||
+      reserved(p, 3) ||
+      blocks.roads.some((r) => r !== road && segmentDistance(p, r.a, r.b) < 8)
+    )
+      continue;
+    const yaw = Math.atan2(ux, uz),
+      hw = Math.abs(uz) * 0.95 + Math.abs(ux) * 2.2,
+      hd = Math.abs(ux) * 0.95 + Math.abs(uz) * 2.2;
+    if (
+      colliders.some(
+        (b) =>
+          p.x + hw > b.minX &&
+          p.x - hw < b.maxX &&
+          p.z + hd > b.minZ &&
+          p.z - hd < b.maxZ,
+      )
+    )
+      continue;
+    parkedCar(
+      scene,
+      p.x,
+      p.z,
+      yaw,
+      ["#a9a99e", "#344348", "#8e877b", "#bcb9af"][localCars % 4],
+    );
+    colliders.push({
+      minX: p.x - hw,
+      maxX: p.x + hw,
+      minZ: p.z - hd,
+      maxZ: p.z + hd,
+      height: 1.6,
+    });
+    localCars++;
+  }
+  const trees = [];
+  const treeCandidates = [];
+  for (const road of blocks.roads) {
+    const len = distance(road.a, road.b),
+      ux = (road.b.x - road.a.x) / len,
+      uz = (road.b.z - road.a.z) / len;
+    for (let t = 10; t < len - 8; t += 24)
+      for (const side of [-1, 1]) {
+        const p = {
+          x: road.a.x + ux * t + uz * 4.1 * side,
+          z: road.a.z + uz * t - ux * 4.1 * side,
+        };
+        if (
+          blocks.roads.some(
+            (r) => r !== road && segmentDistance(p, r.a, r.b) < 6,
+          )
+        )
+          continue;
+        treeCandidates.push({ p, street: true });
+      }
+  }
+  for (let i = 0; i < 220; i++)
+    treeCandidates.push({
+      p: { x: random() * 500, z: -random() * 360 },
+      street: false,
+    });
+  for (const { p, street } of treeCandidates) {
+    if (
+      nearRoad(p, 8) ||
+      reserved(p, street ? 1.2 : 4) ||
+      [...lots.values()].some((l) => distance(p, l.center) < 12) ||
+      (!street && blocks.roads.some((r) => segmentDistance(p, r.a, r.b) < 7)) ||
+      colliders.some(
+        (b) =>
+          p.x > b.minX - (street ? 0.7 : 3) &&
+          p.x < b.maxX + (street ? 0.7 : 3) &&
+          p.z > b.minZ - (street ? 0.7 : 3) &&
+          p.z < b.maxZ + (street ? 0.7 : 3),
       )
     )
       continue;
@@ -661,7 +665,7 @@ export function createWorld(scene, graph, projects, hotspots) {
         scene,
       );
     }
-    trees.push({ p, h });
+    trees.push({ p, h, street });
     colliders.push({
       minX: p.x - 0.2,
       maxX: p.x + 0.2,
@@ -677,24 +681,26 @@ export function createWorld(scene, graph, projects, hotspots) {
   // Layered planting beds soften the spaces between buildings without blocking routes.
   leafCanopies(
     scene,
-    trees.flatMap(({ p }) =>
-      [0, 1, 2].map((i) => ({
-        x: p.x + Math.cos((i * Math.PI * 2) / 3) * 1.8,
-        y: 0.65,
-        z: p.z + Math.sin((i * Math.PI * 2) / 3) * 1.8,
-        radius: 0.8,
-      })),
-    ),
+    trees
+      .filter((t) => !t.street)
+      .flatMap(({ p }) =>
+        [0, 1, 2].map((i) => ({
+          x: p.x + Math.cos((i * Math.PI * 2) / 3) * 1.8,
+          y: 0.65,
+          z: p.z + Math.sin((i * Math.PI * 2) / 3) * 1.8,
+          radius: 0.8,
+        })),
+      ),
     65,
   );
   const plantedSoil = surface("soil", "#837763", 0.3);
-  for (const { p } of trees) {
+  for (const { p, street } of trees) {
     const bed = mesh(
-      new T.CircleGeometry(3.1, 24),
+      new T.CircleGeometry(street ? 0.7 : 3.1, 24),
       plantedSoil,
       scene,
       p.x,
-      -0.035,
+      street ? 0.1 : -0.035,
       p.z,
     );
     bed.rotation.x = -Math.PI / 2;
@@ -717,12 +723,15 @@ export function createWorld(scene, graph, projects, hotspots) {
       depthWrite: false,
       toneMapped: false,
     }),
-    trees.length,
+    trees.length + neighborhoodBuildings.length,
   );
-  trees.forEach(({ p }, i) => {
+  [
+    ...trees.map((t) => ({ p: t.p, size: 8 })),
+    ...neighborhoodBuildings.map((b) => ({ p: b.position, size: 17 })),
+  ].forEach(({ p, size }, i) => {
     dummy.position.set(p.x, -0.025, p.z);
     dummy.rotation.set(-Math.PI / 2, 0, 0);
-    dummy.scale.set(8, 8, 1);
+    dummy.scale.set(size, size, 1);
     dummy.updateMatrix();
     contact.setMatrixAt(i, dummy.matrix);
   });
@@ -781,29 +790,30 @@ export function createWorld(scene, graph, projects, hotspots) {
   );
   sky.visible = !scene.userData.photographicSky;
   scene.add(sky);
-  scene.fog = new T.FogExp2("#c4ced0", 0.0018);
+  scene.fog = new T.FogExp2("#c4ced0", 0.0025);
   return {
     colliders,
     bounds,
     lots,
     buildingCount,
     neighborhoodBuildings,
+    blocks,
     districts,
     mapPoster,
     setNight(night) {
       isNight = night;
       sky.visible = night || !scene.userData.photographicSky;
       scene.background = night ? null : scene.userData.photographicSky || null;
-      scene.environmentIntensity = night ? 0.12 : 0.85;
+      scene.environmentIntensity = night ? 0.12 : 0.65;
       sun.color.set(night ? "#b2c9ed" : "#fff0dd");
       for (const mat of windowMats) mat.emissiveIntensity = night ? 1.35 : 0.03;
       sky.material.uniforms.night.value = night ? 1 : 0;
-      hemi.intensity = night ? 0.22 : 0.4;
-      sun.intensity = night ? 0.28 : 2.4;
+      hemi.intensity = night ? 0.22 : 0.3;
+      sun.intensity = night ? 0.28 : 2.8;
       scene.fog.color.set(night ? "#152638" : "#c4ced0");
     },
     update(t, camera, reduced) {
-      sun.position.set(camera.position.x + 70, 140, camera.position.z + 60);
+      sun.position.set(camera.position.x + 70, 85, camera.position.z + 50);
       sun.target.position.set(camera.position.x, 0, camera.position.z);
       if (!reduced) for (const fn of animated) fn(t);
       if (isNight) {

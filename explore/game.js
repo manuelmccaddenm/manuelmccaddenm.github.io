@@ -5,6 +5,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { posterViewingDistance } from "./game/map-poster.js";
 import { cityProjects } from "./game/content.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { createProjectLabels } from "./game/labels.js";
@@ -100,7 +101,7 @@ async function main() {
   renderer.shadowMap.type = T.PCFSoftShadowMap;
   renderer.outputColorSpace = T.SRGBColorSpace;
   renderer.toneMapping = T.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.95;
+  renderer.toneMappingExposure = 0.88;
   const view = $("view");
   view.append(renderer.domElement);
   renderer.domElement.setAttribute(
@@ -971,7 +972,15 @@ async function main() {
       const view = overviewFor(overviewId);
       if (overviewId === "mantis") {
         const poster = world.mapPoster;
-        camera.position.copy(poster.localToWorld(new T.Vector3(0, 2.7, 5.7)));
+        camera.position.copy(
+          poster.localToWorld(
+            new T.Vector3(
+              0,
+              2.7,
+              posterViewingDistance(camera.aspect, camera.fov),
+            ),
+          ),
+        );
         camera.lookAt(poster.localToWorld(new T.Vector3(0, 2.7, 0)));
       } else {
         camera.position.copy(

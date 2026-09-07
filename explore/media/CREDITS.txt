@@ -3,3 +3,5 @@ All assets licensed CC0: https://polyhaven.com/license
 Exact asset pages, download URLs, and file sizes are listed in sources.json.
 Downloaded for local hosting; no live asset API or paid service is used.
 White Plaster 02 by Rob Tuytel: https://polyhaven.com/a/white_plaster_02 (CC0; 1K diffuse, normal and roughness).
+
+Grass 004 — ambientCG, CC0. https://ambientcg.com/view?id=Grass004 — 1K color, OpenGL normal and roughness maps.

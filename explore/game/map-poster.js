@@ -10,6 +10,9 @@ const colors = {
   dataeng: "#b96342",
   product: "#7a6494",
 };
+export function posterViewingDistance(aspect, fov = 56) {
+  return Math.max(5.7, 3.9 / (Math.tan((fov * Math.PI) / 360) * aspect * 0.9));
+}
 export function posterLayout(graph, projects) {
   return graph.stops.map((id, index) => ({
     id,
@@ -19,7 +22,7 @@ export function posterLayout(graph, projects) {
     node: graph.nodes.find((n) => n.id === id),
   }));
 }
-export function drawMapPoster(canvas, graph, projects) {
+export function drawMapPoster(canvas, graph, projects, streets = []) {
   canvas.width = 4096;
   canvas.height = 2560;
   const ctx = canvas.getContext("2d"),
@@ -42,6 +45,16 @@ export function drawMapPoster(canvas, graph, projects) {
     150 + (n.x / graph.bounds.w) * 2460,
     600 + (n.y / graph.bounds.h) * 1670,
   ];
+  ctx.strokeStyle = "#d5d0c1";
+  ctx.lineWidth = 3;
+  for (const street of streets) {
+    const a = xy({ x: street.a.x, y: -street.a.z }),
+      b = xy({ x: street.b.x, y: -street.b.z });
+    ctx.beginPath();
+    ctx.moveTo(...a);
+    ctx.lineTo(...b);
+    ctx.stroke();
+  }
   ctx.strokeStyle = "#c1bcaa";
   ctx.lineWidth = 18;
   ctx.lineCap = "round";
@@ -175,6 +188,10 @@ export function createMapPoster(scene, graph, projects, lot, colliders, sign) {
   colliders.push(footprint);
   k.root.userData.posterStopIds = entries.map((e) => e.id);
   k.root.userData.position = position;
+  k.root.userData.updateStreets = (streets) => {
+    drawMapPoster(canvas, graph, projects, streets);
+    texture.needsUpdate = true;
+  };
   k.root.userData.readingPoint = {
     x: position.x + s * 4,
     z: position.z + c * 4,

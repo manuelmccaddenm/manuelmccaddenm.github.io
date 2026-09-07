@@ -222,3 +222,40 @@ Production build and desktop browser checks are required before deployment.
 Render remains the existing free static service; no paid assets, APIs or services
 are introduced. This remains real-time browser rendering rather than an offline
 photographic render.
+
+
+## Grounded city rebuild and screen-wall repair
+
+`codex/grounded-city` fixes the disconnected screen-wall bricks visible in the
+reported screenshot. Each perforated cell is a connected four-sided block resting
+on a continuous base and tied together by a coping. A structural-connectivity
+regression test checks that every screen part reaches the base.
+
+The neighborhood architecture is rebuilt around real wall openings. Glazing is
+recessed behind jambs and sills, with shaded room geometry, folded curtains or
+commercial roller shades behind it. Glass no longer casts an opaque wall shadow.
+All four elevations receive windows, cornices and material detail; roof structures,
+balconies, downpipes, meters and planters have physical supports. There are 116
+homes and 49 research buildings, with 4,020 modeled door/window openings.
+
+Forty-five secondary street segments form neighborhood blocks. Houses align with
+actual sidewalks, and secondary streets stop clear of the original monuments and
+infrastructure. The original embedding graph and its navigation routes are retained.
+All monuments have paved approaches; the streets add expansion joints, drains,
+curbs, parked cars and regular tree planting. The Mantis poster includes these local
+streets as a lighter layer beneath the original district routes and 25-site index.
+
+Locally served [ambientCG Grass 004](https://ambientcg.com/view?id=Grass004) CC0
+material maps replace the repeating open concrete ground. Stucco detail is restrained
+to avoid oversized relief. Directional daylight, fill light, exposure and foundation
+contact shadows were adjusted. Foliage and neighborhood geometry are divided into
+spatial batches so off-screen areas can be culled. This remains a browser architectural
+render, with illustrative public-art monuments; photograph-level realism is not claimed.
+
+Validation: 29 automated tests, including poster framing across viewport shapes,
+the original 625 routing pairs, both
+original and secondary street traversal, supported screen geometry, and an actual
+raycast through glazing into a recessed room. Close-range browser reviews cover
+courtyard, clay-roof and research buildings, plus the complete city and map poster.
+No paid assets, APIs, new services or plan upgrades were introduced. The previous
+`codex/realistic-districts` branch remains available for rollback.
