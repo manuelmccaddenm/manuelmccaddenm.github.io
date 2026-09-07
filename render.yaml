@@ -1,0 +1,24 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: manuel-idea-district
+    runtime: static
+    repo: https://github.com/manuelmccaddenm/manuelmccaddenm.github.io
+    branch: codex/playable-3d-city
+    buildCommand: npm ci --include=dev && npm run build
+    staticPublishPath: ./dist
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+    headers:
+      - path: /explore/assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+    # No SPA catch-all: portfolio documents and missing resources retain correct URLs/404s.

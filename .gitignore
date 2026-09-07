@@ -3,3 +3,5 @@
 explore/build/assets/
 explore/build/world.blend
 explore/build/__pycache__/
+node_modules/
+dist/
