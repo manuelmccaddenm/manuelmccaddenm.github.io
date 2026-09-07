@@ -216,3 +216,41 @@ test("autoencoder straddles the original road with a traversable bottleneck and 
       );
   assert.ok(model.getObjectByName("roadside-loss-landscape"));
 });
+
+test("the workshop has an open entry, solid furniture and an inspection roof", () => {
+  const lot = world.lots.get("model-picker");
+  const model = lot.group.getObjectByName("monument-model-picker");
+  for (let i = 0; i < 3; i++)
+    assert.ok(model.getObjectByName(`workstation-${i}`));
+  const roof = model.getObjectByName("workshop-roof");
+  model.userData.setInspection(true);
+  assert.equal(roof.visible, false);
+  model.userData.setInspection(false);
+  assert.equal(roof.visible, true);
+  const point = (x, z) => {
+    const p = lot.group.localToWorld(new T.Vector3(x, 0, z));
+    return { x: p.x, z: p.z };
+  };
+  const a = point(0, 8),
+    b = point(0, 1.5);
+  const entered = movePlayer(
+    a,
+    b.x - a.x,
+    b.z - a.z,
+    world.colliders,
+    world.bounds,
+  );
+  assert.ok(
+    distance(entered, b) < 0.01,
+    "walk from the sidewalk through the door",
+  );
+  const desk = point(0, -1.8);
+  const stopped = movePlayer(
+    b,
+    desk.x - b.x,
+    desk.z - b.z,
+    world.colliders,
+    world.bounds,
+  );
+  assert.ok(distance(stopped, desk) > 0.5, "desk and chair remain solid");
+});

@@ -57,6 +57,7 @@
       <button id="monument-view" hidden aria-pressed="false">
         View monument · V
       </button>
+      <button id="workshop-button" hidden>Try model selection</button>
       <button id="read-button">
         <span class="key">E</span
         ><span
@@ -214,6 +215,56 @@
         </p>
       </div>
       <button class="primary" data-close>Back to the city →</button>
+    </dialog>
+    <dialog id="workshop-dialog" aria-labelledby="workshop-title">
+      <button class="dialog-close" data-close aria-label="Close workshop">
+        ×
+      </button>
+      <p class="eyebrow">MODEL PICKER · INTERACTIVE WORKSHOP</p>
+      <h2 id="workshop-title">What makes a model best?</h2>
+      <p>
+        Change the objective, then follow the three desks. The lit workstation
+        shows the current stage.
+      </p>
+      <label for="miss-cost">Cost of a missed positive</label>
+      <select id="miss-cost">
+        <option value="1">1 · equal error costs</option>
+        <option value="3">3 · misses matter more</option>
+        <option value="6">6 · prioritize recall</option>
+      </select>
+      <label for="model-budget">Compute limit per candidate</label>
+      <select id="model-budget">
+        <option value="6">6 units · all candidates</option>
+        <option value="3">3 units · modest budget</option>
+        <option value="1">1 unit · smallest budget</option>
+      </select>
+      <p class="workshop-formula">Loss = false alarms + miss cost × misses</p>
+      <p id="workshop-status" role="status" aria-live="polite"></p>
+      <button id="workshop-step" class="primary">1 · Inspect data</button>
+      <div id="workshop-results" hidden>
+        <table>
+          <caption>
+            Same 24 held-out cases for every candidate
+          </caption>
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>False alarms</th>
+              <th>Misses</th>
+              <th>Loss</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody id="workshop-rows"></tbody>
+        </table>
+        <p id="workshop-memory"></p>
+      </div>
+      <small
+        >Illustrative predictions and compute units. This local demo explains
+        the workflow.</small
+      >
+      <button id="workshop-source">Read original project</button>
+      <button data-close>Back to the workshop</button>
     </dialog>
     <div id="failure" hidden role="alert">
       <h2>The city couldn’t start.</h2>

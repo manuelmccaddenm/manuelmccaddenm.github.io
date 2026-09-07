@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/photographic-city`
+- Branch: `codex/model-picker-workshop`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -69,7 +69,7 @@ Docs: https://render.com/docs/static-sites and https://render.com/docs/blueprint
 
 This is a stylized, explorable portfolio game. It has a level ground plane and
 solid building/exhibit footprints; jumping does not let the player climb buildings.
-It does not include enterable interiors or multiplayer. The geometry remains a modeled city; the realism pass adds photographed surface maps and a photographic sky.
+Model Picker includes a walkable workshop interior; other buildings remain exterior exhibits. Multiplayer is not included. The geometry remains a modeled city; the realism pass adds photographed surface maps and a photographic sky.
 Balanced renders up to native 2× resolution with contact shading; High adds higher resolution and subtle bloom. Both include nearby sun shadows. WebGL2 is required.
 The 2D map remains available if the game cannot initialize.
 
@@ -128,7 +128,7 @@ collisions are covered by an additional test.
 The previous city is preserved locally and on GitHub as the annotated tag
 `checkpoint-before-photo-realism`, pointing to commit
 `4e487b7b80c7f45e3824819a64e8a04bf3f76ecd` on `codex/autoencoder-bridge`.
-The realism pass is isolated on `codex/photographic-city`; restoring the prior
+The realism pass is preserved on `codex/photographic-city`; restoring the prior
 Render branch selects the saved version without rewriting history.
 
 The new renderer uses locally served photographed diffuse, normal and roughness
@@ -151,3 +151,27 @@ photographic assets without the heavier postprocessing.
 This is a step toward architectural photography, with browser-rendered geometry
 and illustrative project exhibits still visible. It is not a path-traced offline
 render or a replacement with static photographs.
+
+
+## Model Picker workshop
+
+The Model Picker monument is now a street-facing brick workshop with a glazed
+front, open entrance, furnished workstations, canopy, planting and a shared run
+history shelf. It occupies a rectangular sidewalk apron without a display plinth.
+Visitors can walk inside; oriented wall and furniture footprints keep the doorway
+clear at any building angle. V lifts the roof for inspection and restores it when
+returning to the street.
+
+**Try model selection** opens a local, three-stage experiment. Choose a missed-case
+cost and a per-candidate compute limit, then inspect the fixed data, check candidate
+eligibility, and evaluate. The score is false positives plus missed-case cost times
+false negatives. The same 24 illustrative held-out cases are used for all three
+fixed prediction sets; this demonstrates deterministic selection without running
+live agents or training. Higher missed-case cost can favor recall; a tighter
+compute constraint excludes that candidate. The previous run is remembered for
+comparison within the current page session. The original hackathon project remains
+accessible from the experiment and the original project panel.
+
+Tests cover the recommendation changing with the objective, budget enforcement,
+invalid constraints, the open workshop entrance, solid furniture and roof state,
+alongside all existing road, bridge and monument checks (21 tests total).

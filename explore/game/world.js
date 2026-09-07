@@ -325,6 +325,7 @@ export function createWorld(scene, graph, projects, hotspots) {
       !nearRoad(p, 15) &&
       [...lots.values()].every((l) => distance(p, l.center) > 20);
     const isBridge = id === "autoencoder";
+    const isWorkshop = id === "model-picker";
     const bridgeRoad =
       nodes[n.neighbors.find((key) => key.includes("negreira"))];
     const bridgeDirection = isBridge
@@ -360,7 +361,7 @@ export function createWorld(scene, graph, projects, hotspots) {
     group.position.set(center.x, 0.2, center.z);
     scene.add(group);
     const radius = 8.5;
-    if (!isBridge) {
+    if (!isBridge && !isWorkshop) {
       const plinth = mesh(
         new T.CylinderGeometry(radius, radius + 0.3, 0.26, 48),
         stone,
@@ -411,8 +412,8 @@ export function createWorld(scene, graph, projects, hotspots) {
     marker.rotation.x = -Math.PI / 2;
     lots.set(id, { id, center, entry, group, color: col });
     // Solid pedestal beneath the central exhibit (player stays on level streets/plazas).
-    if (isBridge) {
-      const model = group.getObjectByName("monument-autoencoder");
+    if (isBridge || isWorkshop) {
+      const model = group.getObjectByName(`monument-${id}`);
       for (const footprint of model.userData.solidFootprints) {
         const c = Math.cos(facing),
           s = Math.sin(facing);
@@ -425,6 +426,18 @@ export function createWorld(scene, graph, projects, hotspots) {
           maxX: x + hw,
           minZ: z - hd,
           maxZ: z + hd,
+          height: footprint.height,
+          ...(isWorkshop
+            ? {
+                oriented: {
+                  x,
+                  z,
+                  angle: facing,
+                  hw: footprint.w / 2,
+                  hd: footprint.d / 2,
+                },
+              }
+            : {}),
         });
       }
     } else {

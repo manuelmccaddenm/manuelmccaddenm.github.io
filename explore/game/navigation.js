@@ -57,6 +57,18 @@ export function movePlayer(position, dx, dz, colliders, bounds, radius = 0.48) {
   const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / (radius * 0.5)));
   const free = (x, z) =>
     !colliders.some((b) => {
+      if (b.oriented) {
+        const o = b.oriented,
+          c = Math.cos(o.angle),
+          s = Math.sin(o.angle);
+        const lx = c * (x - o.x) - s * (z - o.z),
+          lz = s * (x - o.x) + c * (z - o.z);
+        return (
+          (lx - clamp(lx, -o.hw, o.hw)) ** 2 +
+            (lz - clamp(lz, -o.hd, o.hd)) ** 2 <
+          radius ** 2
+        );
+      }
       const px = clamp(x, b.minX, b.maxX),
         pz = clamp(z, b.minZ, b.maxZ);
       return (x - px) ** 2 + (z - pz) ** 2 < radius ** 2;

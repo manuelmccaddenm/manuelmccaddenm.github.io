@@ -13,7 +13,7 @@ export function createMonument(id, parent, sign, color) {
   if (id === "itam") {
     k.label("ITAM · APPLIED MATHEMATICS", 0, 4.75, 1.3, 8.5, 0.5, color);
     for (const x of [-4, 4]) k.box(x, 4.45, 1.26, 0.06, 0.65, 0.07);
-  } else if (id !== "autoencoder") {
+  } else if (id !== "autoencoder" && id !== "model-picker") {
     const stand = k.group("interpretation-plaque");
     k.box(0, 1.55, 6.25, 6.2, 1.05, 0.15, undefined, 0, stand);
     for (const x of [-2.5, 2.5])

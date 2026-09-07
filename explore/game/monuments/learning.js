@@ -1,4 +1,5 @@
 import * as T from "three";
+import { modelWorkshop } from "./workshop.js";
 import { autoencoderBridge } from "./bridge.js";
 import { M, mat } from "./kit.js";
 export function learning(id, k) {
@@ -130,58 +131,7 @@ export function learning(id, k) {
     label("ALTERNATIVE MODELS · UNCERTAINTY", 1.2, 2.9, 1.1, 6.8, 0.45);
     label("OPEN QUESTIONS · NO CONCLUSIONS YET", 0, 0.65, 3.7, 11, 0.5);
   } else if (id === "model-picker") {
-    for (let i = 0; i < 3; i++) {
-      const x = -3.8 + i * 3.8;
-      box(x, 0.9, 0, 3, 0.2, 2, M.wood);
-      for (const z of [-0.8, 0.8]) box(x, 0.45, z, 2.6, 0.8, 0.1, M.steel);
-      screen(
-        x,
-        2.8,
-        -0.65,
-        3.1,
-        2,
-        ["DATA AGENT", "MODEL AGENT", "EVAL AGENT"][i],
-      );
-      const bot = group(`agent-robot-${i}`, x, 1, 1);
-      box(
-        0,
-        0.5,
-        0,
-        0.75,
-        0.7,
-        0.5,
-        [M.blue, M.orange, mat("#b7a0ef")][i],
-        0,
-        bot,
-      );
-      sphere(0, 1.15, 0, 0.4, 0.35, 0.3, M.white, bot);
-      for (const s of [-1, 1])
-        sphere(s * 0.14, 1.18, 0.29, 0.07, 0.08, 0.03, M.dark, bot);
-      rod([-0.38, 0.75, 0], [-0.65, 0.35, 0.2], 0.06, M.steel, bot);
-      rod([0.38, 0.75, 0], [0.65, 0.5, 0.2], 0.06, M.steel, bot);
-    }
-    label("CSV + BUSINESS QUESTION", -3.8, 4.15, -0.5, 3.7, 0.42);
-    label("CUSTOM LOSS + BUDGET", 0, 4.15, -0.5, 3.7, 0.42);
-    label("DETERMINISTIC SCORING", 3.8, 4.15, -0.5, 3.7, 0.42);
-    flow(
-      [
-        [-3.8, 2.6, 0],
-        [0, 2.6, 0],
-        [3.8, 2.6, 0],
-      ],
-      "#ffbe70",
-    );
-    server(0, -3.3, "PERSISTENT MEMORY", 2.5);
-    flow(
-      [
-        [4, 3, -2],
-        [3, 4.8, -2.7],
-        [0, 4.5, -3],
-        [-3.8, 3, -2],
-      ],
-      "#b6a1ee",
-    );
-    label("EVALUATE → MUTATE → LEARN FOR NEXT TIME", 0, 0.6, 3.8, 11, 0.48);
+    modelWorkshop(k);
   } else if (id === "btc-streaming") {
     for (const [x, title] of [
       [-4, "BINANCE"],

@@ -73,7 +73,7 @@ export const MONUMENTS = {
   "model-picker": [
     "MODEL PICKER",
     "DATA AGENT → MODEL AGENT → EVAL AGENT",
-    "Three robot workstations turn a CSV into a loss specification and a deterministic evaluation board. A return path to a memory shelf shows the slower loop: carrying useful lessons into the next project.",
+    "A street-facing workshop houses three agent workstations. Walk through the open entrance, or inspect the interior with the roof lifted. Try model selection to change the cost of missed cases and the compute budget, then follow data, candidates and deterministic evaluation. The shared history shelf represents learning between projects.",
   ],
   autoencoder: [
     "AUTOENCODER WITHOUT AUTODIFF",
@@ -127,10 +127,12 @@ export const MONUMENTS = {
   ],
 };
 export const overviewFor = (id) =>
-  id === "autoencoder"
-    ? { eye: [18, 13, 26], target: [1.5, 3.2, 0] }
-    : id === "fantasy-draft"
-      ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
-      : id === "predator-prey"
-        ? { eye: [0, 9, 17], target: [0, 4, 0] }
-        : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };
+  id === "model-picker"
+    ? { eye: [10, 10, 19], target: [0, 1.7, 0] }
+    : id === "autoencoder"
+      ? { eye: [18, 13, 26], target: [1.5, 3.2, 0] }
+      : id === "fantasy-draft"
+        ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
+        : id === "predator-prey"
+          ? { eye: [0, 9, 17], target: [0, 4, 0] }
+          : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };
