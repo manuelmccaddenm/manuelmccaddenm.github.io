@@ -1,4 +1,5 @@
 import * as T from "three";
+import { createDraftStadium } from "./stadium.js";
 import { createHopfDisplay } from "./hopf.js";
 import { createPredatorPrey } from "./animals.js";
 import { surface } from "./surfaces.js";
@@ -401,7 +402,10 @@ export function createWorld(scene, graph, projects, hotspots) {
             Math.sin(c * 2.1) * 3 + Math.sin(a) * r,
           );
         }
-    } else if (id === "fantasy-draft" || id === "negreira") {
+    } else if (id === "fantasy-draft") {
+      const draft = createDraftStadium(moving, sign);
+      animated.push(draft.update);
+    } else if (id === "negreira") {
       box(0, 0.5, 0, 11, 0.15, 7, material("#205744"), 0, moving);
       const field = ring(moving, 1.4, 0.045, glow, 0, 0.61, 0);
       field.rotation.x = -Math.PI / 2;
@@ -568,10 +572,14 @@ export function createWorld(scene, graph, projects, hotspots) {
     lots.set(id, { id, center, entry, group, color: col });
     // Solid pedestal beneath the central exhibit (player stays on level streets/plazas).
     if (!["itam", "batu", "mantis"].includes(id)) {
+      const halfWidth = id === "fantasy-draft" ? 7.7 : 4.8;
+      const halfDepth = id === "fantasy-draft" ? 5.2 : 3.6;
       const x =
-        Math.abs(Math.cos(facing)) * 4.8 + Math.abs(Math.sin(facing)) * 3.6;
+        Math.abs(Math.cos(facing)) * halfWidth +
+        Math.abs(Math.sin(facing)) * halfDepth;
       const z =
-        Math.abs(Math.sin(facing)) * 4.8 + Math.abs(Math.cos(facing)) * 3.6;
+        Math.abs(Math.sin(facing)) * halfWidth +
+        Math.abs(Math.cos(facing)) * halfDepth;
       colliders.push({
         minX: center.x - x,
         maxX: center.x + x,

@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/hopf-exhibit`
+- Branch: `codex/nfl-draft-stadium`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -87,3 +87,7 @@ its $0 build spending limit and do not add paid compute or a payment method.
 The predator–prey stop contains two modeled foxes chasing six hopping rabbits in a grass habitat. This is an illustrative chase animation, not a numerical population simulation. Reduced motion keeps every animal visible in a stationary pose.
 
 The exhibit title is Predator–Prey / Hopf Bifurcation. Paired local phase portraits illustrate attraction to an equilibrium and emergence of sustained oscillations using the supercritical normal form r′ = μr − r³. These are explanatory diagrams, not a reproduction of the notebook’s Leslie–Gower simulation. The original project panel and notebook link retain the actual study.
+
+The fantasy draft has a miniature NFL stadium with a 120-yard field, end zones, yard lines, NFL hash spacing, yellow uprights, tiered seating, players, and a laced American football. Its jumbotron shows the actual floor/ceiling objectives from `optimization-fantasy-football-draft/optimizacion.py` (`markowitz_pick`, `upside_pick`, `_build_pick_problem`). Adjusted value includes replacement value and preferences; roster limits, remaining picks and ADP feasibility constrain each decision. The animated ribbon illustrates the 12-team snake order; it does not execute the Python optimization in the browser.
+
+At the fantasy draft stop, “View stadium” (V) opens a raised overview of the field and optimization board. V, Escape or a movement key returns to the street.

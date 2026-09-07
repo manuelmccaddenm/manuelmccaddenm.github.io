@@ -29,6 +29,10 @@ globalThis.document = {
     getContext: () => ({
       fillRect() {},
       fillText() {},
+      save() {},
+      restore() {},
+      translate() {},
+      rotate() {},
       measureText: (t) => ({ width: t.length * 35 }),
     }),
   }),
@@ -107,5 +111,35 @@ test("predator–prey has visible animals that animate and remain visible with r
   world.update(20, camera, true);
   animals.forEach((o, i) =>
     assert.ok(o.visible && o.position.equals(paused[i])),
+  );
+});
+
+test("fantasy draft contains a distinct NFL stadium and a reversing 12-team draft board", () => {
+  const stadium = world.lots
+    .get("fantasy-draft")
+    .group.getObjectByName("nfl-draft-stadium");
+  assert.ok(stadium);
+  assert.ok(stadium.userData.seats > 200);
+  for (const name of [
+    "120-yard-football-field",
+    "west-uprights",
+    "east-uprights",
+    "laced-american-football",
+  ])
+    assert.ok(stadium.getObjectByName(name), name);
+  assert.equal(
+    world.lots.get("negreira").group.getObjectByName("nfl-draft-stadium"),
+    undefined,
+  );
+  const pick1 = stadium.getObjectByName("snake-pick-1"),
+    pick12 = stadium.getObjectByName("snake-pick-12"),
+    pick13 = stadium.getObjectByName("snake-pick-13"),
+    pick24 = stadium.getObjectByName("snake-pick-24");
+  assert.equal(pick12.position.x, pick13.position.x);
+  assert.equal(pick1.position.x, pick24.position.x);
+  world.update(15, new T.PerspectiveCamera(), false);
+  assert.ok(
+    pick13.material.emissive.getHex() > 0 &&
+      pick12.material.emissive.getHex() === 0,
   );
 });

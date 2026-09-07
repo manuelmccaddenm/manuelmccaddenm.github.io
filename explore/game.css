@@ -980,3 +980,19 @@ dialog h2 {
     width: 190px;
   }
 }
+
+#stadium-view {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 11px 16px;
+  background: #183a49f2;
+  border-color: #e8c07d8a;
+  color: #ffe1a9;
+  font-weight: 600;
+}
+body.stadium-overview #control-hint {
+  display: none;
+}
+body.stadium-overview #crosshair {
+  display: none;
+}

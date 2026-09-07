@@ -167,6 +167,7 @@ async function main() {
   resize();
   world.setNight(settings.night);
 
+  let stadiumOverview = false;
   let playing = false,
     paused = false,
     yaw = 0,
@@ -305,6 +306,7 @@ async function main() {
     lastX = 0,
     lastY = 0;
   function look(dx, dy) {
+    if (stadiumOverview) return;
     yaw -= dx * 0.0021 * settings.sensitivity;
     pitch = clamp(pitch - dy * 0.0021 * settings.sensitivity, -1.35, 1.35);
   }
@@ -337,7 +339,7 @@ async function main() {
   view.addEventListener("pointerup", endLook);
   view.addEventListener("pointercancel", endLook);
   function jump() {
-    if (grounded && playing && !paused) {
+    if (grounded && playing && !paused && !stadiumOverview) {
       vertical = 7;
       grounded = false;
     }
@@ -356,10 +358,24 @@ async function main() {
     }
     if (anyDialog()) return;
     if (e.code === "Escape") {
+      if (stadiumOverview) {
+        setStadiumOverview(false);
+        return;
+      }
       if (playing) showDialog("settings-dialog");
       return;
     }
     if (!playing) return;
+    if (e.code === "KeyV" && !e.repeat && nearby === "fantasy-draft") {
+      e.preventDefault();
+      setStadiumOverview(!stadiumOverview);
+      return;
+    }
+    if (
+      stadiumOverview &&
+      ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown"].includes(e.code)
+    )
+      setStadiumOverview(false);
     if (
       [
         "Space",
@@ -451,6 +467,19 @@ async function main() {
   $("read-button").addEventListener("click", () => {
     if (nearby) readProject(nearby);
   });
+  function setStadiumOverview(enabled) {
+    stadiumOverview = enabled;
+    resetInput();
+    document.body.classList.toggle("stadium-overview", enabled);
+    $("stadium-view").textContent = enabled
+      ? "Return to street · V / Esc"
+      : "View stadium · V";
+    $("stadium-view").setAttribute("aria-pressed", String(enabled));
+    if (enabled && document.pointerLockElement) document.exitPointerLock();
+  }
+  $("stadium-view").addEventListener("click", () =>
+    setStadiumOverview(!stadiumOverview),
+  );
   function openMap() {
     updateDirectory();
     drawAtlas();
@@ -737,6 +766,7 @@ async function main() {
         best = id;
       }
     }
+    if (stadiumOverview && best !== "fantasy-draft") setStadiumOverview(false);
     currentStop = best;
     nearby = bestDistance < 9 ? best : null;
     const p = projects[best];
@@ -748,6 +778,7 @@ async function main() {
     $("progress").textContent =
       `${visited.size} / ${graph.stops.length} places discovered`;
     $("interaction").hidden = !nearby || !playing || anyDialog();
+    $("stadium-view").hidden = nearby !== "fantasy-draft";
     if (nearby) $("nearby-name").textContent = projects[nearby].label;
     if (playing && bestDistance < 9) visit(best);
     if (target) {
@@ -813,7 +844,7 @@ async function main() {
         frameSum = frameCount = 0;
       }
     }
-    if (playing && !paused && !anyDialog()) {
+    if (playing && !paused && !anyDialog() && !stadiumOverview) {
       const strafe =
         (keys.has("KeyD") ? 1 : 0) - (keys.has("KeyA") ? 1 : 0) + joystick.x;
       const forward =
@@ -865,6 +896,11 @@ async function main() {
       camera.position.set(position.x + 19, 13, position.z + 23);
       camera.lookAt(position.x, 5, position.z - 15);
     }
+    if (stadiumOverview) {
+      const lot = world.lots.get("fantasy-draft");
+      camera.position.copy(lot.group.localToWorld(new T.Vector3(0, 11, 13)));
+      camera.lookAt(lot.group.localToWorld(new T.Vector3(0, 2.5, -0.5)));
+    }
     const desiredFov =
       playing && !settings.reduced && Math.hypot(velocity.x, velocity.z) > 10
         ? 75
@@ -878,7 +914,7 @@ async function main() {
       camera,
       settings.reduced || paused || document.hidden,
     );
-    projectLabels.update(camera, playing && !anyDialog());
+    projectLabels.update(camera, playing && !anyDialog() && !stadiumOverview);
     if (elapsed - lastHud > 0.12) {
       updateNearby();
       lastHud = elapsed;
