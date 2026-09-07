@@ -174,3 +174,45 @@ test("all 25 stops have an explanation and a complete finite inspection scene", 
     }
   }
 });
+
+test("autoencoder straddles the original road with a traversable bottleneck and solid supports", () => {
+  const lot = world.lots.get("autoencoder");
+  const model = lot.group.getObjectByName("monument-autoencoder");
+  const frames = model.userData.bridgeFrames;
+  assert.equal(frames.length, 13);
+  assert.ok(frames[6].width < frames[0].width / 2);
+  assert.equal(frames[0].width, frames[12].width);
+  assert.ok(
+    frames.every((f) => f.height >= 4.8),
+    "overhead beams clear the player and jumps",
+  );
+  const toWorld = (x, z) => {
+    const p = lot.group.localToWorld(new T.Vector3(x, 0, z));
+    return { x: p.x, z: p.z };
+  };
+  for (const lane of [-0.65, 0, 0.65]) {
+    for (const direction of [-1, 1]) {
+      const start = toWorld(lane, direction * 11),
+        end = toWorld(lane, -direction * 11);
+      const actual = movePlayer(
+        start,
+        end.x - start.x,
+        end.z - start.z,
+        world.colliders,
+        world.bounds,
+      );
+      assert.ok(
+        distance(actual, end) < 0.01,
+        `walk lane ${lane}, direction ${direction}: missed by ${distance(actual, end)}`,
+      );
+    }
+  }
+  for (const f of frames)
+    for (const side of [-1, 1])
+      assert.equal(
+        free(toWorld((side * f.width) / 2, f.z)),
+        false,
+        "support bases remain solid",
+      );
+  assert.ok(model.getObjectByName("roadside-loss-landscape"));
+});

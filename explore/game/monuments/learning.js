@@ -1,4 +1,5 @@
 import * as T from "three";
+import { autoencoderBridge } from "./bridge.js";
 import { M, mat } from "./kit.js";
 export function learning(id, k) {
   const {
@@ -92,56 +93,7 @@ export function learning(id, k) {
     screen(1.3, 5.25, -2.4, 8.5, 1.3, "IMAGE ENCODER + INGREDIENT EMBEDDINGS");
     label("GUIDED ATTENTION → MASS REGRESSION", 1.3, 5.05, -2.25, 8, 0.38);
   } else if (id === "autoencoder") {
-    const widths = [6, 3, 1.1, 3, 6],
-      levels = [6, 4, 2, 4, 6];
-    for (let layer = 0; layer < 5; layer++) {
-      const x = -4.8 + layer * 2.4;
-      box(x, 2.3, 0, 0.15, 4.5, 0.15, M.steel);
-      for (let j = 0; j < levels[layer]; j++) {
-        const y = 0.65 + (j * 3.6) / (levels[layer] - 1);
-        sphere(x, y, 0, 0.23, 0.23, 0.23, layer === 2 ? M.orange : M.blue);
-        if (layer < 4)
-          for (let q = 0; q < levels[layer + 1]; q++) {
-            const ny = 0.65 + (q * 3.6) / (levels[layer + 1] - 1);
-            rod([x, y, 0], [x + 2.4, ny, 0], 0.012, mat("#709798", 0, 0.2));
-          }
-      }
-    }
-    flow(
-      [
-        [-4.8, 3.5, 0.1],
-        [-2.4, 2.9, 0.1],
-        [0, 2.1, 0.1],
-        [2.4, 2.9, 0.1],
-        [4.8, 3.5, 0.1],
-      ],
-      "#ffbe70",
-    );
-    label("INPUT", -4.6, 5.1, 0, 2.5, 0.5);
-    label("LATENT", 0, 5.1, 0, 2.5, 0.5);
-    label("RECONSTRUCTION", 4.2, 5.1, 0, 3.7, 0.5);
-    ring(-1, 0.7, 3.2, 1.4, "#72caff", true);
-    flow(
-      [
-        [-1, 0.75, 3.2],
-        [-0.9, 0.75, 3.7],
-        [-0.1, 0.75, 4.1],
-      ],
-      "#ffbe70",
-    );
-    label("DOGLEG STEP", -1, 1.5, 4.2, 3.5, 0.35);
-    screen(3.2, 1.6, 3.3, 3.5, 1.6, "HAND-DERIVED ∇");
-    for (let i = 0; i < 4; i++)
-      for (let j = 0; j < 3; j++)
-        box(
-          2.3 + i * 0.55,
-          1.1 + j * 0.3,
-          3.45,
-          0.35,
-          0.18,
-          0.025,
-          i === j ? M.orange : M.blue,
-        );
+    autoencoderBridge(k);
   } else if (id === "thesis") {
     box(0, 1.15, 1, 9, 0.18, 3, M.wood);
     for (const x of [-4, 4])

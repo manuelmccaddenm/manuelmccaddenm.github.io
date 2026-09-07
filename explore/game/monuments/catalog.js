@@ -78,7 +78,7 @@ export const MONUMENTS = {
   autoencoder: [
     "AUTOENCODER WITHOUT AUTODIFF",
     "HAND GRADIENTS · TRUST REGION · DOGLEG",
-    "A wide input array contracts through a small latent layer and expands into a reconstruction. A bent path inside a trust-region circle explains Dogleg optimization, while a nearby matrix panel recalls the hand-derived gradients.",
+    "Walk through the bridge toward Negreira: thirteen structural frames narrow into the latent bottleneck, then open into reconstruction. Signal paths follow the same compression and expansion overhead. Beside the street, a loss landscape and bent Dogleg step connect the architecture to hand-derived gradients and trust-region optimization.",
   ],
   "fantasy-draft": [
     "NFL FANTASY DRAFT",
@@ -127,8 +127,10 @@ export const MONUMENTS = {
   ],
 };
 export const overviewFor = (id) =>
-  id === "fantasy-draft"
-    ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
-    : id === "predator-prey"
-      ? { eye: [0, 9, 17], target: [0, 4, 0] }
-      : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };
+  id === "autoencoder"
+    ? { eye: [18, 13, 26], target: [1.5, 3.2, 0] }
+    : id === "fantasy-draft"
+      ? { eye: [0, 11, 13], target: [0, 2.5, -0.5] }
+      : id === "predator-prey"
+        ? { eye: [0, 9, 17], target: [0, 4, 0] }
+        : { eye: [1.5, 9, 17], target: [0, 3.6, 0] };

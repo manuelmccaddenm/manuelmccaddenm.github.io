@@ -267,8 +267,24 @@ export function createWorld(scene, graph, projects, hotspots) {
     const lotIsFree = (p) =>
       !nearRoad(p, 15) &&
       [...lots.values()].every((l) => distance(p, l.center) > 20);
-    let center = preferred;
-    if (!lotIsFree(center)) {
+    const isBridge = id === "autoencoder";
+    const bridgeRoad =
+      nodes[n.neighbors.find((key) => key.includes("negreira"))];
+    const bridgeDirection = isBridge
+      ? { x: bridgeRoad.x - n.x, z: n.y - bridgeRoad.y }
+      : null;
+    if (bridgeDirection) {
+      const length = Math.hypot(bridgeDirection.x, bridgeDirection.z);
+      bridgeDirection.x /= length;
+      bridgeDirection.z /= length;
+    }
+    let center = isBridge
+      ? {
+          x: origin.x + bridgeDirection.x * 14,
+          z: origin.z + bridgeDirection.z * 14,
+        }
+      : preferred;
+    if (!isBridge && !lotIsFree(center)) {
       search: for (let radius = 2; radius < 90; radius += 2)
         for (let i = 0; i < 48; i++) {
           const angle = (i / 48) * Math.PI * 2,
@@ -287,16 +303,18 @@ export function createWorld(scene, graph, projects, hotspots) {
     group.position.set(center.x, 0.2, center.z);
     scene.add(group);
     const radius = 8.5;
-    const plinth = mesh(
-      new T.CylinderGeometry(radius, radius + 0.3, 0.26, 48),
-      stone,
-      group,
-      0,
-      0.03,
-      0,
-    );
-    const rim = ring(group, radius, 0.065, material(col, 0.9), 0, 0.2, 0);
-    rim.rotation.x = -Math.PI / 2;
+    if (!isBridge) {
+      const plinth = mesh(
+        new T.CylinderGeometry(radius, radius + 0.3, 0.26, 48),
+        stone,
+        group,
+        0,
+        0.03,
+        0,
+      );
+      const rim = ring(group, radius, 0.065, material(col, 0.9), 0, 0.2, 0);
+      rim.rotation.x = -Math.PI / 2;
+    }
     const facing = Math.atan2(origin.x - center.x, origin.z - center.z);
     const colliderStart = colliders.length;
     sculpture(p, group, col);
@@ -328,7 +346,23 @@ export function createWorld(scene, graph, projects, hotspots) {
     marker.rotation.x = -Math.PI / 2;
     lots.set(id, { id, center, entry, group, color: col });
     // Solid pedestal beneath the central exhibit (player stays on level streets/plazas).
-    {
+    if (isBridge) {
+      const model = group.getObjectByName("monument-autoencoder");
+      for (const footprint of model.userData.solidFootprints) {
+        const c = Math.cos(facing),
+          s = Math.sin(facing);
+        const x = center.x + c * footprint.x + s * footprint.z;
+        const z = center.z - s * footprint.x + c * footprint.z;
+        const hw = (Math.abs(c) * footprint.w + Math.abs(s) * footprint.d) / 2;
+        const hd = (Math.abs(s) * footprint.w + Math.abs(c) * footprint.d) / 2;
+        colliders.push({
+          minX: x - hw,
+          maxX: x + hw,
+          minZ: z - hd,
+          maxZ: z + hd,
+        });
+      }
+    } else {
       const halfWidth =
         id === "fantasy-draft" ? 7.7 : id === "predator-prey" ? 4.8 : 6.6;
       const halfDepth =

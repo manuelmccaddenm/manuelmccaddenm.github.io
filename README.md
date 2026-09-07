@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/all-monuments`
+- Branch: `codex/autoencoder-bridge`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -113,3 +113,12 @@ It renders all 25 actual models using one WebGL context, then shows category-fil
 thumbnails. This development gallery is excluded from production output. Tests
 cover every catalog entry and model bounds alongside graph navigation, collision,
 animals, Hopf dynamics and NFL geometry.
+
+The autoencoder restores the original panorama-era architectural idea: thirteen
+frames straddle the existing street toward Negreira, narrowing into the latent
+bottleneck before widening into reconstruction. It has no display plinth or solid
+exhibit-wide collider: visitors walk through it on the actual road, while individual
+support bases remain solid. Five overhead signal paths animate compression and
+expansion, and a roadside loss landscape retains the Dogleg/trust-region explanation.
+V provides a three-quarter architectural overview. Bridge traversal and support
+collisions are covered by an additional test.
