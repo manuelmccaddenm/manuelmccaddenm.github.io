@@ -50,8 +50,8 @@
       ><button id="clear-route" aria-label="Clear route">×</button>
     </div>
     <div id="interaction" hidden>
-      <button id="stadium-view" hidden aria-pressed="false">
-        View stadium · V
+      <button id="monument-view" hidden aria-pressed="false">
+        View monument · V
       </button>
       <button id="read-button">
         <span class="key">E</span
@@ -61,6 +61,12 @@
         ><span class="interaction-arrow">↗</span>
       </button>
     </div>
+    <details id="monument-guide" hidden>
+      <summary>About this monument</summary>
+      <strong id="monument-guide-title"></strong>
+      <p id="monument-guide-text"></p>
+      <small>Illustrative scene · E opens the original project</small>
+    </details>
     <button id="mini-button" aria-label="Open district map">
       <canvas id="minimap" width="440" height="300"></canvas
       ><span><b>DISTRICT MAP</b><span>M &nbsp; ↗</span></span>

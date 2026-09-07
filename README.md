@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/nfl-draft-stadium`
+- Branch: `codex/all-monuments`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -77,7 +77,7 @@ The realism pass adds world-scaled procedural brick/concrete/asphalt/paving, fra
 reflective windows, storefronts, cornices, rooftop equipment, sidewalk curbs, benches,
 and clustered tree crowns. Native browser text labels stay sharp in every quality
 mode, avoid overlapping each other, and hide behind solid buildings. Physical sign
-textures use 2048-pixel, aspect-correct artwork. Night lights use a bounded pool of
+textures use aspect-correct artwork up to 2048 pixels, sized to each sign. Night lights use a bounded pool of
 six nearby lamps. All materials and lighting are generated locally with no paid
 assets, map API, external image service, or server-side rendering.
 
@@ -91,3 +91,25 @@ The exhibit title is Predator–Prey / Hopf Bifurcation. Paired local phase port
 The fantasy draft has a miniature NFL stadium with a 120-yard field, end zones, yard lines, NFL hash spacing, yellow uprights, tiered seating, players, and a laced American football. Its jumbotron shows the actual floor/ceiling objectives from `optimization-fantasy-football-draft/optimizacion.py` (`markowitz_pick`, `upside_pick`, `_build_pick_problem`). Adjusted value includes replacement value and preferences; roster limits, remaining picks and ADP feasibility constrain each decision. The animated ribbon illustrates the 12-team snake order; it does not execute the Python optimization in the browser.
 
 At the fantasy draft stop, “View stadium” (V) opens a raised overview of the field and optimization board. V, Escape or a movement key returns to the street.
+
+
+## All-monument exhibits
+
+Every one of the 25 stops has a subject-specific exhibit and a raised inspection
+view. Use **View monument / V** near a stop; V, Escape or movement returns to the
+street. The collapsible **About this monument** guide connects the scene to its
+method, while E retains the original project panel and source links.
+
+`explore/game/monuments/` groups the 23 new scenes into energy, science, learning,
+and product builders, with shared instanced geometry and cached materials. The
+existing NFL optimization stadium and predator–prey/Hopf exhibits remain intact.
+Examples include a bill-processing conveyor, a metered building cutaway, a food
+scanner, a Dogleg trust region, a feasible polytope, distributed DBSCAN regions,
+and a mantis sculpture over an entity graph. Animated diagrams are illustrative;
+research findings and project status remain grounded in the original project text.
+
+For visual review, run the dev server and visit `/tests/monument-gallery.html`.
+It renders all 25 actual models using one WebGL context, then shows category-filtered
+thumbnails. This development gallery is excluded from production output. Tests
+cover every catalog entry and model bounds alongside graph navigation, collision,
+animals, Hopf dynamics and NFL geometry.

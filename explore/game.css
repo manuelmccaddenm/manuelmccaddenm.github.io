@@ -981,7 +981,7 @@ dialog h2 {
   }
 }
 
-#stadium-view {
+#monument-view {
   width: 100%;
   margin-bottom: 8px;
   padding: 11px 16px;
@@ -990,9 +990,67 @@ dialog h2 {
   color: #ffe1a9;
   font-weight: 600;
 }
-body.stadium-overview #control-hint {
+body.monument-overview #control-hint {
   display: none;
 }
-body.stadium-overview #crosshair {
+body.monument-overview #crosshair {
   display: none;
+}
+
+#monument-guide {
+  position: fixed;
+  left: 28px;
+  bottom: 32px;
+  width: 245px;
+  max-height: min(42vh, 340px);
+  overflow: auto;
+  padding: 15px 17px;
+  border: 1px solid #b2c9ce50;
+  border-radius: 6px;
+  background: #102632f5;
+  z-index: 3;
+  color: #eaf0e9;
+}
+#monument-guide summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffe0aa;
+}
+#monument-guide strong {
+  display: block;
+  margin-top: 16px;
+  font: 600 14px/1.45 var(--heading);
+}
+#monument-guide p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #c4d2d5;
+  margin: 10px 0;
+}
+#monument-guide small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #98b2ba;
+}
+body.monument-overview #mini-button {
+  display: none;
+}
+@media (min-width: 900px) {
+  body.monument-overview #interaction {
+    left: auto;
+    right: 28px;
+    bottom: 32px;
+    transform: none;
+  }
+}
+@media (max-width: 700px) {
+  #monument-guide {
+    left: 14px;
+    bottom: auto;
+    top: 235px;
+    width: 210px;
+    max-height: 28vh;
+  }
 }

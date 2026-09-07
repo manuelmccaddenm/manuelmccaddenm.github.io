@@ -143,3 +143,34 @@ test("fantasy draft contains a distinct NFL stadium and a reversing 12-team draf
       pick12.material.emissive.getHex() === 0,
   );
 });
+
+test("all 25 stops have an explanation and a complete finite inspection scene", async () => {
+  const { MONUMENTS, overviewFor } = await import(
+    "../explore/game/monuments/catalog.js"
+  );
+  assert.deepEqual(Object.keys(MONUMENTS).sort(), [...graph.stops].sort());
+  for (const [id, lot] of world.lots) {
+    const definition = MONUMENTS[id];
+    assert.ok(
+      definition.every((text) => typeof text === "string" && text.length > 3),
+      id,
+    );
+    const view = overviewFor(id);
+    assert.ok([...view.eye, ...view.target].every(Number.isFinite), id);
+    if (!["fantasy-draft", "predator-prey"].includes(id)) {
+      const model = lot.group.getObjectByName(`monument-${id}`);
+      assert.ok(
+        model && model.userData.interpretation,
+        `${id}: modeled scene and interpretation`,
+      );
+      const bounds = new T.Box3().setFromObject(model);
+      assert.ok(
+        [...bounds.min.toArray(), ...bounds.max.toArray()].every(
+          Number.isFinite,
+        ),
+        `${id}: finite geometry`,
+      );
+      assert.ok(bounds.getSize(new T.Vector3()).y > 5, `${id}: full display`);
+    }
+  }
+});

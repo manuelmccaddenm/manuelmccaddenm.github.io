@@ -6,6 +6,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { cityProjects } from "./game/content.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { createProjectLabels } from "./game/labels.js";
+import { MONUMENTS, overviewFor } from "./game/monuments/catalog.js";
 import { createWorld } from "./game/world.js";
 import {
   clamp,
@@ -167,7 +168,7 @@ async function main() {
   resize();
   world.setNight(settings.night);
 
-  let stadiumOverview = false;
+  let overviewId = null;
   let playing = false,
     paused = false,
     yaw = 0,
@@ -306,7 +307,7 @@ async function main() {
     lastX = 0,
     lastY = 0;
   function look(dx, dy) {
-    if (stadiumOverview) return;
+    if (overviewId) return;
     yaw -= dx * 0.0021 * settings.sensitivity;
     pitch = clamp(pitch - dy * 0.0021 * settings.sensitivity, -1.35, 1.35);
   }
@@ -339,7 +340,7 @@ async function main() {
   view.addEventListener("pointerup", endLook);
   view.addEventListener("pointercancel", endLook);
   function jump() {
-    if (grounded && playing && !paused && !stadiumOverview) {
+    if (grounded && playing && !paused && !overviewId) {
       vertical = 7;
       grounded = false;
     }
@@ -358,24 +359,24 @@ async function main() {
     }
     if (anyDialog()) return;
     if (e.code === "Escape") {
-      if (stadiumOverview) {
-        setStadiumOverview(false);
+      if (overviewId) {
+        setMonumentOverview(false);
         return;
       }
       if (playing) showDialog("settings-dialog");
       return;
     }
     if (!playing) return;
-    if (e.code === "KeyV" && !e.repeat && nearby === "fantasy-draft") {
+    if (e.code === "KeyV" && !e.repeat && nearby) {
       e.preventDefault();
-      setStadiumOverview(!stadiumOverview);
+      setMonumentOverview(!overviewId);
       return;
     }
     if (
-      stadiumOverview &&
+      overviewId &&
       ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown"].includes(e.code)
     )
-      setStadiumOverview(false);
+      setMonumentOverview(false);
     if (
       [
         "Space",
@@ -467,18 +468,28 @@ async function main() {
   $("read-button").addEventListener("click", () => {
     if (nearby) readProject(nearby);
   });
-  function setStadiumOverview(enabled) {
-    stadiumOverview = enabled;
+  function setMonumentOverview(enabled) {
+    if (enabled && !nearby) return;
+    overviewId = enabled ? nearby : null;
+    $("monument-guide").hidden = !enabled;
+    if (enabled) {
+      const definition = MONUMENTS[overviewId];
+      $("monument-guide-title").textContent = definition[1];
+      $("monument-guide-text").textContent = definition[2];
+      $("monument-guide").open = innerWidth >= 1100;
+    }
     resetInput();
-    document.body.classList.toggle("stadium-overview", enabled);
-    $("stadium-view").textContent = enabled
+    document.body.classList.toggle("monument-overview", enabled);
+    $("monument-view").textContent = enabled
       ? "Return to street · V / Esc"
-      : "View stadium · V";
-    $("stadium-view").setAttribute("aria-pressed", String(enabled));
+      : nearby === "fantasy-draft"
+        ? "View stadium · V"
+        : "View monument · V";
+    $("monument-view").setAttribute("aria-pressed", String(enabled));
     if (enabled && document.pointerLockElement) document.exitPointerLock();
   }
-  $("stadium-view").addEventListener("click", () =>
-    setStadiumOverview(!stadiumOverview),
+  $("monument-view").addEventListener("click", () =>
+    setMonumentOverview(!overviewId),
   );
   function openMap() {
     updateDirectory();
@@ -766,7 +777,7 @@ async function main() {
         best = id;
       }
     }
-    if (stadiumOverview && best !== "fantasy-draft") setStadiumOverview(false);
+    if (overviewId && best !== overviewId) setMonumentOverview(false);
     currentStop = best;
     nearby = bestDistance < 9 ? best : null;
     const p = projects[best];
@@ -778,7 +789,11 @@ async function main() {
     $("progress").textContent =
       `${visited.size} / ${graph.stops.length} places discovered`;
     $("interaction").hidden = !nearby || !playing || anyDialog();
-    $("stadium-view").hidden = nearby !== "fantasy-draft";
+    $("monument-view").hidden = !nearby;
+    $("monument-guide").hidden = !overviewId || anyDialog();
+    if (!overviewId)
+      $("monument-view").textContent =
+        nearby === "fantasy-draft" ? "View stadium · V" : "View monument · V";
     if (nearby) $("nearby-name").textContent = projects[nearby].label;
     if (playing && bestDistance < 9) visit(best);
     if (target) {
@@ -844,7 +859,7 @@ async function main() {
         frameSum = frameCount = 0;
       }
     }
-    if (playing && !paused && !anyDialog() && !stadiumOverview) {
+    if (playing && !paused && !anyDialog() && !overviewId) {
       const strafe =
         (keys.has("KeyD") ? 1 : 0) - (keys.has("KeyA") ? 1 : 0) + joystick.x;
       const forward =
@@ -896,10 +911,11 @@ async function main() {
       camera.position.set(position.x + 19, 13, position.z + 23);
       camera.lookAt(position.x, 5, position.z - 15);
     }
-    if (stadiumOverview) {
-      const lot = world.lots.get("fantasy-draft");
-      camera.position.copy(lot.group.localToWorld(new T.Vector3(0, 11, 13)));
-      camera.lookAt(lot.group.localToWorld(new T.Vector3(0, 2.5, -0.5)));
+    if (overviewId) {
+      const lot = world.lots.get(overviewId);
+      const view = overviewFor(overviewId);
+      camera.position.copy(lot.group.localToWorld(new T.Vector3(...view.eye)));
+      camera.lookAt(lot.group.localToWorld(new T.Vector3(...view.target)));
     }
     const desiredFov =
       playing && !settings.reduced && Math.hypot(velocity.x, velocity.z) > 10
@@ -914,7 +930,7 @@ async function main() {
       camera,
       settings.reduced || paused || document.hidden,
     );
-    projectLabels.update(camera, playing && !anyDialog() && !stadiumOverview);
+    projectLabels.update(camera, playing && !anyDialog() && !overviewId);
     if (elapsed - lastHud > 0.12) {
       updateNearby();
       lastHud = elapsed;

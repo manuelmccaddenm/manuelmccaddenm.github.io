@@ -1,4 +1,5 @@
 import * as T from "three";
+import { createMonument } from "./monuments/index.js";
 import { createDraftStadium } from "./stadium.js";
 import { createHopfDisplay } from "./hopf.js";
 import { createPredatorPrey } from "./animals.js";
@@ -200,271 +201,27 @@ export function createWorld(scene, graph, projects, hotspots) {
     disc.rotation.x = -Math.PI / 2;
   }
 
-  // Every project gets a landmark with a silhouette drawn from its subject.
+  // Every stop has a subject-specific model tied to the original public project description.
   function sculpture(p, parent, col) {
-    const glow = material(col, 1.7),
-      solid = material(col, 0.12, 0.45);
-    const moving = new T.Group();
-    parent.add(moving);
-    const id = p.id;
-    if (id === "autoencoder") {
-      for (const side of [-1, 1])
-        for (let i = 0; i < 5; i++) {
-          const x = side * (2 + i * 1.1),
-            h = 2 + i * 1.25;
-          box(x, 2 + h / 2, 0, 0.22, h, 0.22, glow, 0, moving);
-          ring(moving, 0.33, 0.08, solid, x, 2 + h, 0);
-          if (i < 4)
-            rod(
-              V(x, 2 + h, 0),
-              V(side * (2 + (i + 1) * 1.1), 3.25 + h, 0),
-              0.055,
-              glow,
-              moving,
-            );
-        }
-      ring(moving, 1.6, 0.14, glow, 0, 3.5, 0);
-      moving.rotation.y = 0.3;
-    } else if (id === "probability" || id === "btc-streaming") {
-      const coin = mesh(
-        new T.CylinderGeometry(3.5, 3.5, 0.55, 48),
-        material(id === "probability" ? "#e3bc70" : "#ffa939", 0.3, 0.75),
-        moving,
-        0,
-        5,
-        0,
-      );
-      coin.rotation.x = Math.PI / 2;
-      ring(moving, 3.15, 0.08, glow, 0, 5, 0.32);
-      const symbol = sign(id === "btc-streaming" ? "₿" : "½", col, 3.8, 3.8);
-      symbol.position.set(0, 5, 0.34);
-      moving.add(symbol);
-      animated.push((t) => {
-        moving.rotation.y = t * 0.25;
-      });
-    } else if (id === "itam" || id === "batu" || id === "mantis") {
-      const w = id === "itam" ? 13 : 10;
-      const limestone = surface(
-        "concrete",
-        id === "itam" ? "#d8c9ab" : "#9da8a3",
-        0.8,
-      );
-      const glazing = new T.MeshStandardMaterial({
-        color: "#476878",
-        roughness: 0.16,
-        metalness: 0.7,
-      });
-      const frame = material("#343f41", 0, 0.45);
-      box(0, 4, 0, w, 8, 6, limestone, 0, moving);
-      box(0, 0.35, 0, w + 0.25, 0.7, 6.25, stone, 0, moving);
-      box(0, 8.2, 0, w + 0.65, 0.32, 6.65, edge, 0, moving);
-      box(0, 8.48, 0, w + 0.25, 0.2, 6.25, limestone, 0, moving);
-      for (const side of [-1, 1]) {
-        for (let x = -w / 2 + 1.25; x < w / 2 - 0.5; x += 2.1)
-          for (let y = 2; y < 7.5; y += 2.5) {
-            if (Math.abs(x) < 1.4 && y === 2) continue;
-            box(x, y, side * 3.04, 1.45, 1.8, 0.15, edge, 0, moving);
-            box(x, y, side * 3.14, 1.22, 1.56, 0.08, glazing, 0, moving);
-            box(x, y, side * 3.2, 0.055, 1.6, 0.06, frame, 0, moving);
-            box(x, y - 0.12, side * 3.2, 1.22, 0.055, 0.06, frame, 0, moving);
-            box(x, y - 0.94, side * 3.15, 1.65, 0.12, 0.4, edge, 0, moving);
-          }
-        for (const y of [3.3, 5.8])
-          box(0, y, side * 3.03, w + 0.12, 0.1, 0.2, edge, 0, moving);
-      }
-      box(0, 1.5, 3.13, 2.5, 2.8, 0.25, frame, 0, moving);
-      box(0, 1.5, 3.3, 2.2, 2.6, 0.08, glazing, 0, moving);
-      box(0, 1.5, 3.37, 0.07, 2.6, 0.07, brass, 0, moving);
-      for (const x of [-0.16, 0.16])
-        box(x, 1.3, 3.44, 0.045, 0.5, 0.06, brass, 0, moving);
-      box(0, 3.3, 3.65, 3.8, 0.18, 1.6, edge, 0, moving);
-      for (const x of [-1.72, 1.72])
-        box(x, 1.7, 4.25, 0.13, 3.3, 0.13, brass, 0, moving);
-      const title = sign(id.toUpperCase(), col, 4.6, 0.85);
-      title.position.set(0, 7.95, 3.4);
-      moving.add(title);
-      colliders.push({
-        minX: parent.position.x - w / 2,
-        maxX: parent.position.x + w / 2,
-        minZ: parent.position.z - 3,
-        maxZ: parent.position.z + 3,
-        height: 8.6,
-      });
-    } else if (id === "solar-pipelines") {
-      for (let x = -4; x <= 4; x += 4)
-        for (let z = -2; z <= 2; z += 4) {
-          box(x, 1.8, z, 0.15, 3.6, 0.15, brass, 0, moving);
-          const panel = box(
-            x,
-            3.6,
-            z,
-            3.5,
-            0.18,
-            3,
-            material("#234f74", 0.3, 0.6),
-            0,
-            moving,
-          );
-          panel.rotation.x = -0.35;
-          for (let k = -1; k <= 1; k++)
-            box(x + k, 3.75, z, 0.035, 0.025, 2.8, glow, 0, moving);
-        }
-      for (let z = -5; z <= 5; z += 2)
-        box(0, 0.4, z, 0.15, 0.12, 1, glow, 0, moving);
-    } else if (
-      id === "critical-hours" ||
-      id === "building-monitors" ||
-      id === "cfe-bills"
-    ) {
-      for (let i = 0; i < 7; i++) {
-        const h =
-          id === "critical-hours"
-            ? i === 4
-              ? 9
-              : 2 + Math.sin(i) * 1.5
-            : 2 + ((i * 3) % 5);
-        box((i - 3) * 1.35, h / 2 + 0.5, 0, 0.85, h, 2, solid, 0, moving);
-        box((i - 3) * 1.35, h + 0.55, 0, 0.95, 0.12, 2.1, glow, 0, moving);
-      }
-      if (id === "critical-hours") {
-        const clock = ring(moving, 3, 0.12, glow, 0, 7, 1.5);
-        animated.push((t) => {
-          clock.rotation.z = t * 0.15;
-        });
-        rod(V(0, 7, 1.5), V(0, 9, 1.5), 0.08, glow, moving);
-      }
-    } else if (id === "inverter-anomalies" || id === "air-quality") {
-      const pts = [];
-      for (let i = 0; i < 64; i++) {
-        const x = (i / 63 - 0.5) * 11,
-          y =
-            id === "inverter-anomalies"
-              ? 3 + Math.sin(i * 0.32) * 1.5 + (i === 39 ? 3 : 0)
-              : 2 + Math.exp(-(((i - 32) / 13) ** 2)) * 4;
-        pts.push(V(x, y, 0));
-      }
-      mesh(
-        new T.TubeGeometry(new T.CatmullRomCurve3(pts), 100, 0.12, 6, false),
-        glow,
-        moving,
-      );
-      for (let x = -5; x <= 5; x += 2)
-        box(x, 1.5, -0.5, 0.04, 3, 0.04, edge, 0, moving);
-    } else if (id === "thesis" || id === "model-picker" || id === "nutrition") {
-      for (let i = 0; i < 4; i++)
-        for (let j = 0; j < 4; j++) {
-          const h = 0.6 + random() * 5;
-          box(
-            (i - 1.5) * 1.7,
-            1 + h / 2,
-            (j - 1.5) * 1.7,
-            1.1,
-            h,
-            1.1,
-            random() > 0.5 ? solid : glow,
-            0,
-            moving,
-          );
-        }
-      const hoop = ring(moving, 5, 0.09, glow, 0, 7, 0);
-      hoop.rotation.x = Math.PI / 2;
-      animated.push((t) => (hoop.rotation.z = t * 0.2));
-    } else if (id === "markov-chains" || id === "retail" || id === "glass") {
-      const pts = Array.from({ length: 6 }, (_, i) =>
-        V(
-          Math.cos((i * Math.PI) / 3) * 4,
-          3 + Math.sin((i * Math.PI) / 3) * 2,
-          Math.sin((i * Math.PI) / 3) * 3,
-        ),
-      );
-      for (let i = 0; i < 6; i++) {
-        mesh(
-          new T.IcosahedronGeometry(0.65, 1),
-          solid,
-          moving,
-          ...pts[i].toArray(),
-        );
-        rod(pts[i], pts[(i + 1) % 6], 0.1, glow, moving);
-        if (i % 2 === 0) rod(pts[i], pts[(i + 3) % 6], 0.045, glow, moving);
-      }
-      animated.push((t) => (moving.rotation.y = t * 0.12));
-    } else if (id === "parallel-dbscan") {
-      for (let c = 0; c < 3; c++)
-        for (let i = 0; i < 24; i++) {
-          const a = random() * Math.PI * 2,
-            r = random() * 1.8;
-          mesh(
-            new T.IcosahedronGeometry(0.18, 0),
-            c === 0 ? glow : c === 1 ? solid : brass,
-            moving,
-            Math.cos(c * 2.1) * 3 + Math.cos(a) * r,
-            1 + random() * 3,
-            Math.sin(c * 2.1) * 3 + Math.sin(a) * r,
-          );
-        }
-    } else if (id === "fantasy-draft") {
-      const draft = createDraftStadium(moving, sign);
+    if (p.id === "fantasy-draft") {
+      const draft = createDraftStadium(parent, sign);
       animated.push(draft.update);
-    } else if (id === "negreira") {
-      box(0, 0.5, 0, 11, 0.15, 7, material("#205744"), 0, moving);
-      const field = ring(moving, 1.4, 0.045, glow, 0, 0.61, 0);
-      field.rotation.x = -Math.PI / 2;
-      for (const x of [-5, 5]) {
-        box(x, 1.5, -1.5, 0.12, 2, 0.12, glow, 0, moving);
-        box(x, 1.5, 1.5, 0.12, 2, 0.12, glow, 0, moving);
-        box(x, 2.5, 0, 0.12, 0.12, 3.1, glow, 0, moving);
-      }
-      const ball = mesh(
-        new T.IcosahedronGeometry(0.8, 1),
-        brass,
-        moving,
-        0,
-        2,
-        0,
-      );
-      animated.push((t) => {
-        ball.position.y = 2 + Math.abs(Math.sin(t)) * 0.7;
-        ball.rotation.y = t * 0.3;
-      });
-    } else if (id === "lp-solver") {
-      const shape = mesh(
-        new T.IcosahedronGeometry(4, 0),
-        new T.MeshStandardMaterial({
-          color: col,
-          wireframe: true,
-          emissive: col,
-          emissiveIntensity: 0.8,
-        }),
-        moving,
-        0,
-        5,
-        0,
-      );
-      animated.push((t) => (shape.rotation.y = t * 0.15));
-      mesh(new T.IcosahedronGeometry(0.45, 1), glow, moving, 0, 9, 0);
-    } else if (id === "cdmx-budget") {
-      for (let i = 0; i < 5; i++) {
-        const h = 2 + i;
-        box((i - 2) * 2, h / 2 + 0.5, 0, 1.4, h, 2, solid, 0, moving);
-        box((i - 2) * 2, h + 0.6, 0, 1.5, 0.12, 2.1, glow, 0, moving);
-      }
-    } else if (id === "spacetime-bayes") {
-      for (let i = 0; i < 6; i++) {
-        const r = ring(moving, 1.5 + i * 0.45, 0.075, glow, 0, 1.5 + i, 0);
-        r.rotation.x = Math.PI / 2 + i * 0.17;
-      }
-      animated.push((t) => (moving.rotation.y = t * 0.2));
-    } else if (id === "predator-prey") {
-      const wildlife = createPredatorPrey(moving);
-      animated.push(wildlife.update);
-      const phasePortraits = createHopfDisplay(moving, sign);
-      animated.push(phasePortraits.update);
+    } else if (p.id === "predator-prey") {
+      const wildlife = createPredatorPrey(parent);
+      const phasePortraits = createHopfDisplay(parent, sign);
+      animated.push(wildlife.update, phasePortraits.update);
+    } else {
+      const monument = createMonument(p.id, parent, sign, col);
+      animated.push(monument.update);
     }
   }
   function sign(text, color, w = 8, h = 1.4) {
     const canvas = document.createElement("canvas");
-    canvas.width = 2048;
-    canvas.height = Math.round((2048 * h) / w);
+    canvas.width = Math.min(
+      2048,
+      Math.max(512, Math.ceil((w * 180) / 256) * 256),
+    );
+    canvas.height = Math.round((canvas.width * h) / w);
     const c = canvas.getContext("2d");
     if (w !== h) {
       c.fillStyle = "#10202b";
@@ -571,9 +328,11 @@ export function createWorld(scene, graph, projects, hotspots) {
     marker.rotation.x = -Math.PI / 2;
     lots.set(id, { id, center, entry, group, color: col });
     // Solid pedestal beneath the central exhibit (player stays on level streets/plazas).
-    if (!["itam", "batu", "mantis"].includes(id)) {
-      const halfWidth = id === "fantasy-draft" ? 7.7 : 4.8;
-      const halfDepth = id === "fantasy-draft" ? 5.2 : 3.6;
+    {
+      const halfWidth =
+        id === "fantasy-draft" ? 7.7 : id === "predator-prey" ? 4.8 : 6.6;
+      const halfDepth =
+        id === "fantasy-draft" ? 5.2 : id === "predator-prey" ? 3.6 : 5.4;
       const x =
         Math.abs(Math.cos(facing)) * halfWidth +
         Math.abs(Math.sin(facing)) * halfDepth;

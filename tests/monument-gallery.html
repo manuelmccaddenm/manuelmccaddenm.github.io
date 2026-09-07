@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><title>Monument visual review</title>
+  <style>
+    body {
+      margin: 0;
+      background: #142431;
+      color: #f2eadd;
+      font: 15px system-ui;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #142431ee;
+      padding: 14px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0;
+    }
+    button,
+    select {
+      font: inherit;
+      padding: 7px 12px;
+      background: #294454;
+      color: #fff;
+      border: 1px solid #6d858e;
+      border-radius: 5px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+    article {
+      background: #243847;
+      border: 1px solid #566771;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    img {
+      width: 100%;
+      display: block;
+    }
+    h2 {
+      font-size: 14px;
+      padding: 0 12px;
+      margin: 9px 0;
+    }
+    p {
+      font-size: 12px;
+      color: #bed0d6;
+      padding: 0 12px;
+      min-height: 30px;
+    }
+    a {
+      display: block;
+      color: #ffe0a1;
+      padding: 10px 12px;
+    }
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+  <header>
+    <h1>Monument visual review</h1>
+    <span id="status">Building 25 exhibits…</span
+    ><select id="category" aria-label="Category">
+      <option value="all">All monuments</option>
+      <option value="energy">Energy</option>
+      <option value="stats">Statistics</option>
+      <option value="ml">Machine learning</option>
+      <option value="math">Mathematics</option>
+      <option value="dataeng">Data engineering</option>
+      <option value="product">Products</option>
+      <option value="campus">Campus</option>
+    </select>
+  </header>
+  <main id="grid"></main>
+  <script src="/embeddings/data.js"></script>
+  <script type="module">
+    import * as T from "three";
+    import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+    import { createWorld } from "/explore/game/world.js";
+    import { cityProjects } from "/explore/game/content.js";
+    import { MONUMENTS, overviewFor } from "/explore/game/monuments/catalog.js";
+    const graph = await (await fetch("/explore/graph.json")).json(),
+      hotspots = await (await fetch("/explore/hotspots.json")).json();
+    const projects = cityProjects(window.PROJECTS, graph),
+      world = createWorld(new T.Scene(), graph, projects, hotspots);
+    const renderer = new T.WebGLRenderer({
+      antialias: true,
+      preserveDrawingBuffer: true,
+    });
+    renderer.setSize(640, 520);
+    renderer.outputColorSpace = T.SRGBColorSpace;
+    renderer.toneMapping = T.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    const environment = new RoomEnvironment(),
+      pmrem = new T.PMREMGenerator(renderer),
+      reflection = pmrem.fromScene(environment, 0.04);
+    environment.dispose();
+    pmrem.dispose();
+    for (const [id, lot] of world.lots) {
+      const scene = new T.Scene();
+      scene.background = new T.Color("#8eabae");
+      scene.environment = reflection.texture;
+      scene.environmentIntensity = 0.45;
+      const sun = new T.DirectionalLight("#ffdfb5", 3.2);
+      sun.position.set(8, 15, 10);
+      scene.add(sun, new T.HemisphereLight("#c0dcf0", "#777766", 1.8));
+      lot.group.position.set(0, 0.2, 0);
+      lot.group.rotation.set(0, 0, 0);
+      scene.add(lot.group);
+      const camera = new T.PerspectiveCamera(50, 640 / 520, 0.1, 200),
+        profile = overviewFor(id);
+      camera.position.set(...profile.eye);
+      camera.position.multiplyScalar(1.1);
+      camera.lookAt(...profile.target);
+      renderer.render(scene, camera);
+      const card = document.createElement("article");
+      card.dataset.category = projects[id].cluster || "campus";
+      if (id === "itam") card.dataset.category = "campus";
+      const img = document.createElement("img");
+      img.src = renderer.domElement.toDataURL("image/png");
+      img.alt = MONUMENTS[id][0];
+      const heading = document.createElement("h2");
+      heading.textContent = MONUMENTS[id][0];
+      const detail = document.createElement("p");
+      detail.textContent = MONUMENTS[id][1];
+      const link = document.createElement("a");
+      link.href = "/explore/#" + id;
+      link.textContent = "Inspect in the city →";
+      card.append(img, heading, detail, link);
+      document.querySelector("#grid").append(card);
+      await new Promise(requestAnimationFrame);
+    }
+    document.querySelector("#status").textContent = "25 / 25 rendered";
+    document
+      .querySelector("#category")
+      .addEventListener("change", (e) =>
+        document
+          .querySelectorAll("article")
+          .forEach(
+            (card) =>
+              (card.hidden =
+                e.target.value !== "all" &&
+                card.dataset.category !== e.target.value),
+          ),
+      );
+    renderer.dispose();
+    reflection.dispose();
+  </script>
+</html>
