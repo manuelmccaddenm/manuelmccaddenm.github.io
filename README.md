@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/predator-prey-animals`
+- Branch: `codex/hopf-exhibit`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -85,3 +85,5 @@ The existing Render Hobby static service remains the deployment target. Preserve
 its $0 build spending limit and do not add paid compute or a payment method.
 
 The predator–prey stop contains two modeled foxes chasing six hopping rabbits in a grass habitat. This is an illustrative chase animation, not a numerical population simulation. Reduced motion keeps every animal visible in a stationary pose.
+
+The exhibit title is Predator–Prey / Hopf Bifurcation. Paired local phase portraits illustrate attraction to an equilibrium and emergence of sustained oscillations using the supercritical normal form r′ = μr − r³. These are explanatory diagrams, not a reproduction of the notebook’s Leslie–Gower simulation. The original project panel and notebook link retain the actual study.

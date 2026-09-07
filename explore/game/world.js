@@ -1,4 +1,5 @@
 import * as T from "three";
+import { createHopfDisplay } from "./hopf.js";
 import { createPredatorPrey } from "./animals.js";
 import { surface } from "./surfaces.js";
 import { worldPoint, segmentDistance, distance } from "./navigation.js";
@@ -452,9 +453,8 @@ export function createWorld(scene, graph, projects, hotspots) {
     } else if (id === "predator-prey") {
       const wildlife = createPredatorPrey(moving);
       animated.push(wildlife.update);
-      const title = sign("FOXES & RABBITS", col, 7, 1.05);
-      title.position.set(0, 5.5, 0);
-      moving.add(title);
+      const phasePortraits = createHopfDisplay(moving, sign);
+      animated.push(phasePortraits.update);
     }
   }
   function sign(text, color, w = 8, h = 1.4) {
