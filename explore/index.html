@@ -24,6 +24,9 @@
         ><span>MANUEL McCADDEN<small>THE IDEA DISTRICT</small></span></a
       >
       <div class="toolbar">
+        <button id="photo-button" title="Clean photo view (P)">
+          Photo view
+        </button>
         <button id="map-button" title="Open district map (M)">
           <span class="key">M</span> Map</button
         ><button id="settings-button" aria-label="Open settings and controls">
@@ -31,6 +34,7 @@
         ><a href="/embeddings/">2D map ↗</a>
       </div>
     </header>
+    <button id="exit-photo" hidden>Back to exploring · P / Esc</button>
     <div id="location">
       <span class="eyebrow" id="district">WELCOME TO THE DISTRICT</span>
       <h1 id="place">A city of connected ideas.</h1>
@@ -176,7 +180,7 @@
       ><label
         >Graphics<select id="quality-setting">
           <option value="balanced">Balanced</option>
-          <option value="high">High · bloom &amp; sharper detail</option>
+          <option value="high">High · photographic detail</option>
           <option value="low">Low · battery saver</option>
         </select></label
       ><label
@@ -190,6 +194,14 @@
       ><label class="check"
         ><input id="motion-setting" type="checkbox" />Reduce motion</label
       >
+      <p id="performance" aria-live="off"></p>
+      <p class="asset-credit">
+        Photographic materials and sky:
+        <a href="https://polyhaven.com/" target="_blank" rel="noopener"
+          >Poly Haven</a
+        >
+        · CC0
+      </p>
       <div class="key-guide">
         <p><kbd>W A S D</kbd> Walk &amp; strafe</p>
         <p><kbd>← →</kbd> Turn without a mouse</p>

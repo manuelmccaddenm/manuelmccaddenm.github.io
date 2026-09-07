@@ -1,4 +1,5 @@
 import * as T from "three";
+import { leafCanopies } from "../foliage.js";
 import { surface } from "../surfaces.js";
 const cache = new Map();
 const geometries = {
@@ -29,7 +30,7 @@ export const M = {
   stone: surface("concrete", "#b3b6ac", 0.8),
   brick: surface("brick", "#b78266", 0.6),
   steel: mat("#324650", 0, 0.6),
-  glass: mat("#5f9fac", 0, 0.6),
+  glass: mat("#82908b", 0, 0.92),
   white: mat("#eee6d4"),
   wood: mat("#91633d"),
   green: mat("#527848"),
@@ -193,7 +194,9 @@ export function kit(parent, id, sign) {
     box(x, h + 0.3, z, w + 0.2, 0.2, d + 0.2, M.white);
     for (let y = 1; y < h; y += 0.85)
       for (let u = -w / 2 + 0.5; u < w / 2 - 0.2; u += 0.8) {
-        box(x + u, y, z + d / 2 + 0.04, 0.42, 0.57, 0.06, M.glass);
+        box(x + u, y, z + d / 2 + 0.03, 0.52, 0.66, 0.12, M.steel);
+        box(x + u, y, z + d / 2 + 0.1, 0.42, 0.57, 0.025, M.glass);
+        box(x + u, y, z + d / 2 + 0.12, 0.025, 0.58, 0.025, M.white);
         box(x + u, y - 0.32, z + d / 2 + 0.07, 0.5, 0.07, 0.12, M.white);
       }
     box(x, 0.7, z + d / 2 + 0.07, 0.55, 1, 0.1, M.dark);
@@ -212,7 +215,7 @@ export function kit(parent, id, sign) {
   }
   function tree(x, z, s = 1) {
     cylinder(x, s, z, 0.12, 2 * s, M.wood);
-    sphere(x, 2.2 * s, z, 0.85 * s, 1.15 * s, 0.85 * s, M.green);
+    leafCanopies(root, [{ x, y: 2.2 * s, z, radius: 1.05 * s }], 90);
   }
   function person(x, z, color = "#e4bc7c", s = 0.6) {
     sphere(x, 1.7 * s, z, 0.2 * s, 0.22 * s, 0.2 * s, M.white);

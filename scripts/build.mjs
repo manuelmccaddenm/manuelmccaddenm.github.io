@@ -12,6 +12,7 @@ for (const path of [
 ]) {
   await cp(path, `dist/${path}`, { recursive: true });
 }
+await cp("explore/media", "dist/explore/media", { recursive: true });
 for (const path of ["graph.json", "hotspots.json", "game.css"]) {
   await cp(`explore/${path}`, `dist/explore/${path}`);
 }

@@ -1054,3 +1054,30 @@ body.monument-overview #mini-button {
     max-height: 28vh;
   }
 }
+
+/* A clean architectural composition, with an explicit accessible way back. */
+body.photo-mode
+  > :not(#view):not(#exit-photo):not(dialog):not(script):not(#failure) {
+  display: none !important;
+}
+#exit-photo {
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  z-index: 20;
+  padding: 10px 16px;
+  background: #18211bc9;
+  opacity: 0.45;
+}
+#exit-photo:hover,
+#exit-photo:focus-visible {
+  opacity: 1;
+}
+#performance,
+.asset-credit {
+  font-size: 12px;
+  color: #abc0c3;
+}
+.asset-credit a {
+  text-decoration: underline;
+}

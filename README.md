@@ -42,7 +42,7 @@ reference but are explicitly excluded from the deployment output.
 
 The repository contains a static-site Blueprint in `render.yaml`:
 
-- Branch: `codex/autoencoder-bridge`
+- Branch: `codex/photographic-city`
 - Build: `npm ci --include=dev && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
@@ -69,8 +69,8 @@ Docs: https://render.com/docs/static-sites and https://render.com/docs/blueprint
 
 This is a stylized, explorable portfolio game. It has a level ground plane and
 solid building/exhibit footprints; jumping does not let the player climb buildings.
-It does not include enterable interiors, multiplayer, or photorealistic assets.
-Balanced renders up to native 2× resolution; High adds multisample antialiasing, higher resolution, and bloom; Balanced and High include nearby sun shadows. WebGL2 is required.
+It does not include enterable interiors or multiplayer. The geometry remains a modeled city; the realism pass adds photographed surface maps and a photographic sky.
+Balanced renders up to native 2× resolution with contact shading; High adds higher resolution and subtle bloom. Both include nearby sun shadows. WebGL2 is required.
 The 2D map remains available if the game cannot initialize.
 
 The realism pass adds world-scaled procedural brick/concrete/asphalt/paving, framed
@@ -78,8 +78,7 @@ reflective windows, storefronts, cornices, rooftop equipment, sidewalk curbs, be
 and clustered tree crowns. Native browser text labels stay sharp in every quality
 mode, avoid overlapping each other, and hide behind solid buildings. Physical sign
 textures use aspect-correct artwork up to 2048 pixels, sized to each sign. Night lights use a bounded pool of
-six nearby lamps. All materials and lighting are generated locally with no paid
-assets, map API, external image service, or server-side rendering.
+six nearby lamps. The newer photographic pass uses locally served CC0 assets alongside procedural materials, with no paid assets, map API, runtime image service, or server-side rendering.
 
 The existing Render Hobby static service remains the deployment target. Preserve
 its $0 build spending limit and do not add paid compute or a payment method.
@@ -122,3 +121,33 @@ support bases remain solid. Five overhead signal paths animate compression and
 expansion, and a roadside loss landscape retains the Dogleg/trust-region explanation.
 V provides a three-quarter architectural overview. Bridge traversal and support
 collisions are covered by an additional test.
+
+
+## Photographic realism pass and checkpoint
+
+The previous city is preserved locally and on GitHub as the annotated tag
+`checkpoint-before-photo-realism`, pointing to commit
+`4e487b7b80c7f45e3824819a64e8a04bf3f76ecd` on `codex/autoencoder-bridge`.
+The realism pass is isolated on `codex/photographic-city`; restoring the prior
+Render branch selects the saved version without rewriting history.
+
+The new renderer uses locally served photographed diffuse, normal and roughness
+maps for brick, concrete, pavement, asphalt and planted soil, plus a 2K HDR sky
+for the background and physically based reflections. All assets are CC0 from
+Poly Haven; exact URLs and file sizes are in `explore/media/sources.json`.
+The game calls no asset API at runtime. Procedural textures and a procedural sky
+remain available if optional images fail to load. The asset bundle adds about
+17 MB before HTTP compression, cached by the browser after the first visit.
+
+Balanced/High include half-resolution, denoised ambient occlusion and 4096-pixel
+nearby shadows. Fine instanced leaf sprays replace opaque ball-shaped crowns;
+parked cars establish street scale while respecting all original walking routes.
+Major display titles use physical plaques or building-mounted signage. The
+camera uses a calmer 56-degree field of view; P or **Photo view** hides the HUD,
+and P/Escape or the visible return button restores it. Settings displays frame
+rate so visitors can choose an appropriate graphics level. Low retains the
+photographic assets without the heavier postprocessing.
+
+This is a step toward architectural photography, with browser-rendered geometry
+and illustrative project exhibits still visible. It is not a path-traced offline
+render or a replacement with static photographs.

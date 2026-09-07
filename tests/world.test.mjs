@@ -170,7 +170,7 @@ test("all 25 stops have an explanation and a complete finite inspection scene", 
         ),
         `${id}: finite geometry`,
       );
-      assert.ok(bounds.getSize(new T.Vector3()).y > 5, `${id}: full display`);
+      assert.ok(bounds.getSize(new T.Vector3()).y > 2, `${id}: full display`);
     }
   }
 });

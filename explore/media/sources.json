@@ -1,0 +1,118 @@
+[
+  {
+    "asset": "kloofendal_48d_partly_cloudy_puresky",
+    "page": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+    "files": [
+      {
+        "path": "explore/media/sky-hdri.hdr",
+        "source": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
+        "bytes": 5451493
+      }
+    ]
+  },
+  {
+    "asset": "aerial_asphalt_01",
+    "page": "https://polyhaven.com/a/aerial_asphalt_01",
+    "files": [
+      {
+        "path": "explore/media/asphalt-diff.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_asphalt_01/aerial_asphalt_01_diff_1k.jpg",
+        "bytes": 635143
+      },
+      {
+        "path": "explore/media/asphalt-nor_gl.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_asphalt_01/aerial_asphalt_01_nor_gl_1k.jpg",
+        "bytes": 560227
+      },
+      {
+        "path": "explore/media/asphalt-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/aerial_asphalt_01/aerial_asphalt_01_rough_1k.jpg",
+        "bytes": 312445
+      }
+    ]
+  },
+  {
+    "asset": "red_brick_03",
+    "page": "https://polyhaven.com/a/red_brick_03",
+    "files": [
+      {
+        "path": "explore/media/brick-diff.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/red_brick_03/red_brick_03_diff_1k.jpg",
+        "bytes": 694500
+      },
+      {
+        "path": "explore/media/brick-nor_gl.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/red_brick_03/red_brick_03_nor_gl_1k.jpg",
+        "bytes": 955430
+      },
+      {
+        "path": "explore/media/brick-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/red_brick_03/red_brick_03_rough_1k.jpg",
+        "bytes": 286623
+      }
+    ]
+  },
+  {
+    "asset": "concrete_wall_006",
+    "page": "https://polyhaven.com/a/concrete_wall_006",
+    "files": [
+      {
+        "path": "explore/media/concrete-diff.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_006/concrete_wall_006_diff_1k.jpg",
+        "bytes": 769415
+      },
+      {
+        "path": "explore/media/concrete-nor_gl.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_006/concrete_wall_006_nor_gl_1k.jpg",
+        "bytes": 1195078
+      },
+      {
+        "path": "explore/media/concrete-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_wall_006/concrete_wall_006_rough_1k.jpg",
+        "bytes": 255004
+      }
+    ]
+  },
+  {
+    "asset": "pavement_02",
+    "page": "https://polyhaven.com/a/pavement_02",
+    "files": [
+      {
+        "path": "explore/media/paving-diff.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/pavement_02/pavement_02_diff_1k.jpg",
+        "bytes": 1178347
+      },
+      {
+        "path": "explore/media/paving-nor_gl.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/pavement_02/pavement_02_nor_gl_1k.jpg",
+        "bytes": 738746
+      },
+      {
+        "path": "explore/media/paving-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/pavement_02/pavement_02_rough_1k.jpg",
+        "bytes": 574371
+      }
+    ]
+  },
+  {
+    "asset": "brown_mud_leaves_01",
+    "page": "https://polyhaven.com/a/brown_mud_leaves_01",
+    "files": [
+      {
+        "path": "explore/media/soil-diff.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud_leaves_01/brown_mud_leaves_01_diff_1k.jpg",
+        "bytes": 1206953
+      },
+      {
+        "path": "explore/media/soil-nor_gl.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud_leaves_01/brown_mud_leaves_01_nor_gl_1k.jpg",
+        "bytes": 1486072
+      },
+      {
+        "path": "explore/media/soil-rough.jpg",
+        "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud_leaves_01/brown_mud_leaves_01_rough_1k.jpg",
+        "bytes": 644332
+      }
+    ]
+  }
+]

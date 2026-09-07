@@ -1,4 +1,6 @@
 import * as T from "three";
+import { parkedCar } from "./streetscape.js";
+import { leafCanopies } from "./foliage.js";
 import { createMonument } from "./monuments/index.js";
 import { createDraftStadium } from "./stadium.js";
 import { createHopfDisplay } from "./hopf.js";
@@ -102,15 +104,15 @@ export function createWorld(scene, graph, projects, hotspots) {
 
   const ground = mesh(
     new T.PlaneGeometry(1600, 1600),
-    surface("paving", "#899084", 0.45),
+    surface("concrete", "#a9a99d", 0.18),
     scene,
     250,
     -0.05,
     -180,
   );
   ground.rotation.x = -Math.PI / 2;
-  const pavement = surface("paving", "#b8b5a6", 0.65),
-    asphalt = surface("asphalt", "#454a4c", 1.5),
+  const pavement = surface("paving", "#b8b5a6", 0.35),
+    asphalt = surface("asphalt", "#454a4c", 0.18),
     line = material("#d8cbb0");
   const lampPositions = [];
   for (const { a, b } of roads) {
@@ -187,6 +189,61 @@ export function createWorld(scene, graph, projects, hotspots) {
           );
       }
     }
+  }
+  // Parked street-scale objects anchor proportions; intersections stay clear.
+  let parked = 0;
+  const walkSegments = graph.roads.flatMap((r) =>
+    r.nodes
+      .slice(1)
+      .map((id, i) => [worldPoint(nodes[r.nodes[i]]), worldPoint(nodes[id])]),
+  );
+  for (const road of roads) {
+    if (parked >= 18) break;
+    const { a, b } = road,
+      length = distance(a, b);
+    if (length < 36) continue;
+    const ux = (b.x - a.x) / length,
+      uz = (b.z - a.z) / length;
+    const x = a.x + ux * 19 - uz * 3.7,
+      z = a.z + uz * 19 + ux * 3.7;
+    if (
+      roads.some((r) => r !== road && segmentDistance({ x, z }, r.a, r.b) < 9)
+    )
+      continue;
+    const yaw = Math.atan2(ux, uz);
+    const hw = Math.abs(Math.cos(yaw)) * 0.95 + Math.abs(Math.sin(yaw)) * 2.2;
+    const hd = Math.abs(Math.sin(yaw)) * 0.95 + Math.abs(Math.cos(yaw)) * 2.2;
+    const footprint = {
+      minX: x - hw,
+      maxX: x + hw,
+      minZ: z - hd,
+      maxZ: z + hd,
+      height: 1.7,
+    };
+    const blocksWalk = walkSegments.some(([start, end]) => {
+      const steps = Math.max(1, Math.ceil(distance(start, end) / 0.3));
+      for (let i = 0; i <= steps; i++) {
+        const px = start.x + ((end.x - start.x) * i) / steps,
+          pz = start.z + ((end.z - start.z) * i) / steps;
+        if (
+          px > footprint.minX - 0.65 &&
+          px < footprint.maxX + 0.65 &&
+          pz > footprint.minZ - 0.65 &&
+          pz < footprint.maxZ + 0.65
+        )
+          return true;
+      }
+      return false;
+    });
+    if (blocksWalk) continue;
+    parkedCar(
+      scene,
+      x,
+      z,
+      yaw,
+      ["#64736e", "#b9b8ad", "#383f46", "#795e4e"][parked++ % 4],
+    );
+    colliders.push(footprint);
   }
   for (const n of graph.nodes) {
     const p = worldPoint(n);
@@ -312,7 +369,15 @@ export function createWorld(scene, graph, projects, hotspots) {
         0.03,
         0,
       );
-      const rim = ring(group, radius, 0.065, material(col, 0.9), 0, 0.2, 0);
+      const rim = ring(
+        group,
+        radius,
+        0.065,
+        material("#a8a498", 0, 0.4),
+        0,
+        0.2,
+        0,
+      );
       rim.rotation.x = -Math.PI / 2;
     }
     const facing = Math.atan2(origin.x - center.x, origin.z - center.z);
@@ -338,7 +403,7 @@ export function createWorld(scene, graph, projects, hotspots) {
       scene,
       1.4,
       0.08,
-      material(col, 1.5),
+      material(col, 0.18),
       entry.x,
       0.2,
       entry.z,
@@ -390,7 +455,7 @@ export function createWorld(scene, graph, projects, hotspots) {
         0.22,
         0.04,
         0.22,
-        material(col, 1.3),
+        material(col, 0.12),
       );
   }
   // A planted, inhabited skyline. Footprints never cover a street, spawn, or exhibit.
@@ -401,11 +466,11 @@ export function createWorld(scene, graph, projects, hotspots) {
     surface("concrete", "#818e94", 1),
   ];
   const glass = new T.MeshStandardMaterial({
-    color: "#476574",
-    roughness: 0.19,
-    metalness: 0.65,
+    color: "#75817e",
+    roughness: 0.1,
+    metalness: 0.92,
   });
-  const windowMats = ["#e5b777", "#bdd4d3", "#e8d5af"].map((c) =>
+  const windowMats = ["#7b7565", "#7a807b", "#8a8372"].map((c) =>
     material(c, 0.03, 0.2),
   );
   const frames = material("#3b4545", 0, 0.45),
@@ -515,40 +580,23 @@ export function createWorld(scene, graph, projects, hotspots) {
       maxZ: p.z + 0.2,
     });
   }
-  const treeMesh = new T.InstancedMesh(
-    new T.IcosahedronGeometry(1, 2),
-    material("#63794b"),
-    trees.length * 7,
+  leafCanopies(
+    scene,
+    trees.map(({ p, h }) => ({ x: p.x, y: h + 0.8, z: p.z, radius: 2.5 })),
+    240,
   );
+  for (const { p } of trees) {
+    const bed = mesh(
+      new T.CircleGeometry(3.1, 24),
+      surface("soil", "#837763", 0.3),
+      scene,
+      p.x,
+      -0.035,
+      p.z,
+    );
+    bed.rotation.x = -Math.PI / 2;
+  }
   const dummy = new T.Object3D();
-  trees.forEach(({ p, h }, i) => {
-    for (let cluster = 0; cluster < 7; cluster++) {
-      const angle = cluster * 2.4,
-        spread = cluster === 0 ? 0 : 1.25;
-      dummy.position.set(
-        p.x + Math.cos(angle) * spread,
-        h + (cluster === 0 ? 1.5 : 0.1 + random()),
-        p.z + Math.sin(angle) * spread,
-      );
-      dummy.scale.set(
-        1.15 + random() * 0.45,
-        1.25 + random() * 0.6,
-        1.1 + random() * 0.5,
-      );
-      dummy.rotation.set(random(), random(), random());
-      dummy.updateMatrix();
-      treeMesh.setMatrixAt(i * 7 + cluster, dummy.matrix);
-      treeMesh.setColorAt(
-        i * 7 + cluster,
-        new T.Color().setHSL(
-          0.2 + random() * 0.04,
-          0.22 + random() * 0.15,
-          0.38 + random() * 0.16,
-        ),
-      );
-    }
-  });
-  dummy.rotation.set(0, 0, 0);
   const shadePixels = new Uint8Array(64 * 64 * 4);
   for (let y = 0; y < 64; y++)
     for (let x = 0; x < 64; x++) {
@@ -577,8 +625,7 @@ export function createWorld(scene, graph, projects, hotspots) {
   });
   scene.add(contact);
   dummy.rotation.set(0, 0, 0);
-  treeMesh.castShadow = true;
-  scene.add(treeMesh);
+
   for (const [mat, matrices] of batches) {
     const instanced = new T.InstancedMesh(boxGeo, mat, matrices.length);
     matrices.forEach((matrix, i) => instanced.setMatrixAt(i, matrix));
@@ -600,21 +647,22 @@ export function createWorld(scene, graph, projects, hotspots) {
     scene.add(light);
     return light;
   });
-  const sun = new T.DirectionalLight("#ffdfb5", 3.2);
+  const sun = new T.DirectionalLight("#fff0dd", 2.4);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(4096, 4096);
   Object.assign(sun.shadow.camera, {
-    left: -65,
-    right: 65,
-    top: 65,
-    bottom: -65,
+    left: -48,
+    right: 48,
+    top: 48,
+    bottom: -48,
     near: 1,
     far: 350,
   });
   sun.shadow.bias = -0.0004;
-  sun.shadow.normalBias = 0.07;
+  sun.shadow.normalBias = 0.035;
+  sun.shadow.radius = 3;
   scene.add(sun, sun.target);
-  const hemi = new T.HemisphereLight("#c0dcf0", "#777766", 1.8);
+  const hemi = new T.HemisphereLight("#d3e3f0", "#6e6b58", 0.4);
   scene.add(hemi);
   const sky = new T.Mesh(
     new T.SphereGeometry(1400, 32, 16),
@@ -628,8 +676,9 @@ export function createWorld(scene, graph, projects, hotspots) {
         "varying vec3 vPos; uniform float night; void main(){float h=normalize(vPos).y;vec3 top=mix(vec3(.25,.46,.68),vec3(.014,.028,.07),night);vec3 bottom=mix(vec3(.85,.79,.68),vec3(.03,.05,.08),night);vec3 c=mix(bottom,top,smoothstep(-.06,.6,h));float star=step(.9988,fract(sin(dot(floor(normalize(vPos).xz*950.),vec2(12.9898,78.233)))*43758.5453))*step(.16,h);gl_FragColor=vec4(c+star*night*.5,1.0);}",
     }),
   );
+  sky.visible = !scene.userData.photographicSky;
   scene.add(sky);
-  scene.fog = new T.FogExp2("#b1bcb9", 0.0022);
+  scene.fog = new T.FogExp2("#c4ced0", 0.0018);
   return {
     colliders,
     bounds,
@@ -637,13 +686,15 @@ export function createWorld(scene, graph, projects, hotspots) {
     buildingCount,
     setNight(night) {
       isNight = night;
-      scene.environmentIntensity = night ? 0.08 : 0.45;
-      sun.color.set(night ? "#b2c9ed" : "#ffdfb5");
+      sky.visible = night || !scene.userData.photographicSky;
+      scene.background = night ? null : scene.userData.photographicSky || null;
+      scene.environmentIntensity = night ? 0.12 : 0.85;
+      sun.color.set(night ? "#b2c9ed" : "#fff0dd");
       for (const mat of windowMats) mat.emissiveIntensity = night ? 1.35 : 0.03;
       sky.material.uniforms.night.value = night ? 1 : 0;
-      hemi.intensity = night ? 0.55 : 1.8;
-      sun.intensity = night ? 0.4 : 3.2;
-      scene.fog.color.set(night ? "#152638" : "#b1bcb9");
+      hemi.intensity = night ? 0.22 : 0.4;
+      sun.intensity = night ? 0.28 : 2.4;
+      scene.fog.color.set(night ? "#152638" : "#c4ced0");
     },
     update(t, camera, reduced) {
       sun.position.set(camera.position.x + 70, 140, camera.position.z + 60);
@@ -668,7 +719,7 @@ export function createWorld(scene, graph, projects, hotspots) {
         pulses.setMatrixAt(i, dummy.matrix);
       });
       pulses.instanceMatrix.needsUpdate = true;
-      pulses.visible = !reduced;
+      pulses.visible = isNight && !reduced;
     },
   };
 }

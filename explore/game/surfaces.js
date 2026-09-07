@@ -1,7 +1,40 @@
 import * as T from "three";
 
-// Small, deterministic textures, tiled in world meters instead of stretched over buildings.
-// Everything is generated locally: no image service, asset downloads, or API charges.
+// Local CC0 photographed maps, with deterministic offline fallbacks.
+const photographed = new Map();
+const pending = [];
+const flatNormal = new T.DataTexture(
+  new Uint8Array([128, 128, 255, 255]),
+  1,
+  1,
+);
+const flatRough = new T.DataTexture(new Uint8Array([230, 230, 230, 255]), 1, 1);
+flatNormal.needsUpdate = flatRough.needsUpdate = true;
+export async function loadPhotographicSurfaces() {
+  const loader = new T.TextureLoader();
+  await Promise.all(
+    ["asphalt", "brick", "concrete", "paving", "soil"].map(async (kind) => {
+      try {
+        const maps = await Promise.all(
+          ["diff", "nor_gl", "rough"].map(async (channel) => {
+            const tex = await loader.loadAsync(
+              `/explore/media/${kind}-${channel}.jpg`,
+            );
+            tex.wrapS = tex.wrapT = T.RepeatWrapping;
+            tex.anisotropy = 8;
+            tex.colorSpace =
+              channel === "diff" ? T.SRGBColorSpace : T.NoColorSpace;
+            return tex;
+          }),
+        );
+        photographed.set(kind, maps);
+      } catch (error) {
+        console.warn(`Using procedural ${kind} fallback.`, error);
+      }
+    }),
+  );
+  for (const apply of pending) apply();
+}
 export function surface(kind, color, scale = 1) {
   const size = 256,
     pixels = new Uint8Array(size * size * 4);
@@ -40,7 +73,23 @@ export function surface(kind, color, scale = 1) {
     map,
     roughness: kind === "asphalt" ? 0.97 : 0.88,
   });
+  const maps = { normal: flatNormal, rough: flatRough };
+  const apply = () => {
+    const set = photographed.get(kind);
+    if (!set) return;
+    mat.map = set[0];
+    maps.normal = set[1];
+    maps.rough = set[2];
+    mat.color
+      .set(color)
+      .lerp(new T.Color("white"), kind === "asphalt" ? 0.98 : 0.8);
+    mat.needsUpdate = true;
+  };
+  pending.push(apply);
+  apply();
   mat.onBeforeCompile = (shader) => {
+    shader.uniforms.surfaceNormalMap = { value: maps.normal };
+    shader.uniforms.surfaceRoughMap = { value: maps.rough };
     shader.uniforms.surfaceScale = { value: scale };
     shader.vertexShader =
       "varying vec3 vSurfacePosition;\n" + shader.vertexShader;
@@ -55,7 +104,7 @@ export function surface(kind, color, scale = 1) {
       #include <project_vertex>`,
     );
     shader.fragmentShader =
-      "varying vec3 vSurfacePosition; uniform float surfaceScale;\n" +
+      "varying vec3 vSurfacePosition; uniform float surfaceScale; uniform sampler2D surfaceNormalMap; uniform sampler2D surfaceRoughMap;\n" +
       shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace(
       "#include <map_fragment>",
@@ -69,7 +118,30 @@ export function surface(kind, color, scale = 1) {
                  + texture2D(map, surfaceUV.xy) * weights.z;
       diffuseColor *= texel;`,
     );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <roughnessmap_fragment>",
+      `
+      #include <roughnessmap_fragment>
+      float microRough = texture2D(surfaceRoughMap, surfaceUV.zy).r * weights.x
+        + texture2D(surfaceRoughMap, surfaceUV.xz).r * weights.y
+        + texture2D(surfaceRoughMap, surfaceUV.xy).r * weights.z;
+      roughnessFactor = clamp(microRough, .35, 1.0);
+    `,
+    );
+    shader.fragmentShader = shader.fragmentShader.replace(
+      "#include <normal_fragment_maps>",
+      `
+      #include <normal_fragment_maps>
+      vec3 sx = texture2D(surfaceNormalMap, surfaceUV.zy).xyz * 2.0 - 1.0;
+      vec3 sy = texture2D(surfaceNormalMap, surfaceUV.xz).xyz * 2.0 - 1.0;
+      vec3 sz = texture2D(surfaceNormalMap, surfaceUV.xy).xyz * 2.0 - 1.0;
+      vec3 wn = inverseTransformDirection(normal, viewMatrix);
+      vec3 detail = vec3(0., sx.y, sx.x) * weights.x
+        + vec3(sy.x, 0., sy.y) * weights.y + vec3(sz.x, sz.y, 0.) * weights.z;
+      normal = normalize(mat3(viewMatrix) * normalize(wn + detail * .55));
+    `,
+    );
   };
-  mat.customProgramCacheKey = () => "world-surface-v1";
+  mat.customProgramCacheKey = () => "photographic-world-surface-v2";
   return mat;
 }

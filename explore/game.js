@@ -1,4 +1,6 @@
 import * as T from "three";
+import { photographicEnvironment } from "./game/photographic.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
@@ -98,7 +100,7 @@ async function main() {
   renderer.shadowMap.type = T.PCFSoftShadowMap;
   renderer.outputColorSpace = T.SRGBColorSpace;
   renderer.toneMapping = T.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 0.95;
   const view = $("view");
   view.append(renderer.domElement);
   renderer.domElement.setAttribute(
@@ -113,7 +115,7 @@ async function main() {
     location.reload(),
   );
   const camera = new T.PerspectiveCamera(
-    68,
+    56,
     innerWidth / innerHeight,
     0.08,
     1900,
@@ -125,6 +127,7 @@ async function main() {
   scene.environmentIntensity = 0.45;
   environment.dispose();
   pmrem.dispose();
+  await photographicEnvironment(renderer, scene);
   const world = createWorld(scene, graph, projects, hotspots);
   const projectLabels = createProjectLabels(view, world, projects);
   const renderTarget = new T.WebGLRenderTarget(innerWidth, innerHeight, {
@@ -133,11 +136,20 @@ async function main() {
   });
   const composer = new EffectComposer(renderer, renderTarget);
   composer.addPass(new RenderPass(scene, camera));
+  const ao = new GTAOPass(scene, camera, innerWidth, innerHeight);
+  ao.blendIntensity = 0.65;
+  ao.updateGtaoMaterial({
+    radius: 1.4,
+    distanceExponent: 1.5,
+    thickness: 1,
+    samples: 8,
+  });
+  composer.addPass(ao);
   const bloom = new UnrealBloomPass(
     new T.Vector2(innerWidth / 2, innerHeight / 2),
-    0.3,
-    0.45,
-    1.05,
+    0.12,
+    0.35,
+    1.4,
   );
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -161,6 +173,12 @@ async function main() {
     renderer.setSize(innerWidth, innerHeight);
     composer.setPixelRatio(ratio);
     composer.setSize(innerWidth, innerHeight);
+    ao.setSize(
+      Math.ceil(innerWidth * ratio * 0.5),
+      Math.ceil(innerHeight * ratio * 0.5),
+    );
+    ao.enabled = settings.quality !== "low";
+    bloom.enabled = settings.quality === "high";
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
   }
@@ -168,6 +186,18 @@ async function main() {
   resize();
   world.setNight(settings.night);
 
+  let photoMode = false;
+  function setPhotoMode(enabled) {
+    photoMode = enabled;
+    document.body.classList.toggle("photo-mode", enabled);
+    $("exit-photo").hidden = !enabled;
+    if (enabled && document.pointerLockElement) document.exitPointerLock();
+    resetInput();
+  }
+  $("photo-button").addEventListener("click", () => {
+    if (playing) setPhotoMode(true);
+  });
+  $("exit-photo").addEventListener("click", () => setPhotoMode(false));
   let overviewId = null;
   let playing = false,
     paused = false,
@@ -359,6 +389,10 @@ async function main() {
     }
     if (anyDialog()) return;
     if (e.code === "Escape") {
+      if (photoMode) {
+        setPhotoMode(false);
+        return;
+      }
       if (overviewId) {
         setMonumentOverview(false);
         return;
@@ -367,6 +401,10 @@ async function main() {
       return;
     }
     if (!playing) return;
+    if (e.code === "KeyP" && !e.repeat) {
+      setPhotoMode(!photoMode);
+      return;
+    }
     if (e.code === "KeyV" && !e.repeat && nearby) {
       e.preventDefault();
       setMonumentOverview(!overviewId);
@@ -856,6 +894,8 @@ async function main() {
       frameCount++;
       if (frameSum >= 1) {
         fps = frameCount / frameSum;
+        $("performance").textContent =
+          `${Math.round(fps)} frames/s · ${settings.quality} graphics`;
         frameSum = frameCount = 0;
       }
     }
@@ -900,7 +940,7 @@ async function main() {
       }
     }
     const bob =
-      playing && !paused && grounded && !settings.reduced
+      playing && !paused && grounded && !settings.reduced && !photoMode
         ? Math.sin(walked * 2.7) *
           Math.min(0.035, Math.hypot(velocity.x, velocity.z) * 0.004)
         : 0;
@@ -920,7 +960,7 @@ async function main() {
     const desiredFov =
       playing && !settings.reduced && Math.hypot(velocity.x, velocity.z) > 10
         ? 75
-        : 68;
+        : 56;
     if (Math.abs(camera.fov - desiredFov) > 0.05) {
       camera.fov += (desiredFov - camera.fov) * (1 - Math.exp(-dt * 4));
       camera.updateProjectionMatrix();
@@ -930,7 +970,10 @@ async function main() {
       camera,
       settings.reduced || paused || document.hidden,
     );
-    projectLabels.update(camera, playing && !anyDialog() && !overviewId);
+    projectLabels.update(
+      camera,
+      playing && !anyDialog() && !overviewId && !photoMode,
+    );
     if (elapsed - lastHud > 0.12) {
       updateNearby();
       lastHud = elapsed;
@@ -940,7 +983,7 @@ async function main() {
       lastRoute = elapsed;
     }
     if (!document.hidden) {
-      if (settings.quality === "high") composer.render();
+      if (settings.quality !== "low") composer.render();
       else renderer.render(scene, camera);
     }
     requestAnimationFrame(frame);

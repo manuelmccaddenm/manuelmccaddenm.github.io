@@ -1,0 +1,4 @@
+Photographic sky and PBR materials: Poly Haven — https://polyhaven.com/
+All assets licensed CC0: https://polyhaven.com/license
+Exact asset pages, download URLs, and file sizes are listed in sources.json.
+Downloaded for local hosting; no live asset API or paid service is used.
