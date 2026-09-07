@@ -1,5 +1,6 @@
 import * as T from "three";
 import { kit } from "./monuments/kit.js";
+import { createGroundNetwork, GROUND_LEVELS } from "./ground-network.js";
 import { cityBlocks, localStreetLines } from "./city-blocks.js";
 import { modelTrees } from "./city-assets.js";
 import { masonryBuilding } from "./masonry-buildings.js";
@@ -94,9 +95,6 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
     ob.quaternion.setFromUnitVectors(UP, delta.normalize());
     return ob;
   }
-  function ring(parent, radius, tube, mat, x = 0, y = 0, z = 0) {
-    return mesh(new T.TorusGeometry(radius, tube, 8, 48), mat, parent, x, y, z);
-  }
   const bounds = {
     minX: -35,
     maxX: graph.bounds.w + 35,
@@ -115,29 +113,24 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
     surface("grass", "#aeb296", 0.95, 0.25, true),
     scene,
     250,
-    -0.05,
+    GROUND_LEVELS.terrain,
     -180,
   );
   ground.rotation.x = -Math.PI / 2;
-  const pavement = surface("paving", "#b8b5a6", 0.35),
-    asphalt = surface("asphalt", "#747873", 0.65, 0.15),
-    line = material("#d8cbb0");
+  const line = material("#d8cbb0");
   const lampPositions = [];
   for (const { a, b } of roads) {
     const length = distance(a, b),
-      yaw = Math.atan2(b.x - a.x, b.z - a.z),
-      x = (a.x + b.x) / 2,
-      z = (a.z + b.z) / 2;
-    box(x, 0.025, z, 13, 0.08, length + 3, pavement, yaw);
-    box(x, 0.08, z, 8.5, 0.06, length + 3, asphalt, yaw);
+      yaw = Math.atan2(b.x - a.x, b.z - a.z);
+
     for (let t = 3; t < length - 2; t += 7) {
       const k = t / length;
       box(
         a.x + (b.x - a.x) * k,
-        0.12,
+        GROUND_LEVELS.road + 0.004,
         a.z + (b.z - a.z) * k,
         0.13,
-        0.02,
+        0.005,
         2.4,
         line,
         yaw,
@@ -164,7 +157,7 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
           )
         )
           continue;
-        box(curb.x, 0.15, curb.z, 0.22, 0.2, 1.98, edge, yaw);
+        box(curb.x, 0.1, curb.z, 0.22, 0.12, 1.98, edge, yaw);
       }
     // Warm streetlamps and inset edge lights, no per-lamp shadow maps.
     const ux = (b.x - a.x) / length,
@@ -258,18 +251,6 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
       ["#64736e", "#b9b8ad", "#383f46", "#795e4e"][parked++ % 4],
     );
     colliders.push(footprint);
-  }
-  for (const n of graph.nodes) {
-    const p = worldPoint(n);
-    const disc = mesh(
-      new T.CircleGeometry(n.type === "road" ? 6 : 8, 24),
-      asphalt,
-      scene,
-      p.x,
-      0.11,
-      p.z,
-    );
-    disc.rotation.x = -Math.PI / 2;
   }
 
   // Every stop has a subject-specific model tied to the original public project description.
@@ -373,29 +354,12 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
     }
     // The original center is preferred; adjust only when it obstructs a street.
     const group = new T.Group();
-    group.position.set(center.x, 0.2, center.z);
+    group.position.set(
+      center.x,
+      isBridge || isUrban ? 0.2 : GROUND_LEVELS.paving,
+      center.z,
+    );
     scene.add(group);
-    const radius = 8.5;
-    if (!isBridge && !isUrban) {
-      const plinth = mesh(
-        new T.CylinderGeometry(radius, radius + 0.3, 0.26, 48),
-        stone,
-        group,
-        0,
-        0.03,
-        0,
-      );
-      const rim = ring(
-        group,
-        radius,
-        0.065,
-        material("#a8a498", 0, 0.4),
-        0,
-        0.2,
-        0,
-      );
-      rim.rotation.x = -Math.PI / 2;
-    }
     const facing = Math.atan2(origin.x - center.x, origin.z - center.z);
     const colliderStart = colliders.length;
     sculpture(p, group, col);
@@ -415,18 +379,8 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
       });
     }
     const entry = { x: origin.x, z: origin.z };
-    const marker = ring(
-      scene,
-      1.4,
-      0.08,
-      material(col, 0.18),
-      entry.x,
-      0.2,
-      entry.z,
-    );
-    marker.rotation.x = -Math.PI / 2;
     lots.set(id, { id, center, entry, group, color: col });
-    // Solid pedestal beneath the central exhibit (player stays on level streets/plazas).
+    // Exhibit footprints remain solid while their surrounding plazas are level.
     if (isBridge || isUrban) {
       const model = group.getObjectByName(`monument-${id}`);
       for (const footprint of model.userData.solidFootprints) {
@@ -473,28 +427,8 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
         maxZ: center.z + z,
       });
     }
-    const toward = { x: center.x - origin.x, z: center.z - origin.z };
-    const len = Math.hypot(toward.x, toward.z);
-    {
-      // A continuous pedestrian approach meets the actual street and the entrance apron.
-      const start = 3.5,
-        end = len - (isUrban ? 6.8 : radius - 0.3),
-        length = end - start;
-      if (length > 0) {
-        const mid = (start + end) / 2;
-        box(
-          origin.x + (toward.x / len) * mid,
-          0.105,
-          origin.z + (toward.z / len) * mid,
-          3.2,
-          0.09,
-          length,
-          stone,
-          facing,
-        );
-      }
-    }
   }
+
   const districts = districtLandmarks(scene, lots, roads, colliders, sign);
   const mapPoster = createMapPoster(
     scene,
@@ -506,6 +440,7 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
   );
   const blocks = cityBlocks(scene, roads, lots, districts, mapPoster, sign);
   mapPoster.userData.updateStreets(blocks.roads);
+  const groundNetwork = createGroundNetwork(scene, roads, blocks.roads, lots);
   const neighborhood = kit(scene, "neighborhood-buildings", sign);
   const neighborhoodBuildings = [];
   const reserved = (p, radius) =>
@@ -731,7 +666,7 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
       plantedSoil,
       scene,
       p.x,
-      street ? 0.1 : -0.035,
+      street ? 0.07 : GROUND_LEVELS.terrain + 0.003,
       p.z,
     );
     bed.rotation.x = -Math.PI / 2;
@@ -760,7 +695,7 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
     ...trees.map((t) => ({ p: t.p, size: 8 })),
     ...neighborhoodBuildings.map((b) => ({ p: b.position, size: 17 })),
   ].forEach(({ p, size }, i) => {
-    dummy.position.set(p.x, -0.025, p.z);
+    dummy.position.set(p.x, GROUND_LEVELS.terrain + 0.005, p.z);
     dummy.rotation.set(-Math.PI / 2, 0, 0);
     dummy.scale.set(size, size, 1);
     dummy.updateMatrix();
@@ -827,6 +762,7 @@ export function createWorld(scene, graph, projects, hotspots, assets = {}) {
     bounds,
     lots,
     buildingCount,
+    groundNetwork,
     neighborhoodBuildings,
     blocks,
     districts,

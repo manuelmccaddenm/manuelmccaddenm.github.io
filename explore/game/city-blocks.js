@@ -1,5 +1,4 @@
 import { kit, mat } from "./monuments/kit.js";
-import { surface } from "./surfaces.js";
 import { distance, segmentDistance } from "./navigation.js";
 
 export const localStreetLines = [
@@ -17,8 +16,6 @@ export function cityBlocks(scene, mainRoads, lots, districts, poster, sign) {
   const k = kit(scene, "neighborhood-streets", sign),
     roads = [],
     parcels = [];
-  const asphalt = surface("asphalt", "#747873", 0.65, 0.15);
-  const pavement = surface("plaster", "#aaa69a", 0.8, 0.12);
   const curb = mat("#a9a599"),
     joint = mat("#79786f"),
     iron = mat("#414744", 0, 0.35);
@@ -45,8 +42,6 @@ export function cityBlocks(scene, mainRoads, lots, districts, poster, sign) {
         continue;
       }
       if (!start) start = { x: line.a.x + ux * t, z: line.a.z + uz * t };
-      k.box(p.x, 0.025, p.z, 10, 0.12, 4, pavement, yaw);
-      k.box(p.x, 0.095, p.z, 6.1, 0.05, 4, asphalt, yaw);
       // Curbs and expansion joints stop at both original and local junctions.
       const junction =
         mainRoads.some((r) => segmentDistance(p, r.a, r.b) < 8) ||
@@ -57,10 +52,10 @@ export function cityBlocks(scene, mainRoads, lots, districts, poster, sign) {
         for (const side of [-1, 1]) {
           const x = p.x + uz * 3.2 * side,
             z = p.z - ux * 3.2 * side;
-          k.box(x, 0.19, z, 0.2, 0.23, 3.97, curb, yaw);
+          k.box(x, 0.1, z, 0.2, 0.12, 3.97, curb, yaw);
           k.box(
             p.x + uz * 4.1 * side,
-            0.091,
+            0.062,
             p.z - ux * 4.1 * side,
             1.6,
             0.007,
@@ -69,11 +64,11 @@ export function cityBlocks(scene, mainRoads, lots, districts, poster, sign) {
             yaw,
           );
           if (t % 32 === 0) {
-            k.box(x - uz * 0.27 * side, 0.125, z, 0.45, 0.02, 0.85, iron, yaw);
+            k.box(x - uz * 0.27 * side, 0.052, z, 0.45, 0.02, 0.85, iron, yaw);
             for (let v = -0.32; v < 0.4; v += 0.11)
               k.box(
                 x - uz * 0.27 * side + ux * v,
-                0.14,
+                0.064,
                 z + uz * v,
                 0.39,
                 0.014,

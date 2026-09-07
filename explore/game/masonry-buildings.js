@@ -140,7 +140,7 @@ export function masonryBuilding(k, source, position, yaw, kind, variant) {
   box(0, height + 0.59, -5.2, width, 0.45, 0.2, concrete);
   box(0, height + 0.59, 3.6, width, 0.45, 0.2, concrete);
   const doorX = -bays * 1.5 + Math.floor(bays / 2) * 3 + 1.5;
-  box(doorX, 0.13, 5.85, 2.15, 0.15, 4.5, concrete);
+  box(doorX, 0.045, 5.85, 2.15, 0.03, 4.5, concrete);
   const awning = technology || variant % 3 === 1;
   if (awning) {
     box(doorX, 2.95, 4.42, 3.1, 0.12, 1.4, iron);

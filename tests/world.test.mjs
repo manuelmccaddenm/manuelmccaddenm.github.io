@@ -482,3 +482,45 @@ test("the complete poster fits landscape, square and portrait viewports", () => 
     );
   }
 });
+
+test("joined road and pedestrian surfaces have no overlapping paving across carriageways", () => {
+  const { road, paving } = world.groundNetwork;
+  scene.updateMatrixWorld(true);
+  for (const segment of graph.roads) {
+    const a = worldPoint(graph.nodes.find((n) => n.id === segment.from));
+    const b = worldPoint(graph.nodes.find((n) => n.id === segment.to));
+    const length = distance(a, b);
+    for (let d = 0.25; d < length; d += 1.3) {
+      const t = d / length;
+      const ray = new T.Raycaster(
+        new T.Vector3(a.x + (b.x - a.x) * t, 3, a.z + (b.z - a.z) * t),
+        new T.Vector3(0, -1, 0),
+      );
+      assert.ok(
+        ray.intersectObject(road).length,
+        "continuous asphalt at road center",
+      );
+      assert.equal(
+        ray.intersectObject(paving).length,
+        0,
+        "no paving slab crosses asphalt",
+      );
+    }
+  }
+  for (const lot of world.lots.values()) {
+    assert.ok(
+      !lot.group.children.some(
+        (o) =>
+          o.geometry?.type === "CylinderGeometry" ||
+          o.geometry?.type === "TorusGeometry",
+      ),
+      "no generic raised base or metal rim",
+    );
+  }
+  for (const surface of [road, paving]) {
+    const p = surface.geometry.getAttribute("position");
+    for (let i = 0; i < p.count; i++)
+      assert.ok(Math.abs(p.getY(i)) < 0.0001, "ground mesh is level");
+    assert.ok(surface.position.y <= 0.061, "surface sits at grade");
+  }
+});

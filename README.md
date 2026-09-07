@@ -291,3 +291,23 @@ recessed rooms, tree scale and LOD switching, as well as all prior routes, favor
 monuments and the complete Mantis poster. This remains a real-time modeled city;
 it does not use offline path tracing, and it should not be described as fully
 photorealistic. No paid assets or service upgrades are introduced.
+
+## Connected streets and flush plazas
+
+`codex/continuous-streets` removes the overlapping paving pieces at angled road
+junctions and monument approaches. Road, sidewalk, path and plaza footprints are
+joined with polygon unions; road space is subtracted from pedestrian paving.
+The resulting two ground meshes have exact shared boundaries. Sidewalks and
+private front paths meet at the same level, with restrained expansion joints
+drawn in the surface instead of raised tiles.
+
+Generic circular monument plinths, metal rims and colored entry rings are removed.
+Exhibits now sit in connected plazas. The autoencoder bridge and integrated urban
+structures retain their purpose-built floors. The 25 sites, original road graph,
+navigation, buildings, trees and interpretation content are preserved.
+
+Validation: 32 automated tests, including actual raycasts along every original
+road to confirm asphalt coverage without overlapping paving, all 625 navigation
+pairs, and previous building/model/poster checks. Production build and browser
+inspection cover the completed paving. The existing free Render static service
+remains the deployment target; no paid assets or services are introduced.

@@ -336,7 +336,7 @@ export function neighborhoodBuilding(k, position, yaw, kind, variant) {
     for (const x of [1.7, 2.8, 4, 5.1]) shrub(x, 1.03, 4.95, 0.55);
   }
   // A continuous footpath reaches the sidewalk at the front of the parcel.
-  box(0, 0.15, 5.8, 2.2, 0.14, 5.8, stone);
+  box(0, 0.045, 5.8, 2.2, 0.03, 5.8, stone);
   return {
     footprint,
     kind: technology ? "technology" : "courtyard-house",
