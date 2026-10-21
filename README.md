@@ -38,22 +38,17 @@ Blender, or the old panorama image set. Font loading is optional with system fal
 The original panorama files and Blender scripts remain in source history/worktree for
 reference but are explicitly excluded from the deployment output.
 
-## Render
+## Deploy
 
-The repository contains a static-site Blueprint in `render.yaml`:
+The site is hosted on GitHub Pages at https://manuelmccaddenm.github.io/.
+`.github/workflows/pages.yml` runs on every push to `main`:
 
-- Branch: `codex/city-integrated-monuments`
-- Build: `npm ci --include=dev && npm run build`
+- Build: `npm ci --include=dev && npm test && npm run build`
 - Publish directory: `dist`
 - Playable route: `/explore/`
 
-In Render, create a Blueprint from this repository and select the task branch, or
-create a Static Site with the settings above. Render hosts the built browser game;
-the user's GPU renders the 3D scene. There is no server-side GPU requirement.
-Do not point the new service at `main`: that branch is an older portfolio version.
-After the task branch is merged, update the service's branch deliberately.
-
-Docs: https://render.com/docs/static-sites and https://render.com/docs/blueprint-spec
+Pages hosts the built browser game; the user's GPU renders the 3D scene. There is
+no server-side GPU requirement.
 
 ## Architecture and limits
 
@@ -80,8 +75,7 @@ mode, avoid overlapping each other, and hide behind solid buildings. Physical si
 textures use aspect-correct artwork up to 2048 pixels, sized to each sign. Night lights use a bounded pool of
 six nearby lamps. The newer photographic pass uses locally served CC0 assets alongside procedural materials, with no paid assets, map API, runtime image service, or server-side rendering.
 
-The existing Render Hobby static service remains the deployment target. Preserve
-its $0 build spending limit and do not add paid compute or a payment method.
+GitHub Pages is the only deployment target. Do not add paid compute or a payment method.
 
 The predator–prey stop contains two modeled foxes chasing six hopping rabbits in a grass habitat. This is an illustrative chase animation, not a numerical population simulation. Reduced motion keeps every animal visible in a stationary pose.
 
@@ -128,8 +122,8 @@ collisions are covered by an additional test.
 The previous city is preserved locally and on GitHub as the annotated tag
 `checkpoint-before-photo-realism`, pointing to commit
 `4e487b7b80c7f45e3824819a64e8a04bf3f76ecd` on `codex/autoencoder-bridge`.
-The realism pass is preserved on `codex/photographic-city`; restoring the prior
-Render branch selects the saved version without rewriting history.
+The realism pass is preserved in `main`'s history (commit `52780e0`); checking out
+the tag restores the saved version without rewriting history.
 
 The new renderer uses locally served photographed diffuse, normal and roughness
 maps for brick, concrete, pavement, asphalt and planted soil, plus a 2K HDR sky
@@ -219,7 +213,7 @@ Validation: 25 automated tests, including all 625 original stop-to-stop routes,
 road traversal, monument/public-space access, cable attachment and clearance,
 district placement, and the exact 25-site poster index and walking approach.
 Production build and desktop browser checks are required before deployment.
-Render remains the existing free static service; no paid assets, APIs or services
+GitHub Pages remains the free static host; no paid assets, APIs or services
 are introduced. This remains real-time browser rendering rather than an offline
 photographic render.
 
